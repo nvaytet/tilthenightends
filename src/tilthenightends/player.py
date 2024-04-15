@@ -25,6 +25,12 @@ class Player:
     ):
         self.x = 10
         self.y = 15
+        self.speed = 0.4
+
+    def move(self, dt: float):
+        self.x += self.speed * dt
+        self.y += self.speed * dt
+        # print(f"Player moved to {self.x}, {self.y}.")
 
     # def make_avatar(
     #     self,

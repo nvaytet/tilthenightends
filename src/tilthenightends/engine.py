@@ -105,7 +105,7 @@ class Engine:
 
         # zombie_image = Image.open(config.resources / "bat.png").convert("RGBA")
 
-        self.monsters = Monsters(n=200, kind="bat")
+        self.monsters = Monsters(n=2000, kind="bat")
         self.graphics.add(self.monsters.sprites)
         self.button = ipw.Button(description="Start!")
         self.button.on_click(self.run)
@@ -113,9 +113,13 @@ class Engine:
     def run(self, owner):
         import time
 
-        for i in range(10):
-            self.monsters.move(0.1)
-            time.sleep(0.01)
+        dt = 1.0 / config.fps
+
+        for i in range(1000):
+            for player in self.players:
+                player.move(dt)
+            self.monsters.move(dt, players=self.players)
+            time.sleep(dt)
 
     def display(self):
         return ipw.VBox([self.graphics.renderer, self.button])
