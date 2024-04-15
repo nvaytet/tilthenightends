@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tilthenightends"
+version = "0.1.0"
+description = "Land safely on the moon!"
+license = {text = "BSD-3-Clause"}
+authors = [{name = "Neil Vaytet"}]
+readme = "README.md"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Topic :: Games/Entertainment :: Turn Based Strategy",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Operating System :: OS Independent"
+]
+requires-python = ">=3.8"
+dependencies = [
+    "importlib-resources",
+    "matplotlib",
+    "numpy",
+    "pyglet >= 2.0.10",
+    "scipy"
+]
+
+[tool.setuptools.packages.find]
+where = ["./src"]
+
+[tool.setuptools.package-data]
+tilthenightends = ["resources/*.png"]
