@@ -1,5 +1,9 @@
+# SPDX-License-Identifier: BSD-3-Clause
+
 import pythreejs as p3
 import numpy as np
+
+from . import config
 
 
 class Monsters:
@@ -16,8 +20,15 @@ class Monsters:
         # Create a points material
         self.speed = 1.0
 
-        self.texture = p3.ImageTexture(imageUri=f"{kind}.png")
+        print(str(config.resources / f"{kind}.png"))
+        path = "../bat.png"
+
+        # self.texture = p3.ImageTexture(imageUri=str(config.resources / f"{kind}.png"))
+        self.texture = p3.ImageTexture(imageUri=path)
+        print(self.texture)
+        # self.texture = p3.ImageTexture(imageUri=f"tilthenightends/resources/{kind}.png")
         self.material = p3.PointsMaterial(size=2, map=self.texture, transparent=True)
+        # self.material = p3.PointsMaterial(size=2, color="black")
         # Combine the geometry and material into a Points object
         self.sprites = p3.Points(geometry=self.geometry, material=self.material)
 

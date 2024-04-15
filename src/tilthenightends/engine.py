@@ -105,7 +105,7 @@ class Engine:
 
         # zombie_image = Image.open(config.resources / "bat.png").convert("RGBA")
 
-        self.monsters = Monsters(n=20, kind="bat")
+        self.monsters = Monsters(n=200, kind="bat")
         self.graphics.add(self.monsters.sprites)
         self.button = ipw.Button(description="Start!")
         self.button.on_click(self.run)

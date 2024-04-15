@@ -3,9 +3,9 @@
 import importlib_resources as ir
 import numpy as np
 
-# import pyglet
-from matplotlib import font_manager
-from PIL import ImageFont
+# # import pyglet
+# from matplotlib import font_manager
+# from PIL import ImageFont
 
 
 # def get_screen_size():
@@ -18,7 +18,7 @@ class Config:
     def __init__(self):
         self.scoreboard_width = 200
         self.fps = 30
-        # self.resources = ir.files("tilthenightends") / "resources"
+        self.resources = ir.files("tilthenightends") / "resources"
         # # self.avatar_size = (25, 25)
         # # file = font_manager.findfont("sans")
         # # self.large_font = ImageFont.truetype(file, size=16)
