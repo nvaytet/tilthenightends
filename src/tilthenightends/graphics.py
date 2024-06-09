@@ -1,14 +1,10 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
-import datetime
-
-import numpy as np
 
 # import pyglet
 
 # from pyglet.gl import *
 import pythreejs as p3
-import ipywidgets as ipw
 
 # from . import config
 # from .terrain import Terrain
@@ -17,12 +13,11 @@ import ipywidgets as ipw
 
 class Graphics:
     def __init__(self):
-
         # Create the scene and the renderer
         view_width = 1000
         view_height = 800
         self.camera = p3.PerspectiveCamera(
-            position=[0, 0, 100], aspect=view_width / view_height
+            position=[0, 0, 100], aspect=view_width / view_height, near=0.001, far=10000
         )
         # camera = p3.OrthographicCamera(-10, 10, -10, 10, -1, 300)
         self.scene = p3.Scene(background="#DDDDDD")

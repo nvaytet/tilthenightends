@@ -8,11 +8,9 @@ from . import config
 
 
 class Monsters:
-
     def __init__(self, n, kind):
-
         self.positions = np.random.normal(scale=10, size=(n, 3)).astype("float32") * 5.0
-        self.positions[:, 2] = 0
+        self.positions[:, 2] = 0.0
         self.speed = 0.3
 
         # Create a position buffer geometry

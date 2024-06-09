@@ -1,14 +1,14 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
-from typing import Optional, Union
 
 import numpy as np
+import pythreejs as p3
 
 # # import pyglet
 # from matplotlib.colors import hex2color
-# from PIL import Image
+from PIL import Image
 
-# from . import config
+from . import config
 # from .tools import Instructions, image_to_sprite, recenter_image, text_to_raw_image
 
 
@@ -27,9 +27,41 @@ class Player:
         self.y = 15
         self.speed = 0.4
 
+        # Create a position buffer geometry
+        # self.geometry = p3.BufferGeometry(
+        #     attributes={
+        #         "position": p3.BufferAttribute(
+        #             array=np.array(
+        #                 [[self.x, self.y, 0.0], [self.x - 1.0, self.y - 1.0, 0.0]]
+        #             ).astype("float32")
+        #         )
+        #     }
+        # )
+
+        im = Image.open(config.resources / "pasqualina.png").convert("RGBA")
+        a = np.flipud(np.array(im).astype("float32")) / 255
+        self.texture = p3.DataTexture(data=a, format="RGBAFormat", type="FloatType")
+        # self.material = p3.PointsMaterial(size=2, map=self.texture, transparent=True)
+        # # Combine the geometry and material into a Points object
+        # self.avatar = p3.Points(geometry=self.geometry, material=self.material)
+
+        self.material = p3.SpriteMaterial(
+            map=self.texture,
+            transparent=True,
+        )
+        self.avatar = p3.Sprite(
+            material=self.material, position=[self.x, self.y, 0.0], scale=[1, 1, 1]
+        )
+        # scale=[size, size, size]
+        # )
+
     def move(self, dt: float):
         self.x += self.speed * dt
         self.y += self.speed * dt
+        # self.geometry.attributes["position"].array = np.array(
+        #     [[self.x, self.y, 0.0], [self.x - 1.0, self.y - 1.0, 0.0]]
+        # ).astype("float32")
+        self.avatar.position = [self.x, self.y, 0.0]
         # print(f"Player moved to {self.x}, {self.y}.")
 
     # def make_avatar(

@@ -1,16 +1,13 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 import time
-from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Optional
 
-import matplotlib.pyplot as plt
 import numpy as np
 import ipywidgets as ipw
 
 # import pyglet
 
-from PIL import Image
 
 # from pyglet.window import key
 
@@ -107,12 +104,14 @@ class Engine:
 
         self.monsters = Monsters(n=2000, kind="bat")
         self.graphics.add(self.monsters.sprites)
+
+        for player in self.players:
+            self.graphics.add(player.avatar)
+
         self.button = ipw.Button(description="Start!")
         self.button.on_click(self.run)
 
     def run(self, owner):
-        import time
-
         dt = 1.0 / config.fps
 
         for i in range(1000):
