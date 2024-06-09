@@ -102,8 +102,14 @@ class Engine:
 
         # zombie_image = Image.open(config.resources / "bat.png").convert("RGBA")
 
-        self.monsters = Monsters(n=2000, kind="bat")
-        self.graphics.add(self.monsters.sprites)
+        self.monsters = [
+            Monsters(n=2000, kind="bat", distance=40),
+            Monsters(n=2000, kind="rottingghoul", distance=60),
+            Monsters(n=500, kind="giantbat", distance=80),
+            Monsters(n=500, kind="thereaper", distance=100),
+        ]
+        for monster_group in self.monsters:
+            self.graphics.add(monster_group.sprites)
 
         for player in self.players:
             self.graphics.add(player.avatar)
@@ -117,7 +123,8 @@ class Engine:
         for i in range(1000):
             for player in self.players:
                 player.move(dt)
-            self.monsters.move(dt, players=self.players)
+            for monster_group in self.monsters:
+                monster_group.move(dt, players=self.players)
             time.sleep(dt)
 
     def display(self):

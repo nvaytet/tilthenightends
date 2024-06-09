@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 import importlib_resources as ir
-import numpy as np
 
 # # import pyglet
 # from matplotlib import font_manager
@@ -17,7 +16,7 @@ import numpy as np
 class Config:
     def __init__(self):
         self.scoreboard_width = 200
-        self.fps = 30
+        self.fps = 60
         self.resources = ir.files("tilthenightends") / "resources"
         # # self.avatar_size = (25, 25)
         # # file = font_manager.findfont("sans")

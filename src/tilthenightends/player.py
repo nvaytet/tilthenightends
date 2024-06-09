@@ -38,7 +38,7 @@ class Player:
         #     }
         # )
 
-        im = Image.open(config.resources / "pasqualina.png").convert("RGBA")
+        im = Image.open(config.resources / "heroes" / "pasqualina.png").convert("RGBA")
         a = np.flipud(np.array(im).astype("float32")) / 255
         self.texture = p3.DataTexture(data=a, format="RGBAFormat", type="FloatType")
         # self.material = p3.PointsMaterial(size=2, map=self.texture, transparent=True)
