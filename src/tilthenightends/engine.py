@@ -123,6 +123,12 @@ class Engine:
         for i in range(1000):
             for player in self.players:
                 player.move(dt)
+            # player center of mass
+            x, y = np.mean([[p.x, p.y] for p in self.players], axis=0)
+            self.graphics.camera.position = [x, y, self.graphics.camera.position[2]]
+            lookat = [x, y, 0]
+            self.graphics.controller.target = lookat
+            self.graphics.camera.lookAt(lookat)
             for monster_group in self.monsters:
                 monster_group.move(dt, players=self.players)
             time.sleep(dt)
