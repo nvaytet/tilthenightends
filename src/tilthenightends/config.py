@@ -18,6 +18,7 @@ class Config:
         self.scoreboard_width = 200
         self.fps = 60
         self.resources = ir.files("tilthenightends") / "resources"
+        self.scaling = 64.0 / 2.0
         # # self.avatar_size = (25, 25)
         # # file = font_manager.findfont("sans")
         # # self.large_font = ImageFont.truetype(file, size=16)

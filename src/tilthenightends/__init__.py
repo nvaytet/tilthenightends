@@ -13,4 +13,4 @@ from .engine import Engine
 
 def play(*args, **kwargs):
     eng = Engine(*args, **kwargs)
-    return eng.display()
+    return eng.run()

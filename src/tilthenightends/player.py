@@ -1,15 +1,17 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 
-import numpy as np
-import pythreejs as p3
+# import pythreejs as p3
 
 # # import pyglet
 # from matplotlib.colors import hex2color
-from PIL import Image
+
+# from .tools import Instructions, image_to_sprite, recenter_image, text_to_raw_image
+
+import numpy as np
 
 from . import config
-# from .tools import Instructions, image_to_sprite, recenter_image, text_to_raw_image
+from .graphics import make_sprites
 
 
 class Player:
@@ -25,7 +27,7 @@ class Player:
     ):
         self.x = 10
         self.y = 15
-        self.speed = 0.4
+        self.speed = 5.0 * config.scaling
 
         # Create a position buffer geometry
         # self.geometry = p3.BufferGeometry(
@@ -38,22 +40,26 @@ class Player:
         #     }
         # )
 
-        im = Image.open(config.resources / "heroes" / "pasqualina.png").convert("RGBA")
-        a = np.flipud(np.array(im).astype("float32")) / 255
-        self.texture = p3.DataTexture(data=a, format="RGBAFormat", type="FloatType")
-        # self.material = p3.PointsMaterial(size=2, map=self.texture, transparent=True)
-        # # Combine the geometry and material into a Points object
-        # self.avatar = p3.Points(geometry=self.geometry, material=self.material)
+        # im = Image.open(config.resources / "heroes" / "pasqualina.png").convert("RGBA")
+        # a = np.flipud(np.array(im).astype("float32")) / 255
+        # self.texture = p3.DataTexture(data=a, format="RGBAFormat", type="FloatType")
+        # # self.material = p3.PointsMaterial(size=2, map=self.texture, transparent=True)
+        # # # Combine the geometry and material into a Points object
+        # # self.avatar = p3.Points(geometry=self.geometry, material=self.material)
 
-        self.material = p3.SpriteMaterial(
-            map=self.texture,
-            transparent=True,
-        )
-        self.avatar = p3.Sprite(
-            material=self.material, position=[self.x, self.y, 0.0], scale=[1, 1, 1]
-        )
-        # scale=[size, size, size]
+        # self.material = p3.SpriteMaterial(
+        #     map=self.texture,
+        #     transparent=True,
         # )
+        # self.avatar = p3.Sprite(
+        #     material=self.material, position=[self.x, self.y, 0.0], scale=[1, 1, 1]
+        # )
+        # # scale=[size, size, size]
+        # # )
+        self.avatar = make_sprites(
+            sprite_path=config.resources / "heroes" / "pasqualina.png",
+            positions=np.array([[self.x, self.y]]),
+        )
 
     def move(self, dt: float):
         self.x += self.speed * dt
@@ -61,8 +67,9 @@ class Player:
         # self.geometry.attributes["position"].array = np.array(
         #     [[self.x, self.y, 0.0], [self.x - 1.0, self.y - 1.0, 0.0]]
         # ).astype("float32")
-        self.avatar.position = [self.x, self.y, 0.0]
+        # self.avatar.position = [self.x, self.y, 0.0]
         # print(f"Player moved to {self.x}, {self.y}.")
+        self.avatar.setData(pos=np.array([[self.x, self.y]]))
 
     # def make_avatar(
     #     self,

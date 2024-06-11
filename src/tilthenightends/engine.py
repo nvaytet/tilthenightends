@@ -1,20 +1,19 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
-import time
 from typing import Optional
 
 import numpy as np
-import ipywidgets as ipw
 
 # import pyglet
 
+import pyqtgraph as pg
+from pyqtgraph.Qt import QtCore
 
 # from pyglet.window import key
 
 
-from . import config
-
 # from .asteroid import Asteroid
+from . import config
 from .graphics import Graphics
 from .player import Player
 from .monsters import Monsters
@@ -76,6 +75,8 @@ class Engine:
         if seed is not None:
             np.random.seed(seed)
 
+        self.graphics = Graphics()
+
         self.players = [Player()]
 
         # self.nx = config.nx
@@ -95,7 +96,6 @@ class Engine:
         # self.scale = 1.0
 
         # self.game_map = Terrain()
-        self.graphics = Graphics()
 
         # self.key_state_handler = key.KeyStateHandler()
         # self.graphics.window.push_handlers(self.key_state_handler)
@@ -103,35 +103,76 @@ class Engine:
         # zombie_image = Image.open(config.resources / "bat.png").convert("RGBA")
 
         self.monsters = [
-            Monsters(n=2000, kind="bat", distance=40),
-            Monsters(n=2000, kind="rottingghoul", distance=60),
-            Monsters(n=500, kind="giantbat", distance=80),
-            Monsters(n=500, kind="thereaper", distance=100),
+            Monsters(n=2000, kind="bat", distance=400.0, scale=100),
+            Monsters(n=2000, kind="rottingghoul", distance=600, scale=100),
+            Monsters(n=500, kind="giantbat", distance=800, scale=100),
+            Monsters(n=500, kind="thereaper", distance=1000, scale=100),
         ]
-        for monster_group in self.monsters:
-            self.graphics.add(monster_group.sprites)
+        for horde in self.monsters:
+            self.graphics.add(horde.sprites)
 
         for player in self.players:
             self.graphics.add(player.avatar)
 
-        self.button = ipw.Button(description="Start!")
-        self.button.on_click(self.run)
+        # self.start_button = ipw.Button(description="Start!")
+        # self.start_button.on_click(self.run)
 
-    def run(self, owner):
-        dt = 1.0 / config.fps
+        # self.camera_lock = ipw.ToggleButton(
+        #     icon="lock",
+        #     tooltip="Lock camera",
+        #     value=True,
+        #     layout={"width": "40px"},
+        # )
+        # # self.camera_lock.observe(self.toggle_camera_lock, names="value")
 
-        for i in range(1000):
-            for player in self.players:
-                player.move(dt)
-            # player center of mass
-            x, y = np.mean([[p.x, p.y] for p in self.players], axis=0)
-            self.graphics.camera.position = [x, y, self.graphics.camera.position[2]]
-            lookat = [x, y, 0]
-            self.graphics.controller.target = lookat
-            self.graphics.camera.lookAt(lookat)
-            for monster_group in self.monsters:
-                monster_group.move(dt, players=self.players)
-            time.sleep(dt)
+        # self.toolbar = ipw.HBox([self.start_button, self.camera_lock])
 
-    def display(self):
-        return ipw.VBox([self.graphics.renderer, self.button])
+        self.dt = 1.0 / config.fps
+
+    def update(self):
+        for player in self.players:
+            player.move(self.dt)
+        # if self.camera_lock.value:
+        #     # player center of mass
+        #     x, y = np.mean([[p.x, p.y] for p in self.players], axis=0)
+        #     self.graphics.camera.position = [x, y, self.graphics.camera.position[2]]
+        #     lookat = [x, y, 0]
+        #     self.graphics.controller.target = lookat
+        #     self.graphics.camera.lookAt(lookat)
+        for horde in self.monsters:
+            horde.move(self.dt, players=self.players)
+
+        # self.graphics.update()
+
+    def run(self):
+        timer = QtCore.QTimer()
+        timer.timeout.connect(self.update)
+        timer.start(33)
+        pg.exec()
+
+    #     self.streaming_task = asyncio.create_task(self.loop())
+
+    # async def async_range(self, count):
+    #     # dt = 1.0 / config.fps
+    #     for i in range(count):
+    #         yield (i)
+    #         await asyncio.sleep(self.dt * 0.1)
+
+    # async def loop(self):
+    #     # dt = 1.0 / config.fps
+    #     async for i in self.async_range(1000):
+    #         for player in self.players:
+    #             player.move(self.dt)
+    #         if self.camera_lock.value:
+    #             # player center of mass
+    #             x, y = np.mean([[p.x, p.y] for p in self.players], axis=0)
+    #             self.graphics.camera.position = [x, y, self.graphics.camera.position[2]]
+    #             lookat = [x, y, 0]
+    #             self.graphics.controller.target = lookat
+    #             self.graphics.camera.lookAt(lookat)
+    #         for monster_group in self.monsters:
+    #             monster_group.move(self.dt, players=self.players)
+    #         # time.sleep(dt)
+
+    # def display(self):
+    #     return ipw.VBox([self.graphics.renderer, self.toolbar])
