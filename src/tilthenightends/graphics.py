@@ -48,6 +48,7 @@ class Graphics:
         self.monsters = {}
         self.heroes = {}
 
+        self.canvas.getViewBox().setAspectLocked(True)
         self.canvas.hideAxis("left")
         self.canvas.hideAxis("bottom")
         self.canvas.hideAxis("right")
