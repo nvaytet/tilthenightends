@@ -12,12 +12,14 @@ import numpy as np
 
 from . import config
 from .graphics import make_sprites
+from .weapons import arsenal
 
 
 class Player:
     def __init__(
         self,
         vector: np.ndarray,
+        weapon: str,
         # number: int,
         # name: str,
         # color: str,
@@ -26,11 +28,13 @@ class Player:
         # back_batch: pyglet.graphics.Batch,
         # main_batch: pyglet.graphics.Batch,
     ):
-        self.x = 10
-        self.y = 15
+        self.x = 0
+        self.y = 0
         self.speed = 5.0 * config.scaling
         self.vector = vector
-        self.health = 100
+        self.health = 100.0
+        self.defense = 0.0
+        self.weapon = arsenal[weapon.lower()]()
 
         # Create a position buffer geometry
         # self.geometry = p3.BufferGeometry(

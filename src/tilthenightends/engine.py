@@ -82,8 +82,8 @@ class Engine:
         v2 = np.array([0.9, 1.0])
 
         self.players = [
-            Player(vector=v1 / np.linalg.norm(v1)),
-            Player(vector=v2 / np.linalg.norm(v2)),
+            Player(vector=v1 / np.linalg.norm(v1), weapon="runetracer"),
+            Player(vector=v2 / np.linalg.norm(v2), weapon="runetracer"),
         ]
 
         if self._manual:
@@ -123,6 +123,8 @@ class Engine:
 
         for player in self.players:
             self.graphics.add(player.avatar)
+            self.graphics.add(player.weapon.sprites)
+            player.weapon.fire(0, 0, 0)
 
         # self.start_button = ipw.Button(description="Start!")
         # self.start_button.on_click(self.run)
@@ -155,6 +157,7 @@ class Engine:
     def update(self):
         for player in self.players:
             player.move(self.dt)
+            player.weapon.update(self.dt)
         # if self.camera_lock.value:
         #     # player center of mass
         #     x, y = np.mean([[p.x, p.y] for p in self.players], axis=0)
