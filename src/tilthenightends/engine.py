@@ -66,7 +66,7 @@ class Engine:
         # test: bool = True,
         seed: Optional[int] = None,
         # fullscreen: bool = False,
-        # manual: bool = False,
+        manual: bool = False,
         # crater_scaling: float = 1.0,
         # player_collisions: bool = True,
         # asteroid_collisions: bool = True,
@@ -74,8 +74,9 @@ class Engine:
     ):
         if seed is not None:
             np.random.seed(seed)
+        self._manual = manual
 
-        self.graphics = Graphics()
+        self.graphics = Graphics(manual=manual)
 
         v1 = np.array([1.0, 1.0])
         v2 = np.array([0.9, 1.0])
@@ -84,6 +85,9 @@ class Engine:
             Player(vector=v1 / np.linalg.norm(v1)),
             Player(vector=v2 / np.linalg.norm(v2)),
         ]
+
+        if self._manual:
+            self.graphics.set_hero(self.players[0])
 
         # self.nx = config.nx
         # self.ny = config.ny
@@ -166,7 +170,8 @@ class Engine:
         # # Set camera position to player center of mass
         # x, y = np.mean([[p.x, p.y] for p in self.players], axis=0)
 
-        # self.graphics.update()
+        if self._manual:
+            self.graphics.update()
 
     def run(self):
         timer = QtCore.QTimer()

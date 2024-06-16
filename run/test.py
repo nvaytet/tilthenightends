@@ -10,7 +10,7 @@ import tilthenightends as tne
 
 tne.play(
     # bots=[],  # List of bots to use
-    # manual=True,  # Set to True to play manually using the keyboard arrow keys
+    manual=True,  # Set to True to play manually using the keyboard arrow keys
     # crater_scaling=1.0,  # Artificially increase the size of craters
     # player_collisions=True,  # Set to False to disable collisions between players
     # asteroid_collisions=True,  # Set to False to disable being destroyed by asteroids

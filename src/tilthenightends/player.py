@@ -30,6 +30,7 @@ class Player:
         self.y = 15
         self.speed = 5.0 * config.scaling
         self.vector = vector
+        self.health = 100
 
         # Create a position buffer geometry
         # self.geometry = p3.BufferGeometry(
@@ -63,6 +64,10 @@ class Player:
             positions=np.array([[self.x, self.y]]),
         )
 
+    @property
+    def alive(self) -> bool:
+        return self.health > 0
+
     def move(self, dt: float):
         self.x += self.speed * dt * self.vector[0]
         self.y += self.speed * dt * self.vector[1]
@@ -76,6 +81,17 @@ class Player:
     @property
     def position(self) -> np.ndarray:
         return np.array([[self.x, self.y]])
+
+    @property
+    def vector(self) -> np.ndarray:
+        return self._vector
+
+    @vector.setter
+    def vector(self, value: np.ndarray):
+        self._vector = value
+        norm = np.linalg.norm(value)
+        if norm > 0.0:
+            self._vector = self._vector / norm
 
     # def make_avatar(
     #     self,
