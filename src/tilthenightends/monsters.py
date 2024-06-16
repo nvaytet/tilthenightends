@@ -10,13 +10,17 @@ class Monsters:
     def __init__(self, n, kind, distance, scale=10.0):
         # Create positions in a ring that has a gaussian profile in radius which peaks
         # at distance
-        r = np.random.normal(
-            scale=scale * config.scaling, loc=distance * config.scaling, size=n
-        )
-        theta = np.random.uniform(0, 2 * np.pi, n)
-        self.positions = np.zeros((n, 2), dtype="float32")
-        self.positions[:, 0] = r * np.cos(theta)
-        self.positions[:, 1] = r * np.sin(theta)
+        # r = np.random.normal(
+        #     scale=scale * config.scaling, loc=distance * config.scaling, size=n
+        # )
+        # theta = np.random.uniform(0, 2 * np.pi, n)
+        # self.positions = np.zeros((n, 2), dtype="float32")
+        # self.positions[:, 0] = r * np.cos(theta)
+        # self.positions[:, 1] = r * np.sin(theta)
+
+        self.distance = distance
+        self.scale = scale
+        self.positions = self.make_positions(n)
 
         # self.positions = np.random.normal(scale=10, size=(n, 3)).astype("float32") * 5.0
         # self.positions[:, 2] = 0.0
@@ -41,6 +45,20 @@ class Monsters:
         # )
         # # Combine the geometry and material into a Points object
         # self.sprites = p3.Points(geometry=self.geometry, material=self.material)
+
+    def make_positions(self, n, offset=None):
+        r = np.random.normal(
+            scale=self.scale * config.scaling,
+            loc=self.distance * config.scaling,
+            size=n,
+        )
+        theta = np.random.uniform(0, 2 * np.pi, n)
+        positions = np.zeros((n, 2), dtype="float32")
+        positions[:, 0] = r * np.cos(theta)
+        positions[:, 1] = r * np.sin(theta)
+        if offset is not None:
+            positions += offset
+        return positions
 
     @property
     def x(self):

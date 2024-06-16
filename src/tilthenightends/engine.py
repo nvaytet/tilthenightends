@@ -129,6 +129,19 @@ class Engine:
 
         self.dt = 1.0 / config.fps
 
+    def fight(self):
+        # Compute distances between players and monsters. If any monster is within 5
+        # pixels of a hero, the monster is destroyed.
+        for player in self.players:
+            for horde in self.monsters:
+                distances = np.linalg.norm(player.position - horde.positions, axis=1)
+                inds = np.where(distances < config.hit_radius * config.scaling)[0]
+                ndead = len(inds)
+                if ndead > 0:
+                    horde.positions[inds, :] = horde.make_positions(
+                        ndead, offset=player.position
+                    )
+
     def update(self):
         for player in self.players:
             player.move(self.dt)
@@ -141,6 +154,8 @@ class Engine:
         #     self.graphics.camera.lookAt(lookat)
         for horde in self.monsters:
             horde.move(self.dt, players=self.players)
+
+        self.fight()
 
         # self.graphics.update()
 

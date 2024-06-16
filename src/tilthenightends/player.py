@@ -71,6 +71,10 @@ class Player:
         # print(f"Player moved to {self.x}, {self.y}.")
         self.avatar.setData(pos=np.array([[self.x, self.y]]))
 
+    @property
+    def position(self) -> np.ndarray:
+        return np.array([[self.x, self.y]])
+
     # def make_avatar(
     #     self,
     #     avatar: Union[int, str],
