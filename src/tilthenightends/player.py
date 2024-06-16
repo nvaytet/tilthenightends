@@ -17,6 +17,7 @@ from .graphics import make_sprites
 class Player:
     def __init__(
         self,
+        vector: np.ndarray,
         # number: int,
         # name: str,
         # color: str,
@@ -28,6 +29,7 @@ class Player:
         self.x = 10
         self.y = 15
         self.speed = 5.0 * config.scaling
+        self.vector = vector
 
         # Create a position buffer geometry
         # self.geometry = p3.BufferGeometry(
@@ -62,8 +64,8 @@ class Player:
         )
 
     def move(self, dt: float):
-        self.x += self.speed * dt
-        self.y += self.speed * dt
+        self.x += self.speed * dt * self.vector[0]
+        self.y += self.speed * dt * self.vector[1]
         # self.geometry.attributes["position"].array = np.array(
         #     [[self.x, self.y, 0.0], [self.x - 1.0, self.y - 1.0, 0.0]]
         # ).astype("float32")

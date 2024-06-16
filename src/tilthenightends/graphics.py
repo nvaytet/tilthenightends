@@ -41,7 +41,7 @@ def make_sprites(sprite_path, positions):
 
 class Graphics:
     def __init__(self):
-        self.app = pg.mkQApp("ScatterPlot")
+        self.app = pg.mkQApp("Til the Night Ends")
         self.window = pg.GraphicsLayoutWidget()
         self.window.setBackground("#808080")
         self.canvas = self.window.addPlot()

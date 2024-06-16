@@ -77,7 +77,13 @@ class Engine:
 
         self.graphics = Graphics()
 
-        self.players = [Player()]
+        v1 = np.array([1.0, 1.0])
+        v2 = np.array([0.9, 1.0])
+
+        self.players = [
+            Player(vector=v1 / np.linalg.norm(v1)),
+            Player(vector=v2 / np.linalg.norm(v2)),
+        ]
 
         # self.nx = config.nx
         # self.ny = config.ny
@@ -156,6 +162,9 @@ class Engine:
             horde.move(self.dt, players=self.players)
 
         self.fight()
+
+        # # Set camera position to player center of mass
+        # x, y = np.mean([[p.x, p.y] for p in self.players], axis=0)
 
         # self.graphics.update()
 
