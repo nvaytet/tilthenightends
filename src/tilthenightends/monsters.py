@@ -6,8 +6,16 @@ from . import config
 from .graphics import make_sprites
 
 
+bestiary = {
+    "bat": {"health": 10.0, "attack": 5.0, "speed": 4.0},
+    "rottingghoul": {"health": 20.0, "attack": 10.0, "speed": 3.5},
+    "giantbat": {"health": 60.0, "attack": 40.0, "speed": 4.0},
+    "thereaper": {"health": 150.0, "attack": 50.0, "speed": 3.0},
+}
+
+
 class Monsters:
-    def __init__(self, n, kind, distance, scale=10.0):
+    def __init__(self, size, kind, distance, scale=10.0):
         # Create positions in a ring that has a gaussian profile in radius which peaks
         # at distance
         # r = np.random.normal(
@@ -18,9 +26,12 @@ class Monsters:
         # self.positions[:, 0] = r * np.cos(theta)
         # self.positions[:, 1] = r * np.sin(theta)
 
+        self.size = size
         self.distance = distance
         self.scale = scale
-        self.positions = self.make_positions(n)
+        self.positions = self.make_positions(self.size)
+        self.healths = np.full(self.size, bestiary[kind]["health"])
+        self.attacks = np.full(self.size, bestiary[kind]["attack"])
 
         # self.positions = np.random.normal(scale=10, size=(n, 3)).astype("float32") * 5.0
         # self.positions[:, 2] = 0.0

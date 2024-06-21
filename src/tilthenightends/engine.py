@@ -113,10 +113,10 @@ class Engine:
         # zombie_image = Image.open(config.resources / "bat.png").convert("RGBA")
 
         self.monsters = [
-            Monsters(n=2000, kind="bat", distance=400.0, scale=100),
-            Monsters(n=2000, kind="rottingghoul", distance=600, scale=100),
-            Monsters(n=500, kind="giantbat", distance=800, scale=100),
-            Monsters(n=500, kind="thereaper", distance=1000, scale=100),
+            Monsters(size=2000, kind="bat", distance=400.0, scale=100),
+            Monsters(size=2000, kind="rottingghoul", distance=600, scale=100),
+            Monsters(size=500, kind="giantbat", distance=800, scale=100),
+            Monsters(size=500, kind="thereaper", distance=1000, scale=100),
         ]
         for horde in self.monsters:
             self.graphics.add(horde.sprites)
@@ -124,7 +124,7 @@ class Engine:
         for player in self.players:
             self.graphics.add(player.avatar)
             self.graphics.add(player.weapon.sprites)
-            player.weapon.fire(0, 0, 0)
+            # player.weapon.fire(0, 0, 0)
 
         # self.start_button = ipw.Button(description="Start!")
         # self.start_button.on_click(self.run)
@@ -142,21 +142,135 @@ class Engine:
         self.dt = 1.0 / config.fps
 
     def fight(self):
-        # Compute distances between players and monsters. If any monster is within 5
-        # pixels of a hero, the monster is destroyed.
+        # # Compute distances between players and monsters. If any monster is within 5
+        # # pixels of a hero, the monster is destroyed.
+        # for player in self.players:
+        #     for horde in self.monsters:
+        #         distances = np.linalg.norm(player.position - horde.positions, axis=1)
+        #         inds = np.where(distances < config.hit_radius * config.scaling)[0]
+        #         ndead = len(inds)
+        #         if ndead > 0:
+        #             horde.positions[inds, :] = horde.make_positions(
+        #                 ndead, offset=player.position
+        #             )
+
+        # Make a list of all the players and the projectiles their weapon has fired.
+        # Then make a list of all the monsters from all the hordes.
+        # Compute a matrix of distances between (players + projectiles) and monsters.
+        # If any monster is within 5 pixels of a projectile, the monster takes damage
+        # equal to the projectile's damage. If the monster's health is less than or equal
+        # to zero, the monster is destroyed.
+        # If any monster is within 5 pixels of a player, the player takes damage equal to
+        # the monster's damage. If the player's health is less than or equal to zero, the
+        # player is destroyed.
+        # Combine all monster positions, healths, and attacks
+        evil_positions = np.concatenate([horde.positions for horde in self.monsters])
+        evil_healths = np.concatenate([horde.healths for horde in self.monsters])
+        evil_attacks = np.concatenate([horde.attacks for horde in self.monsters])
+
+        # Combine all hero and projectile positions
+        players_and_projectiles = self.players + [
+            proj for player in self.players for proj in player.weapon.projectiles
+        ]
+        good_positions = np.concatenate(
+            [pp.position.reshape(1, 2) for pp in players_and_projectiles]
+        )
+        good_healths = np.array([pp.health for pp in players_and_projectiles])
+        good_attacks = np.array([pp.attack for pp in players_and_projectiles])
+        #     [player.position.reshape(1, 2) for player in self.players]
+        # )
+        # projectile_positions = np.concatenate(
+        #     [
+        #         proj.position.reshape(1, 2)
+        #         for player in self.players
+        #         for proj in player.weapon.projectiles
+        #     ]
+        # )
+        # good_positions = np.concatenate([player_positions, projectile_positions])
+        # good_healths = np.concatenate(
+        #     [player.health for player in self.players]
+        #     + [
+        #         proj.health
+        #         for player in self.players
+        #         for proj in player.weapon.projectiles
+        #     ]
+        # )
+        # good_attacks = np.concatenate(
+        #     [player.attack for player in self.players]
+        #     + [
+        #         proj.attack
+        #         for player in self.players
+        #         for proj in player.weapon.projectiles
+        #     ]
+        # )
+
+        # print("good_positions.shape", good_positions.shape)
+
+        # print((evil_positions[:, np.newaxis] - good_positions[np.newaxis, :]).shape)
+
+        # Compute pairwise distances
+        distances = np.linalg.norm(
+            evil_positions[:, np.newaxis, :] - good_positions[np.newaxis, :, :], axis=2
+        )
+
+        # distances = np.linalg.norm(
+        #     evil_positions[, np.newaxis] - good_positions[np.newaxis, :],
+        #     axis=2,
+        # )
+
+        # Find indices where distances are less than 5
+        # evil_indices, good_indices = np.where(distances < 5)
+        mask = (distances < config.hit_radius * config.scaling).astype(int)
+        monster_damage = np.broadcast_to(good_attacks.reshape(1, -1), mask.shape) * mask
+        player_damage = np.broadcast_to(evil_attacks.reshape(-1, 1), mask.shape) * mask
+        evil_healths -= monster_damage.sum(axis=1)
+        good_healths -= player_damage.sum(axis=0)
+
+        for pp, health in zip(players_and_projectiles, good_healths):
+            pp.health = health
+            # if pp.health <= 0:
+            #     pp.die()
         for player in self.players:
-            for horde in self.monsters:
-                distances = np.linalg.norm(player.position - horde.positions, axis=1)
-                inds = np.where(distances < config.hit_radius * config.scaling)[0]
-                ndead = len(inds)
-                if ndead > 0:
-                    horde.positions[inds, :] = horde.make_positions(
-                        ndead, offset=player.position
-                    )
+            if player.health <= 0:
+                player.die()
+            player.weapon.projectiles = [
+                proj for proj in player.weapon.projectiles if proj.health > 0
+            ]
+
+        for i, horde in enumerate(self.monsters):
+            horde.healths = evil_healths[i * horde.size : (i + 1) * horde.size]
+            inds = np.where(horde.healths <= 0)[0]
+            ndead = len(inds)
+            if ndead > 0:
+                horde.positions[inds, :] = horde.make_positions(
+                    ndead, offset=player.position
+                )
+
+        # if len(evil_indices) > 0:
+        #     print("distances.shape", distances.shape)
+        #     print("evil_indices", evil_indices)
+        #     print("good_indices", good_indices)
+        #     # Resolve damage
+        #     # Deduct health from monsters
+
+        return
+
+        good_troops = np.concatenate(
+            [
+                np.array([p.position for p in self.players]),
+                *[p.weapon.positions[: p.weapon.nprojectiles] for p in self.players],
+            ]
+        )
+        bad_troops = np.concatenate([m.positions for m in self.monsters])
+        print(good_troops.shape, bad_troops.shape)
+        assert False
 
     def update(self):
+        t = self.elapsed_timer.elapsed() / 1000.0
         for player in self.players:
             player.move(self.dt)
+            if t > player.weapon.timer:
+                player.weapon.fire(player.position, t)
             player.weapon.update(self.dt)
         # if self.camera_lock.value:
         #     # player center of mass
@@ -178,8 +292,11 @@ class Engine:
 
     def run(self):
         timer = QtCore.QTimer()
+        self.elapsed_timer = QtCore.QElapsedTimer()
         timer.timeout.connect(self.update)
         timer.start(33)
+        # timer.start(330)
+        self.elapsed_timer.start()
         pg.exec()
 
     #     self.streaming_task = asyncio.create_task(self.loop())

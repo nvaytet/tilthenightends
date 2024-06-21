@@ -35,6 +35,7 @@ class Player:
         self.health = 100.0
         self.defense = 0.0
         self.weapon = arsenal[weapon.lower()]()
+        self.attack = 0.0
 
         # Create a position buffer geometry
         # self.geometry = p3.BufferGeometry(
@@ -84,7 +85,7 @@ class Player:
 
     @property
     def position(self) -> np.ndarray:
-        return np.array([[self.x, self.y]])
+        return np.array([self.x, self.y])
 
     @property
     def vector(self) -> np.ndarray:
