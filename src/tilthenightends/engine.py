@@ -9,6 +9,14 @@ import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
 
+try:
+    # import vlc
+    from playsound import playsound
+    from pygame import mixer  # Load the popular external library
+except ImportError:
+    # vlc = None
+    playsound = None
+    mixer = None
 # from pyglet.window import key
 
 
@@ -67,6 +75,7 @@ class Engine:
         seed: Optional[int] = None,
         # fullscreen: bool = False,
         manual: bool = False,
+        music: bool = False,
         # crater_scaling: float = 1.0,
         # player_collisions: bool = True,
         # asteroid_collisions: bool = True,
@@ -75,6 +84,7 @@ class Engine:
         if seed is not None:
             np.random.seed(seed)
         self._manual = manual
+        self._music = music
 
         self.graphics = Graphics(manual=manual)
 
@@ -291,6 +301,22 @@ class Engine:
             self.graphics.update()
 
     def run(self):
+        # if playsound is not None and self._music:
+        #     self.music = playsound(
+        #         str(config.resources / "levels" / "forest" / "forest.mp3")
+        #     )
+        #     # self.music.play()
+        # # else:
+        # #     self.music = None
+        if mixer is not None and self._music:
+            mixer.init()
+            mixer.music.load(str(config.resources / "levels" / "forest" / "forest.mp3"))
+            mixer.music.play()
+
+        # # for playing note.wav file
+        # playsound('/path/note.wav')
+        # print('playing sound using  playsound')
+
         timer = QtCore.QTimer()
         self.elapsed_timer = QtCore.QElapsedTimer()
         timer.timeout.connect(self.update)
@@ -298,6 +324,9 @@ class Engine:
         # timer.start(330)
         self.elapsed_timer.start()
         pg.exec()
+
+        # if self.music is not None:
+        #     self.music.stop()
 
     #     self.streaming_task = asyncio.create_task(self.loop())
 
