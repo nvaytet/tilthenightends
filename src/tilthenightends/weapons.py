@@ -3,32 +3,35 @@ import numpy as np
 from . import config
 from .graphics import make_sprites
 
-MAX_PROJECTILES = 100
+# MAX_PROJECTILES = 100
 
 
 class Projectile:
-    def __init__(self, position, vector, speed, tstart, tend, health=0.1, attack=0):
+    def __init__(self, position, vector, speed, tstart, health, attack):
         self.position = position
         self.vector = vector / np.linalg.norm(vector)
         self.speed = speed
         self.tstart = tstart
-        self.tend = tend
+        # self.tend = tend
         self.health = health
         self.attack = attack
+        # self.radius = radius
 
     def move(self, dt):
         self.position += self.vector * dt * self.speed
 
 
 class Weapon:
-    def __init__(self, name, cooldown, damage, speed, longevity, health):
+    def __init__(self, name, cooldown, damage, speed, health, max_projectiles):
         self.name = name
         self.cooldown = cooldown
         self.damage = damage
         self.speed = speed
-        self.longevity = longevity
+        # self.radius = radius
+        # self.longevity = longevity
         self.health = health
         self.nprojectiles = 1
+        self.max_projectiles = max_projectiles
         self.projectiles = []
         # self.vectors = np.zeros((MAX_PROJECTILES, 2))
         # self.positions = np.full((MAX_PROJECTILES, 2), np.nan)
@@ -47,9 +50,10 @@ class Weapon:
                     vector=np.random.uniform(-1, 1, 2),
                     speed=self.speed,
                     tstart=t,
-                    tend=t + self.longevity,
+                    # tend=t + self.longevity,
                     attack=self.damage,
                     health=self.health,
+                    # radius=self.radius,
                 )
                 for _ in range(self.nprojectiles)
             ]
@@ -85,8 +89,10 @@ class Runetracer(Weapon):
             cooldown=5,
             damage=10,
             speed=10 * config.scaling,
-            longevity=5,
+            # longevity=5,
             health=30,
+            # radius=20,
+            max_projectiles=5,
         )
 
     def fire(self, position, t):

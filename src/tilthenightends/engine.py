@@ -11,11 +11,11 @@ from pyqtgraph.Qt import QtCore
 
 try:
     # import vlc
-    from playsound import playsound
-    from pygame import mixer  # Load the popular external library
+    # from playsound import playsound
+    from pygame import mixer
 except ImportError:
     # vlc = None
-    playsound = None
+    # playsound = None
     mixer = None
 # from pyglet.window import key
 
@@ -252,9 +252,12 @@ class Engine:
             inds = np.where(horde.healths <= 0)[0]
             ndead = len(inds)
             if ndead > 0:
-                horde.positions[inds, :] = horde.make_positions(
-                    ndead, offset=player.position
-                )
+                new_pos = horde.positions.copy()
+                new_pos[inds, :] = horde.make_positions(ndead, offset=horde.positions[inds])
+                horde.positions = new_pos
+                # horde.positions[inds, :] = horde.make_positions(
+                #     ndead, offset=player.position
+                # )
 
         # if len(evil_indices) > 0:
         #     print("distances.shape", distances.shape)

@@ -33,9 +33,20 @@ class Player:
         self.speed = 5.0 * config.scaling
         self.vector = vector
         self.health = 100.0
-        self.defense = 0.0
+        # self.defense = 0.0
         self.weapon = arsenal[weapon.lower()]()
         self.attack = 0.0
+
+        self.levels = {
+            "attack": 0,
+            "health": 0,
+            "speed": 0,
+            "weapon_speed": 0,
+            "weapon_health": 0,
+            "weapon_damage": 0,
+            "weapon_cooldown": 0,
+            "weapon_nprojectiles": 0,
+        }
 
         # Create a position buffer geometry
         # self.geometry = p3.BufferGeometry(
@@ -97,6 +108,41 @@ class Player:
         norm = np.linalg.norm(value)
         if norm > 0.0:
             self._vector = self._vector / norm
+
+    def die(self):
+        return
+
+
+
+
+class General:
+
+    def __init__(self, team):
+        self.team = team
+        self.xp = 0
+        self.next_player_to_levelup = 0
+
+    def levelup(self, players):
+        self.next_player_to_levelup = (self.next_player_to_levelup + 1) % len(players)
+
+        list(players.values())[self.next_player_to_levelup].levelup()
+
+
+
+class Team:
+
+    def __init__(self, players: dict[str, Player], general: General):
+        self.players = players
+        self.general = general
+
+
+
+
+
+
+
+
+
 
     # def make_avatar(
     #     self,
