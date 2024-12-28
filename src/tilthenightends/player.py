@@ -31,7 +31,7 @@ class Player:
         self.x = 0
         self.y = 0
         self.speed = 5.0 * config.scaling
-        self.vector = vector
+        self.vector = vector / np.linalg.norm(vector)
         self.health = 100.0
         # self.defense = 0.0
         self.weapon = arsenal[weapon.lower()]()
@@ -41,11 +41,11 @@ class Player:
             "attack": 0,
             "health": 0,
             "speed": 0,
-            "weapon_speed": 0,
-            "weapon_health": 0,
-            "weapon_damage": 0,
-            "weapon_cooldown": 0,
-            "weapon_nprojectiles": 0,
+            # "weapon_speed": 0,
+            # "weapon_health": 0,
+            # "weapon_damage": 0,
+            # "weapon_cooldown": 0,
+            # "weapon_nprojectiles": 0,
         }
 
         # Create a position buffer geometry
