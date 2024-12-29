@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
+from enum import Enum, auto
 from dataclasses import dataclass
 from typing import Any, Optional, Tuple
 
@@ -10,14 +11,35 @@ from . import config
 
 
 @dataclass
-class Instructions:
+class Move:
     """
-    Instructions for the lander.
+    Move instructions for the player.
     """
 
     left: bool = False
     right: bool = False
-    main: bool = False
+    up: bool = False
+    down: bool = False
+
+
+class LevelupOptions(Enum):
+    player_health = auto()
+    player_speed = auto()
+    weapon_health = auto()
+    weapon_speed = auto()
+    weapon_damage = auto()
+    weapon_cooldown = auto()
+    weapon_nprojectiles = auto()
+
+
+@dataclass
+class Levelup:
+    """
+    Level up instructions for the player.
+    """
+
+    hero: str
+    what: LevelupOptions
 
 
 @dataclass(frozen=True)

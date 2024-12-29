@@ -7,10 +7,10 @@ from .graphics import make_sprites
 
 
 bestiary = {
-    "bat": {"health": 10.0, "attack": 5.0, "speed": 4.0},
-    "rottingghoul": {"health": 20.0, "attack": 10.0, "speed": 3.5},
-    "giantbat": {"health": 60.0, "attack": 40.0, "speed": 4.0},
-    "thereaper": {"health": 150.0, "attack": 50.0, "speed": 3.0},
+    "bat": {"health": 10.0, "attack": 5.0, "speed": 20.0},
+    "rottingghoul": {"health": 20.0, "attack": 10.0, "speed": 18.0},
+    "giantbat": {"health": 60.0, "attack": 40.0, "speed": 20.0},
+    "thereaper": {"health": 150.0, "attack": 50.0, "speed": 15.0},
 }
 
 
@@ -35,7 +35,9 @@ class Monsters:
 
         # self.positions = np.random.normal(scale=10, size=(n, 3)).astype("float32") * 5.0
         # self.positions[:, 2] = 0.0
-        self.speed = 4.0 * config.scaling
+        # self.speed = 4.0  # * config.scaling
+        self.speed = bestiary[kind]["speed"]
+
         self.kind = kind
 
         self.sprites = make_sprites(
@@ -59,8 +61,8 @@ class Monsters:
 
     def make_positions(self, n, offset=None):
         r = np.random.normal(
-            scale=self.scale * config.scaling,
-            loc=self.distance * config.scaling,
+            scale=self.scale,  # * config.scaling,
+            loc=self.distance,  # * config.scaling,
             size=n,
         )
         theta = np.random.uniform(0, 2 * np.pi, n)
@@ -81,7 +83,8 @@ class Monsters:
 
     def move(self, dt, players):
         # Compute vectors from current position to target position
-        p = players[0]
+        # p = players[0]
+        p = next(iter(players))
         target = np.array([p.x, p.y])
         v = target - self.positions
         # Normalize vectors

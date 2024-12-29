@@ -95,7 +95,7 @@ class Runetracer(Weapon):
             name="Runetracer",
             cooldown=5,
             damage=10,
-            speed=10 * config.scaling,
+            speed=100.0,  # * config.scaling,
             # longevity=5,
             health=30,
             # radius=20,

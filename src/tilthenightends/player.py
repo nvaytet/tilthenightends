@@ -8,18 +8,23 @@
 
 # from .tools import Instructions, image_to_sprite, recenter_image, text_to_raw_image
 
+from functools import partial
 import numpy as np
 
 from . import config
 from .graphics import make_sprites
+from .tools import Move
 from .weapons import arsenal
 
 
 class Player:
     def __init__(
         self,
-        vector: np.ndarray,
+        # vector: np.ndarray,
         weapon: str,
+        health: float,
+        speed: float,
+        avatar: str,
         # number: int,
         # name: str,
         # color: str,
@@ -30,15 +35,15 @@ class Player:
     ):
         self.x = 0
         self.y = 0
-        self.speed = 5.0 * config.scaling
-        self.vector = vector / np.linalg.norm(vector)
-        self.health = 100.0
+        self.speed = speed  # 5.0  # * config.scaling
+        self.vector = np.array([0.0, 0.0])  # vector / np.linalg.norm(vector)
+        self.health = health  # 100.0
         # self.defense = 0.0
         self.weapon = arsenal[weapon.lower()]()
         self.attack = 0.0
 
         self.levels = {
-            "attack": 0,
+            # "attack": 0,
             "health": 0,
             "speed": 0,
             # "weapon_speed": 0,
@@ -76,8 +81,15 @@ class Player:
         # # scale=[size, size, size]
         # # )
         self.avatar = make_sprites(
-            sprite_path=config.resources / "heroes" / "pasqualina.png",
+            sprite_path=config.resources / "heroes" / f"{avatar}.png",
             positions=np.array([[self.x, self.y]]),
+        )
+
+    def execute_bot_instructions(self, move: Move | None):
+        if move is None:
+            return
+        self.vector = np.array(
+            [int(move.right) - int(move.left), int(move.up) - int(move.down)]
         )
 
     @property
@@ -104,7 +116,7 @@ class Player:
 
     @vector.setter
     def vector(self, value: np.ndarray):
-        self._vector = value
+        self._vector = np.asarray(value)
         norm = np.linalg.norm(value)
         if norm > 0.0:
             self._vector = self._vector / norm
@@ -113,10 +125,41 @@ class Player:
         return
 
 
+heroes = {
+    "alaric": partial(
+        Player, weapon="runetracer", health=100.0, speed=25.0, avatar="alaric"
+    ),
+    "cedric": partial(
+        Player, weapon="runetracer", health=100.0, speed=25.0, avatar="cedric"
+    ),
+    "evelyn": partial(
+        Player, weapon="runetracer", health=100.0, speed=25.0, avatar="evelyn"
+    ),
+    "garron": partial(
+        Player, weapon="runetracer", health=100.0, speed=25.0, avatar="garron"
+    ),
+    "isolde": partial(
+        Player, weapon="runetracer", health=100.0, speed=25.0, avatar="isolde"
+    ),
+    "kaelen": partial(
+        Player, weapon="runetracer", health=100.0, speed=25.0, avatar="kaelen"
+    ),
+    "lyra": partial(
+        Player, weapon="runetracer", health=100.0, speed=25.0, avatar="lyra"
+    ),
+    "selene": partial(
+        Player, weapon="runetracer", health=100.0, speed=25.0, avatar="selene"
+    ),
+    "seraphina": partial(
+        Player, weapon="runetracer", health=100.0, speed=25.0, avatar="seraphina"
+    ),
+    "theron": partial(
+        Player, weapon="runetracer", health=100.0, speed=25.0, avatar="theron"
+    ),
+}
 
 
-class General:
-
+class Strategist:
     def __init__(self, team):
         self.team = team
         self.xp = 0
@@ -128,21 +171,10 @@ class General:
         list(players.values())[self.next_player_to_levelup].levelup()
 
 
-
 class Team:
-
-    def __init__(self, players: dict[str, Player], general: General):
+    def __init__(self, players: list[Player], strategist: Strategist):
         self.players = players
-        self.general = general
-
-
-
-
-
-
-
-
-
+        self.strategist = strategist
 
     # def make_avatar(
     #     self,

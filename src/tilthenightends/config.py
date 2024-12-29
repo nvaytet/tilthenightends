@@ -16,9 +16,9 @@ import importlib_resources as ir
 class Config:
     def __init__(self):
         self.scoreboard_width = 200
-        self.fps = 60
+        self.fps = 30
         self.resources = ir.files("tilthenightends") / "resources"
-        self.scaling = 64.0 / 2.0
+        # self.scaling = 64.0 / 2.0
         self.hit_radius = 1.0
         # # self.avatar_size = (25, 25)
         # # file = font_manager.findfont("sans")

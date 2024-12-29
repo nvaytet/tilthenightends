@@ -23,7 +23,7 @@ except ImportError:
 # from .asteroid import Asteroid
 from . import config
 from .graphics import Graphics
-from .player import Player
+from .player import Team, heroes
 from .monsters import Monsters
 
 # from .scores import finalize_scores
@@ -70,8 +70,9 @@ class Engine:
     def __init__(
         self,
         # bots: list,
-        # safe: bool = False,
         # test: bool = True,
+        team: Team,
+        safe: bool = False,
         seed: Optional[int] = None,
         # fullscreen: bool = False,
         manual: bool = False,
@@ -81,20 +82,24 @@ class Engine:
         # asteroid_collisions: bool = True,
         # speedup: float = 1.0,
     ):
+        self.team = team
         if seed is not None:
             np.random.seed(seed)
         self._manual = manual
         self._music = music
+        self.safe = safe
 
         self.graphics = Graphics(manual=manual)
 
-        v1 = np.array([1.0, 1.0])
-        v2 = np.array([0.9, 1.0])
+        # v1 = np.array([1.0, 1.0])
+        # v2 = np.array([0.9, 1.0])
 
-        self.players = [
-            Player(vector=v1 / np.linalg.norm(v1), weapon="runetracer"),
-            Player(vector=v2 / np.linalg.norm(v2), weapon="runetracer"),
-        ]
+        # self.players = [
+        #     Player(vector=v1 / np.linalg.norm(v1), weapon="runetracer"),
+        #     Player(vector=v2 / np.linalg.norm(v2), weapon="runetracer"),
+        # ]
+        self.bots = {p.hero: p for p in team.players}
+        self.players = {p.hero: heroes[p.hero]() for p in team.players}
 
         if self._manual:
             self.graphics.set_hero(self.players[0])
@@ -104,7 +109,6 @@ class Engine:
         # self.start_time = None
         # # self._test = test
         # # self.asteroids = []
-        # # self.safe = safe
         # # self.exiting = False
         # # self.time_of_last_scoreboard_update = 0
         # # self.time_of_last_asteroid = 0
@@ -123,15 +127,19 @@ class Engine:
         # zombie_image = Image.open(config.resources / "bat.png").convert("RGBA")
 
         self.monsters = [
-            Monsters(size=2000, kind="bat", distance=400.0, scale=100),
-            Monsters(size=2000, kind="rottingghoul", distance=600, scale=100),
-            Monsters(size=500, kind="giantbat", distance=800, scale=100),
-            Monsters(size=500, kind="thereaper", distance=1000, scale=100),
+            Monsters(size=2000, kind="bat", distance=400.0 * 32.0, scale=100 * 32.0),
+            Monsters(
+                size=2000, kind="rottingghoul", distance=600 * 32.0, scale=100 * 32.0
+            ),
+            Monsters(size=500, kind="giantbat", distance=800 * 32.0, scale=100 * 32.0),
+            Monsters(
+                size=500, kind="thereaper", distance=1000 * 32.0, scale=100 * 32.0
+            ),
         ]
         for horde in self.monsters:
             self.graphics.add(horde.sprites)
 
-        for player in self.players:
+        for player in self.players.values():
             self.graphics.add(player.avatar)
             self.graphics.add(player.weapon.sprites)
             # player.weapon.fire(0, 0, 0)
@@ -150,6 +158,37 @@ class Engine:
         # self.toolbar = ipw.HBox([self.start_button, self.camera_lock])
 
         self.dt = 1.0 / config.fps
+
+    # def execute_player_bot(self, team: str, info: dict) -> Instructions:
+    #     instructions = None
+    #     if self.safe:
+    #         try:
+    #             instructions = self.bots[team].run(**info)
+    #         except:  # noqa
+    #             pass
+    #     else:
+    #         instructions = self.bots[team].run(**info)
+    #     return instructions
+
+    def call_player_bots(self, dt: float):
+        # info = {"dt": dt, "board": self.board_new.copy()}
+        # info["players"] = {
+        #     team: PlayerInfo(**p.to_dict()) for team, p in self.players.items()
+        # }
+        # info["powerups"] = [PowerupInfo(**p.to_dict()) for p in self.powerups]
+        # for player in (p for p in self.active_players() if p.team != self._manual):
+        for name in self.bots:
+            if self.safe:
+                try:
+                    move = self.bots[name].run(
+                        t=None, dt=dt, monsters=None, players=None
+                    )
+                    self.players[name].execute_bot_instructions(move)
+                except:  # noqa
+                    pass
+            else:
+                move = self.bots[name].run(t=None, dt=dt, monsters=None, players=None)
+                self.players[name].execute_bot_instructions(move)
 
     def fight(self):
         # # Compute distances between players and monsters. If any monster is within 5
@@ -179,8 +218,9 @@ class Engine:
         evil_attacks = np.concatenate([horde.attacks for horde in self.monsters])
 
         # Combine all hero and projectile positions
-        players_and_projectiles = self.players + [
-            proj for player in self.players for proj in player.weapon.projectiles
+        player_list = list(self.players.values())
+        players_and_projectiles = player_list + [
+            proj for player in player_list for proj in player.weapon.projectiles
         ]
         good_positions = np.concatenate(
             [pp.position.reshape(1, 2) for pp in players_and_projectiles]
@@ -230,7 +270,8 @@ class Engine:
 
         # Find indices where distances are less than 5
         # evil_indices, good_indices = np.where(distances < 5)
-        mask = (distances < config.hit_radius * config.scaling).astype(int)
+        # mask = (distances < config.hit_radius * config.scaling).astype(int)
+        mask = (distances < config.hit_radius).astype(int)
         monster_damage = np.broadcast_to(good_attacks.reshape(1, -1), mask.shape) * mask
         player_damage = np.broadcast_to(evil_attacks.reshape(-1, 1), mask.shape) * mask
         evil_healths -= monster_damage.sum(axis=1)
@@ -240,7 +281,7 @@ class Engine:
             pp.health = health
             # if pp.health <= 0:
             #     pp.die()
-        for player in self.players:
+        for player in self.players.values():
             if player.health <= 0:
                 player.die()
             player.weapon.projectiles = [
@@ -253,7 +294,9 @@ class Engine:
             ndead = len(inds)
             if ndead > 0:
                 new_pos = horde.positions.copy()
-                new_pos[inds, :] = horde.make_positions(ndead, offset=horde.positions[inds])
+                new_pos[inds, :] = horde.make_positions(
+                    ndead, offset=horde.positions[inds]
+                )
                 horde.positions = new_pos
                 # horde.positions[inds, :] = horde.make_positions(
                 #     ndead, offset=player.position
@@ -280,7 +323,8 @@ class Engine:
 
     def update(self):
         t = self.elapsed_timer.elapsed() / 1000.0
-        for player in self.players:
+        self.call_player_bots(self.dt)
+        for player in self.players.values():
             player.move(self.dt)
             if t > player.weapon.timer:
                 player.weapon.fire(player.position, t)
@@ -293,7 +337,7 @@ class Engine:
         #     self.graphics.controller.target = lookat
         #     self.graphics.camera.lookAt(lookat)
         for horde in self.monsters:
-            horde.move(self.dt, players=self.players)
+            horde.move(self.dt, players=self.players.values())
 
         self.fight()
 

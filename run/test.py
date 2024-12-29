@@ -2,6 +2,7 @@
 
 
 import tilthenightends as tne
+from survivor_bot import team
 
 # bots = []
 # for repo in glob.glob("*_bot"):
@@ -9,7 +10,7 @@ import tilthenightends as tne
 #     bots.append(module.Bot())
 
 tne.play(
-    # bots=[],  # List of bots to use
+    team=team,
     manual=False,  # Set to True to play manually using the keyboard arrow keys
     music=False,
     # crater_scaling=1.0,  # Artificially increase the size of craters
