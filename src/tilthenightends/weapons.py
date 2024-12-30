@@ -50,21 +50,21 @@ class Weapon:
 
     def fire(self, position, t):
         print("t, self.timer", t, self.timer)
-        self.projectiles.extend(
-            [
-                Projectile(
-                    position=position,
-                    vector=np.random.uniform(-1, 1, 2),
-                    speed=self.speed,
-                    tstart=t,
-                    # tend=t + self.longevity,
-                    attack=self.damage,
-                    health=self.health,
-                    # radius=self.radius,
-                )
-                for _ in range(self.nprojectiles)
-            ]
-        )
+        # self.projectiles.extend(
+        self.projectiles = [
+            Projectile(
+                position=position,
+                vector=np.random.uniform(-1, 1, 2),
+                speed=self.speed,
+                tstart=t,
+                # tend=t + self.longevity,
+                attack=self.damage,
+                health=self.health,
+                # radius=self.radius,
+            )
+            for _ in range(self.nprojectiles)
+        ]
+
         # self.positions[: self.nprojectiles, 0] = x
         # self.positions[: self.nprojectiles, 1] = y
         # self.tstart = t
@@ -87,6 +87,18 @@ class Weapon:
         # self.sprites.setData(pos=self.positions)
         self.draw_sprites()
         # self.timer -= dt
+
+    def as_dict(self):
+        return {
+            "name": self.name,
+            "cooldown": self.cooldown,
+            "damage": self.damage,
+            "speed": self.speed,
+            "health": self.health,
+            "max_projectiles": self.max_projectiles,
+            "nprojectiles": self.nprojectiles,
+            "levels": self.levels.copy(),
+        }
 
 
 class Runetracer(Weapon):

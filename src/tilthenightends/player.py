@@ -13,7 +13,7 @@ import numpy as np
 
 from . import config
 from .graphics import make_sprites
-from .tools import Move
+from .tools import Vector, Towards
 from .weapons import arsenal
 
 
@@ -24,7 +24,9 @@ class Player:
         weapon: str,
         health: float,
         speed: float,
-        avatar: str,
+        hero: str,
+        x: float = 0.0,
+        y: float = 0.0,
         # number: int,
         # name: str,
         # color: str,
@@ -33,8 +35,9 @@ class Player:
         # back_batch: pyglet.graphics.Batch,
         # main_batch: pyglet.graphics.Batch,
     ):
-        self.x = 0
-        self.y = 0
+        self.hero = hero
+        self.x = x
+        self.y = y
         self.speed = speed  # 5.0  # * config.scaling
         self.vector = np.array([0.0, 0.0])  # vector / np.linalg.norm(vector)
         self.health = health  # 100.0
@@ -81,16 +84,21 @@ class Player:
         # # scale=[size, size, size]
         # # )
         self.avatar = make_sprites(
-            sprite_path=config.resources / "heroes" / f"{avatar}.png",
+            sprite_path=config.resources / "heroes" / f"{hero}.png",
             positions=np.array([[self.x, self.y]]),
         )
 
-    def execute_bot_instructions(self, move: Move | None):
-        if move is None:
+    def execute_bot_instructions(self, direction: Vector | Towards | None):
+        if direction is None:
             return
-        self.vector = np.array(
-            [int(move.right) - int(move.left), int(move.up) - int(move.down)]
-        )
+        if isinstance(direction, Vector):
+            self.vector = np.array([direction.x, direction.y])
+        elif isinstance(direction, Towards):
+            self.vector = np.array([direction.x - self.x, direction.y - self.y])
+
+        # self.vector = np.array(
+        #     [int(move.right) - int(move.left), int(move.up) - int(move.down)]
+        # )
 
     @property
     def alive(self) -> bool:
@@ -124,37 +132,47 @@ class Player:
     def die(self):
         return
 
+    def as_dict(self):
+        return {
+            "hero": self.hero,
+            "x": self.x,
+            "y": self.y,
+            "speed": self.speed,
+            "vector": self.vector.tolist(),
+            "health": self.health,
+            "weapon": self.weapon.as_dict(),
+            "levels": self.levels.copy(),
+        }
+
 
 heroes = {
     "alaric": partial(
-        Player, weapon="runetracer", health=100.0, speed=25.0, avatar="alaric"
+        Player, weapon="runetracer", health=100.0, speed=25.0, hero="alaric"
     ),
     "cedric": partial(
-        Player, weapon="runetracer", health=100.0, speed=25.0, avatar="cedric"
+        Player, weapon="runetracer", health=100.0, speed=25.0, hero="cedric"
     ),
     "evelyn": partial(
-        Player, weapon="runetracer", health=100.0, speed=25.0, avatar="evelyn"
+        Player, weapon="runetracer", health=100.0, speed=25.0, hero="evelyn"
     ),
     "garron": partial(
-        Player, weapon="runetracer", health=100.0, speed=25.0, avatar="garron"
+        Player, weapon="runetracer", health=100.0, speed=25.0, hero="garron"
     ),
     "isolde": partial(
-        Player, weapon="runetracer", health=100.0, speed=25.0, avatar="isolde"
+        Player, weapon="runetracer", health=100.0, speed=25.0, hero="isolde"
     ),
     "kaelen": partial(
-        Player, weapon="runetracer", health=100.0, speed=25.0, avatar="kaelen"
+        Player, weapon="runetracer", health=100.0, speed=25.0, hero="kaelen"
     ),
-    "lyra": partial(
-        Player, weapon="runetracer", health=100.0, speed=25.0, avatar="lyra"
-    ),
+    "lyra": partial(Player, weapon="runetracer", health=100.0, speed=25.0, hero="lyra"),
     "selene": partial(
-        Player, weapon="runetracer", health=100.0, speed=25.0, avatar="selene"
+        Player, weapon="runetracer", health=100.0, speed=25.0, hero="selene"
     ),
     "seraphina": partial(
-        Player, weapon="runetracer", health=100.0, speed=25.0, avatar="seraphina"
+        Player, weapon="runetracer", health=100.0, speed=25.0, hero="seraphina"
     ),
     "theron": partial(
-        Player, weapon="runetracer", health=100.0, speed=25.0, avatar="theron"
+        Player, weapon="runetracer", health=100.0, speed=25.0, hero="theron"
     ),
 }
 

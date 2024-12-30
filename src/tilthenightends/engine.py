@@ -99,7 +99,20 @@ class Engine:
         #     Player(vector=v2 / np.linalg.norm(v2), weapon="runetracer"),
         # ]
         self.bots = {p.hero: p for p in team.players}
-        self.players = {p.hero: heroes[p.hero]() for p in team.players}
+
+        # Distribute players in ring around center
+        start_x = []
+        start_y = []
+        r = 100.0
+        for i in range(len(team.players)):
+            angle = i * 2 * np.pi / len(team.players)
+            start_x.append(r * np.cos(angle))
+            start_y.append(r * np.sin(angle))
+
+        self.players = {
+            p.hero: heroes[p.hero](x=start_x[i], y=start_y[i])
+            for i, p in enumerate(team.players)
+        }
 
         if self._manual:
             self.graphics.set_hero(self.players[0])
@@ -126,15 +139,13 @@ class Engine:
 
         # zombie_image = Image.open(config.resources / "bat.png").convert("RGBA")
 
+        s = 32.0
+        d = 25.0
         self.monsters = [
-            Monsters(size=2000, kind="bat", distance=400.0 * 32.0, scale=100 * 32.0),
-            Monsters(
-                size=2000, kind="rottingghoul", distance=600 * 32.0, scale=100 * 32.0
-            ),
-            Monsters(size=500, kind="giantbat", distance=800 * 32.0, scale=100 * 32.0),
-            Monsters(
-                size=500, kind="thereaper", distance=1000 * 32.0, scale=100 * 32.0
-            ),
+            Monsters(size=2000, kind="bat", distance=400.0 * d, scale=100 * s),
+            Monsters(size=2000, kind="rottingghoul", distance=600 * d, scale=100 * s),
+            Monsters(size=500, kind="giantbat", distance=800 * d, scale=100 * s),
+            Monsters(size=500, kind="thereaper", distance=1000 * d, scale=100 * s),
         ]
         for horde in self.monsters:
             self.graphics.add(horde.sprites)
@@ -170,24 +181,27 @@ class Engine:
     #         instructions = self.bots[team].run(**info)
     #     return instructions
 
-    def call_player_bots(self, dt: float):
+    def call_player_bots(self, t: float, dt: float):
         # info = {"dt": dt, "board": self.board_new.copy()}
         # info["players"] = {
         #     team: PlayerInfo(**p.to_dict()) for team, p in self.players.items()
         # }
         # info["powerups"] = [PowerupInfo(**p.to_dict()) for p in self.powerups]
         # for player in (p for p in self.active_players() if p.team != self._manual):
+        player_info = [p.as_dict() for p in self.players.values()]
         for name in self.bots:
             if self.safe:
                 try:
                     move = self.bots[name].run(
-                        t=None, dt=dt, monsters=None, players=None
+                        t=t, dt=dt, monsters=None, players=player_info
                     )
                     self.players[name].execute_bot_instructions(move)
                 except:  # noqa
                     pass
             else:
-                move = self.bots[name].run(t=None, dt=dt, monsters=None, players=None)
+                move = self.bots[name].run(
+                    t=t, dt=dt, monsters=None, players=player_info
+                )
                 self.players[name].execute_bot_instructions(move)
 
     def fight(self):
@@ -323,7 +337,7 @@ class Engine:
 
     def update(self):
         t = self.elapsed_timer.elapsed() / 1000.0
-        self.call_player_bots(self.dt)
+        self.call_player_bots(t=t, dt=self.dt)
         for player in self.players.values():
             player.move(self.dt)
             if t > player.weapon.timer:

@@ -11,15 +11,23 @@ from . import config
 
 
 @dataclass
-class Move:
+class Vector:
     """
-    Move instructions for the player.
+    Set a player's vector.
     """
 
-    left: bool = False
-    right: bool = False
-    up: bool = False
-    down: bool = False
+    x: float
+    y: float
+
+
+@dataclass
+class Towards:
+    """
+    Target for the player to move towards.
+    """
+
+    x: float
+    y: float
 
 
 class LevelupOptions(Enum):

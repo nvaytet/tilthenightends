@@ -8,7 +8,7 @@ config = Config()
 
 from .engine import Engine
 from .player import Player, Strategist, Team
-from .tools import Move, Levelup, LevelupOptions
+from .tools import Vector, Levelup, LevelupOptions, Towards
 
 
 def play(*args, **kwargs):
@@ -23,8 +23,9 @@ __all__ = [
     "Player",
     "Strategist",
     "Team",
-    "Move",
     "Levelup",
     "LevelupOptions",
+    "Vector",
+    "Towards",
     "play",
 ]
