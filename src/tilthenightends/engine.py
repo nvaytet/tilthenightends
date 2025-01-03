@@ -25,6 +25,7 @@ from . import config
 from .graphics import Graphics
 from .player import Team, heroes
 from .monsters import Monsters
+from .scenery import make_scenery
 
 # from .scores import finalize_scores
 # from .terrain import Terrain
@@ -75,6 +76,7 @@ class Engine:
         safe: bool = False,
         seed: Optional[int] = None,
         # fullscreen: bool = False,
+        follow: bool = False,
         manual: bool = False,
         music: bool = False,
         # crater_scaling: float = 1.0,
@@ -88,6 +90,7 @@ class Engine:
         self._manual = manual
         self._music = music
         self.safe = safe
+        self._follow = follow
 
         # self.graphics = Graphics(manual=manual)
 
@@ -150,6 +153,10 @@ class Engine:
 
         # zombie_image = Image.open(config.resources / "bat.png").convert("RGBA")
 
+        scenery = make_scenery()
+        for sprites in scenery:
+            self.graphics.add(sprites)
+
         s = 32.0
         d = 25.0
         self.monsters = [
@@ -180,8 +187,9 @@ class Engine:
         # self.toolbar = ipw.HBox([self.start_button, self.camera_lock])
 
         self.dt = 1.0 / config.fps
+        # self._previous_t = 0.0
 
-        self.graphics.update_player_status(self.players)
+        self.graphics.update_player_status(self.players, xp=self.xp)
 
     # def execute_player_bot(self, team: str, info: dict) -> Instructions:
     #     instructions = None
@@ -322,8 +330,26 @@ class Engine:
             self.players[lup.hero].levelup(lup.what)
             print(self.players[lup.hero].as_dict())
 
+    def move_camera(self):
+        # Set pyqtgraph camera to follow center of mass of players
+        positions = np.array([[p.x, p.y] for p in self.players.values()])
+        xmin, ymin = np.min(positions, axis=0)
+        xmax, ymax = np.max(positions, axis=0)
+        dxmin = 800.0
+        if xmax - xmin < dxmin:
+            xmin -= 0.5 * dxmin
+            xmax += 0.5 * dxmin
+        dymin = 800.0
+        if ymax - ymin < dymin:
+            ymin -= 0.5 * dymin
+            ymax += 0.5 * dymin
+        view = self.graphics.canvas.getViewBox()
+        view.setRange(xRange=(xmin, xmax), yRange=(ymin, ymax))  # Set visible range
+
     def update(self):
         t = self.elapsed_timer.elapsed() / 1000.0
+        # print("dt", t - self._previous_t)
+        # self._previous_t = t
         self.call_player_bots(t=t, dt=self.dt)
         for player in self.players.values():
             player.move(self.dt)
@@ -340,12 +366,14 @@ class Engine:
         for horde in self.monsters:
             horde.move(self.dt, players=self.players.values())
 
+        if self._follow:
+            self.move_camera()
         self.fight(t=t)
         self.resolve_xp(t=t)
 
         # Update player status every 10 frames
         if int(t * 10) % 10 == 0:
-            self.graphics.update_player_status(self.players)
+            self.graphics.update_player_status(self.players, xp=self.xp)
             self.graphics.update_time(t=t)
 
         # # Set camera position to player center of mass

@@ -139,7 +139,10 @@ class Graphics:
         layout = QVBoxLayout(central_widget)
 
         self.window = KeyPressWindow() if self._manual else pg.GraphicsLayoutWidget()
-        self.window.setBackground("#808080")
+        # self.window.setBackground("#808080")
+        self.window.setBackground("#1a4a0b")
+
+        # print("Initial camera parameters: ", self.window.cameraParams())
 
         # window_widget = QWidget()
         # window_widget_layout = QVBoxLayout(window_widget)
@@ -175,22 +178,36 @@ class Graphics:
             widget.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
             header = QLabel(f"{name}")
             widget_layout.addWidget(header)
+            body = QWidget()
+            body_layout = QHBoxLayout(body)
             path = config.resources / "heroes" / f"{player.hero}.png"
             image = QLabel(f'<img src="{path}" width="32" height="32">')
-            widget_layout.addWidget(image)
+            body_layout.addWidget(image)
+            levels = QLabel()
+            body_layout.addWidget(levels)
+            body_layout.addStretch()
+            widget_layout.addWidget(body)
             # health = player.health
             footer = QLabel(
                 # f'<img src="{config.resources / "other" / "green_pixel.png"}" width="{health // 2}" height="4">'
             )
             widget_layout.addWidget(footer)
-            widget.setMinimumWidth(int(self.main_window.width() * 0.95 / len(players)))
+            widget.setMinimumWidth(
+                int(self.main_window.width() * 0.95 / (len(players) + 1))
+            )
             bottom_bar_layout.addWidget(widget)
             # bottom_bar_layout.addStretch()
             self.player_status[name] = {
                 "header": header,
                 "footer": footer,
                 "image": image,
+                "levels": levels,
             }
+
+        # Use large font in label
+        self.xp = QLabel()
+        self.xp.setFont(QtGui.QFont("", 16))
+        bottom_bar_layout.addWidget(self.xp)
 
         self.canvas = self.window.addPlot()
         self.monsters = {}
@@ -204,13 +221,28 @@ class Graphics:
         self.canvas.hideAxis("top")
         self.main_window.show()
 
-    def update_player_status(self, players):
+    def update_player_status(self, players, xp):
         for name, player in players.items():
             img = "green_pixel.png" if player.health > 50 else "red_pixel.png"
             self.player_status[name]["footer"].setText(
                 f'<img src="{config.resources / "other" / img}" '
                 f'width="{player.health // 2}" height="4">'
             )
+            text = [
+                f'<img src="{config.resources / "other" / "blank.png"}" '
+                f'width="5" height="32">'
+            ]
+            # print(player.levels)
+            max_level = max(player.levels.values()) * 2
+            scale = 32 / max_level if max_level > 32 else 1
+            for i, level in enumerate(player.levels.values()):
+                img = f"palette_{i}.png"
+                text.append(
+                    f'<img src="{config.resources / "other" / img}" '
+                    f'width="3" height="{max(int(level * 2 * scale), 1)}">'
+                )
+            self.player_status[name]["levels"].setText(" ".join(text))
+        self.xp.setText(f"XP={int(xp)}")
 
     def update_time(self, t):
         # Format time in minutes and seconds
