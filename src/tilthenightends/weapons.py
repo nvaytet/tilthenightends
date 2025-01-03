@@ -40,13 +40,13 @@ class Weapon:
             sprite_path=config.resources / "weapons" / f"{self.name.lower()}.png",
             positions=np.array([[0, 0]]),
         )
-        self.levels = {
-            "speed": 0,
-            "health": 0,
-            "damage": 0,
-            "cooldown": 0,
-            "nprojectiles": 0,
-        }
+        # self.levels = {
+        #     "speed": 0,
+        #     "health": 0,
+        #     "damage": 0,
+        #     "cooldown": 0,
+        #     "nprojectiles": 0,
+        # }
 
     def fire(self, position, t):
         print("t, self.timer", t, self.timer)
@@ -97,7 +97,7 @@ class Weapon:
             "health": self.health,
             "max_projectiles": self.max_projectiles,
             "nprojectiles": self.nprojectiles,
-            "levels": self.levels.copy(),
+            # "levels": self.levels.copy(),
         }
 
 
@@ -120,6 +120,24 @@ class Runetracer(Weapon):
         self.vectors /= np.linalg.norm(self.vectors, axis=1)  # [:, None]
 
 
+class Fireball(Weapon):
+    def __init__(self):
+        super().__init__(
+            name="Fireball",
+            cooldown=4,
+            damage=15,
+            speed=75.0,
+            health=40,
+            max_projectiles=10,
+        )
+
+    def fire(self, position, t):
+        super().fire(position, t)
+        self.vectors = np.random.uniform(-1, 1, (self.nprojectiles, 2))
+        self.vectors /= np.linalg.norm(self.vectors, axis=1)  # [:, None]
+
+
 arsenal = {
     "runetracer": Runetracer,
+    "fireball": Fireball,
 }

@@ -37,6 +37,7 @@ class Monsters:
         # self.positions[:, 2] = 0.0
         # self.speed = 4.0  # * config.scaling
         self.speed = bestiary[kind]["speed"]
+        self.xp = bestiary[kind]["health"]
 
         self.kind = kind
 

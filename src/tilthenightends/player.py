@@ -9,11 +9,12 @@
 # from .tools import Instructions, image_to_sprite, recenter_image, text_to_raw_image
 
 from functools import partial
+from typing import Any
 import numpy as np
 
 from . import config
 from .graphics import make_sprites
-from .tools import Vector, Towards
+from .tools import Vector, Towards, LevelupOptions
 from .weapons import arsenal
 
 
@@ -40,6 +41,7 @@ class Player:
         self.y = y
         self.speed = speed  # 5.0  # * config.scaling
         self.vector = np.array([0.0, 0.0])  # vector / np.linalg.norm(vector)
+        self.max_health = health
         self.health = health  # 100.0
         # self.defense = 0.0
         self.weapon = arsenal[weapon.lower()]()
@@ -49,11 +51,11 @@ class Player:
             # "attack": 0,
             "health": 0,
             "speed": 0,
-            # "weapon_speed": 0,
-            # "weapon_health": 0,
-            # "weapon_damage": 0,
-            # "weapon_cooldown": 0,
-            # "weapon_nprojectiles": 0,
+            "weapon_speed": 0,
+            "weapon_health": 0,
+            "weapon_damage": 0,
+            "weapon_cooldown": 0,
+            "weapon_nprojectiles": 0,
         }
 
         # Create a position buffer geometry
@@ -129,7 +131,8 @@ class Player:
         if norm > 0.0:
             self._vector = self._vector / norm
 
-    def die(self):
+    def die(self, t):
+        # Start countdown to respawn
         return
 
     def as_dict(self):
@@ -144,10 +147,37 @@ class Player:
             "levels": self.levels.copy(),
         }
 
+    def levelup(self, what):
+        if what == LevelupOptions.player_health:
+            self.max_health *= 1.05
+            self.levels["health"] += 1
+        elif what == LevelupOptions.player_speed:
+            self.speed += 1.0
+            self.levels["speed"] += 1
+        elif what == LevelupOptions.weapon_health:
+            self.weapon.health *= 1.05
+            self.levels["weapon_health"] += 1
+        elif what == LevelupOptions.weapon_speed:
+            self.weapon.speed += 1.0
+            self.levels["weapon_speed"] += 1
+        elif what == LevelupOptions.weapon_damage:
+            self.weapon.damage *= 1.02
+            self.levels["weapon_damage"] += 1
+        elif what == LevelupOptions.weapon_cooldown:
+            self.weapon.cooldown *= 0.9
+            self.levels["weapon_cooldown"] += 1
+        elif what == LevelupOptions.weapon_nprojectiles:
+            if self.weapon.nprojectiles < self.weapon.max_projectiles:
+                self.weapon.nprojectiles += 1
+                self.levels["weapon_nprojectiles"] += 1
+
+        # Healing bonus for leveling up
+        self.health = self.max_health
+
 
 heroes = {
     "alaric": partial(
-        Player, weapon="runetracer", health=100.0, speed=25.0, hero="alaric"
+        Player, weapon="fireball", health=100.0, speed=25.0, hero="alaric"
     ),
     "cedric": partial(
         Player, weapon="runetracer", health=100.0, speed=25.0, hero="cedric"
@@ -177,20 +207,20 @@ heroes = {
 }
 
 
-class Strategist:
-    def __init__(self, team):
-        self.team = team
-        self.xp = 0
-        self.next_player_to_levelup = 0
+# class Strategist:
+#     def __init__(self, team):
+#         self.team = team
+#         self.xp = 0
+#         self.next_player_to_levelup = 0
 
-    def levelup(self, players):
-        self.next_player_to_levelup = (self.next_player_to_levelup + 1) % len(players)
+#     def levelup(self, players):
+#         self.next_player_to_levelup = (self.next_player_to_levelup + 1) % len(players)
 
-        list(players.values())[self.next_player_to_levelup].levelup()
+#         list(players.values())[self.next_player_to_levelup].levelup()
 
 
 class Team:
-    def __init__(self, players: list[Player], strategist: Strategist):
+    def __init__(self, players: list, strategist: Any):
         self.players = players
         self.strategist = strategist
 

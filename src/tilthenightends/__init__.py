@@ -7,7 +7,7 @@ from .config import Config
 config = Config()
 
 from .engine import Engine
-from .player import Player, Strategist, Team
+from .player import Player, Team
 from .tools import Vector, Levelup, LevelupOptions, Towards
 
 
@@ -21,7 +21,6 @@ __all__ = [
     "config",
     "Engine",
     "Player",
-    "Strategist",
     "Team",
     "Levelup",
     "LevelupOptions",
