@@ -89,7 +89,7 @@ class Engine:
         self._music = music
         self.safe = safe
 
-        self.graphics = Graphics(manual=manual)
+        # self.graphics = Graphics(manual=manual)
 
         # v1 = np.array([1.0, 1.0])
         # v2 = np.array([0.9, 1.0])
@@ -113,6 +113,12 @@ class Engine:
             p.hero: heroes[p.hero](x=start_x[i], y=start_y[i])
             for i, p in enumerate(team.players)
         }
+
+        self.graphics = Graphics(players=self.players, manual=manual)
+
+        for player in self.players.values():
+            player.add_to_graphics()
+            player.weapon.add_to_graphics()
 
         if self._manual:
             self.graphics.set_hero(self.players[0])
@@ -174,6 +180,8 @@ class Engine:
         # self.toolbar = ipw.HBox([self.start_button, self.camera_lock])
 
         self.dt = 1.0 / config.fps
+
+        self.graphics.update_player_status(self.players)
 
     # def execute_player_bot(self, team: str, info: dict) -> Instructions:
     #     instructions = None
@@ -334,6 +342,11 @@ class Engine:
 
         self.fight(t=t)
         self.resolve_xp(t=t)
+
+        # Update player status every 10 frames
+        if int(t * 10) % 10 == 0:
+            self.graphics.update_player_status(self.players)
+            self.graphics.update_time(t=t)
 
         # # Set camera position to player center of mass
         # x, y = np.mean([[p.x, p.y] for p in self.players], axis=0)

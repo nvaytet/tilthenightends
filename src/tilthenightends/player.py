@@ -85,8 +85,10 @@ class Player:
         # )
         # # scale=[size, size, size]
         # # )
+
+    def add_to_graphics(self):
         self.avatar = make_sprites(
-            sprite_path=config.resources / "heroes" / f"{hero}.png",
+            sprite_path=config.resources / "heroes" / f"{self.hero}.png",
             positions=np.array([[self.x, self.y]]),
         )
 

@@ -11,6 +11,31 @@
 import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore, QtGui
+from pyqtgraph.Qt.QtWidgets import (
+    QLabel,
+    QMainWindow,
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QSizePolicy,
+)
+
+
+# from PyQt5.QtWidgets import (
+#         QCheckBox,
+#         QFrame,
+#         QHBoxLayout,
+#         QLabel,
+#         QMainWindow,
+#         QSizePolicy,
+#         QSlider,
+#         QVBoxLayout,
+#         QWidget,
+#         QPushButton,
+#     )
+#     from PyQt5.QtCore import Qt
+
+from . import config
 
 
 class SpriteScatterPlotItem(pg.ScatterPlotItem):
@@ -96,11 +121,77 @@ def make_sprites(sprite_path, positions):
 
 
 class Graphics:
-    def __init__(self, manual=False):
+    def __init__(self, players: dict, manual=False):
         self._manual = manual
-        self.app = pg.mkQApp("Til the Night Ends")
+        self._title = "Til the Night Ends"
+
+        self.app = pg.mkQApp()
+
+        self.main_window = QMainWindow()
+        self.main_window.setWindowTitle(self._title)
+        self.main_window.setGeometry(0, 0, 1400, 900)
+
+        # Create a central widget to hold the two widgets
+        central_widget = QWidget()
+        self.main_window.setCentralWidget(central_widget)
+
+        # Create a layout for the central widget
+        layout = QVBoxLayout(central_widget)
+
         self.window = KeyPressWindow() if self._manual else pg.GraphicsLayoutWidget()
         self.window.setBackground("#808080")
+
+        # window_widget = QWidget()
+        # window_widget_layout = QVBoxLayout(window_widget)
+        # window_widget.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+        # window_widget_layout.addWidget(self.window)
+        # # self.window.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        # self.window.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+        # self.window.setMinimumHeight(int(self.main_window.height() * 0.85))
+        # layout.addWidget(window_widget)
+
+        layout.addWidget(self.window)
+
+        # Bottom bar for player status
+        bottom_bar = QWidget()
+        layout.addWidget(bottom_bar)
+        bottom_bar_layout = QHBoxLayout(bottom_bar)
+        bottom_bar.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+        bottom_bar.setMinimumHeight(int(self.main_window.height() * 0.1))
+        # bottom_bar_layout.setColumnStretch(','.join(['1'] * len(players)))
+
+        # For each player, add a widget to the bottom bar.
+        # The widget will contain (from top to bottom):
+        # - The player's name
+        # - The player's hero image
+        # - The player's health as a bar that is green when above 50% and red when below
+
+        self.player_status = {}
+
+        # bottom_bar_layout.addStretch()
+        for name, player in players.items():
+            widget = QWidget()
+            widget_layout = QVBoxLayout(widget)
+            widget.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+            header = QLabel(f"{name}")
+            widget_layout.addWidget(header)
+            path = config.resources / "heroes" / f"{player.hero}.png"
+            image = QLabel(f'<img src="{path}" width="32" height="32">')
+            widget_layout.addWidget(image)
+            # health = player.health
+            footer = QLabel(
+                # f'<img src="{config.resources / "other" / "green_pixel.png"}" width="{health // 2}" height="4">'
+            )
+            widget_layout.addWidget(footer)
+            widget.setMinimumWidth(int(self.main_window.width() * 0.95 / len(players)))
+            bottom_bar_layout.addWidget(widget)
+            # bottom_bar_layout.addStretch()
+            self.player_status[name] = {
+                "header": header,
+                "footer": footer,
+                "image": image,
+            }
+
         self.canvas = self.window.addPlot()
         self.monsters = {}
         self.heroes = {}
@@ -111,7 +202,20 @@ class Graphics:
         self.canvas.hideAxis("bottom")
         self.canvas.hideAxis("right")
         self.canvas.hideAxis("top")
-        self.window.show()
+        self.main_window.show()
+
+    def update_player_status(self, players):
+        for name, player in players.items():
+            img = "green_pixel.png" if player.health > 50 else "red_pixel.png"
+            self.player_status[name]["footer"].setText(
+                f'<img src="{config.resources / "other" / img}" '
+                f'width="{player.health // 2}" height="4">'
+            )
+
+    def update_time(self, t):
+        # Format time in minutes and seconds
+        time = f"{int(t // 60):02}:{int(t % 60):02}"
+        self.main_window.setWindowTitle(f"{self._title} -- {time}")
 
     def add(self, sprites):
         # n = 10000

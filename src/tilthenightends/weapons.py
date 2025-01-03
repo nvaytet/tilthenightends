@@ -36,6 +36,8 @@ class Weapon:
         # self.vectors = np.zeros((MAX_PROJECTILES, 2))
         # self.positions = np.full((MAX_PROJECTILES, 2), np.nan)
         self.timer = 0
+
+    def add_to_graphics(self):
         self.sprites = make_sprites(
             sprite_path=config.resources / "weapons" / f"{self.name.lower()}.png",
             positions=np.array([[0, 0]]),
