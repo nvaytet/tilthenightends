@@ -23,12 +23,13 @@ def make_scenery():
     # self.kind = kind
 
     sprites = []
+    r = 30000
 
-    for i in range(4):
+    for i in range(7):
         sprites.append(
             make_sprites(
                 sprite_path=config.resources / "levels" / "forest" / f"forest{i}.png",
-                positions=np.random.uniform(-20000, 20000, 2),
+                positions=np.random.uniform(-r, r, (700, 2)),
             )
         )
 
