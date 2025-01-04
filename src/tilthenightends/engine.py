@@ -25,7 +25,6 @@ from . import config
 from .graphics import Graphics
 from .player import Team, heroes
 from .monsters import Monsters
-from .scenery import make_scenery
 
 # from .scores import finalize_scores
 # from .terrain import Terrain
@@ -73,6 +72,7 @@ class Engine:
         # bots: list,
         # test: bool = True,
         team: Team,
+        world: str = "forest",
         safe: bool = False,
         seed: Optional[int] = None,
         # fullscreen: bool = False,
@@ -85,6 +85,7 @@ class Engine:
         # speedup: float = 1.0,
     ):
         self.team = team
+        self.world = world
         if seed is not None:
             np.random.seed(seed)
         self._manual = manual
@@ -117,7 +118,7 @@ class Engine:
             for i, p in enumerate(team.players)
         }
 
-        self.graphics = Graphics(players=self.players, manual=manual)
+        self.graphics = Graphics(players=self.players, world=self.world, manual=manual)
 
         for player in self.players.values():
             player.add_to_graphics()
@@ -153,9 +154,9 @@ class Engine:
 
         # zombie_image = Image.open(config.resources / "bat.png").convert("RGBA")
 
-        scenery = make_scenery()
-        for sprites in scenery:
-            self.graphics.add(sprites)
+        # scenery = make_scenery(world=world)
+        # for sprites in scenery:
+        #     self.graphics.add(sprites)
 
         s = 32.0
         d = 25.0
@@ -190,6 +191,7 @@ class Engine:
         # self._previous_t = 0.0
 
         self.graphics.update_player_status(self.players, xp=self.xp)
+        self.move_camera()
 
     # def execute_player_bot(self, team: str, info: dict) -> Instructions:
     #     instructions = None
@@ -335,16 +337,17 @@ class Engine:
         positions = np.array([[p.x, p.y] for p in self.players.values()])
         xmin, ymin = np.min(positions, axis=0)
         xmax, ymax = np.max(positions, axis=0)
-        dxmin = 800.0
-        if xmax - xmin < dxmin:
-            xmin -= 0.5 * dxmin
-            xmax += 0.5 * dxmin
-        dymin = 800.0
+        dxmin = 900.0
+        if (xmax - xmin) < dxmin:
+            padding = 0.5 * dxmin - 0.5 * (xmax - xmin)
+            xmin -= padding
+            xmax += padding
+        dymin = 900.0
         if ymax - ymin < dymin:
-            ymin -= 0.5 * dymin
-            ymax += 0.5 * dymin
-        view = self.graphics.canvas.getViewBox()
-        view.setRange(xRange=(xmin, xmax), yRange=(ymin, ymax))  # Set visible range
+            padding = 0.5 * dymin - 0.5 * (ymax - ymin)
+            ymin -= padding
+            ymax += padding
+        self.graphics.viewbox.setRange(xRange=(xmin, xmax), yRange=(ymin, ymax))
 
     def update(self):
         t = self.elapsed_timer.elapsed() / 1000.0
@@ -366,8 +369,9 @@ class Engine:
         for horde in self.monsters:
             horde.move(self.dt, players=self.players.values())
 
-        if self._follow:
+        if self._follow:  # and (int(t * 3) % 3 == 0):
             self.move_camera()
+
         self.fight(t=t)
         self.resolve_xp(t=t)
 
@@ -392,7 +396,9 @@ class Engine:
         # #     self.music = None
         if mixer is not None and self._music:
             mixer.init()
-            mixer.music.load(str(config.resources / "levels" / "forest" / "forest.mp3"))
+            mixer.music.load(
+                str(config.resources / "worlds" / self.world / f"{self.world}.mp3")
+            )
             mixer.music.play()
 
         # # for playing note.wav file

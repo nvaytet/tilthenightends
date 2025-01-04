@@ -11,9 +11,10 @@ from survivor_bot import team
 
 tne.play(
     team=team,
+    world="desert",
     manual=False,  # Set to True to play manually using the keyboard arrow keys
     music=False,
-    follow=True,
+    # follow=True,
     # crater_scaling=1.0,  # Artificially increase the size of craters
     # player_collisions=True,  # Set to False to disable collisions between players
     # asteroid_collisions=True,  # Set to False to disable being destroyed by asteroids

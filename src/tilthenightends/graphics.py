@@ -120,8 +120,12 @@ def make_sprites(sprite_path, positions):
     return SpriteScatterPlotItem(sprite_path, spots=spots)
 
 
+nsprites = {"forest": 7, "mountain": 7, "desert": 9}
+backgrounds = {"forest": "#1a4a0b", "mountain": "#d9dbf0", "desert": "#f7af5a"}
+
+
 class Graphics:
-    def __init__(self, players: dict, manual=False):
+    def __init__(self, players: dict, world: str, manual=False):
         self._manual = manual
         self._title = "Til the Night Ends"
 
@@ -140,7 +144,11 @@ class Graphics:
 
         self.window = KeyPressWindow() if self._manual else pg.GraphicsLayoutWidget()
         # self.window.setBackground("#808080")
-        self.window.setBackground("#1a4a0b")
+        # self.window.setBackground(backgrounds[world])
+
+        # scenery = make_scenery(world=world)
+        # for sprites in scenery:
+        #     self.graphics.add(sprites)
 
         # print("Initial camera parameters: ", self.window.cameraParams())
 
@@ -214,12 +222,31 @@ class Graphics:
         self.heroes = {}
         self.hero = None
 
-        self.canvas.getViewBox().setAspectLocked(True)
+        self.viewbox = self.canvas.getViewBox()
+        self.viewbox.setAspectLocked(True)
         self.canvas.hideAxis("left")
         self.canvas.hideAxis("bottom")
         self.canvas.hideAxis("right")
         self.canvas.hideAxis("top")
+
+        self.add_scenery(world)
+
         self.main_window.show()
+
+    def add_scenery(self, world: str):
+        self.window.setBackground(backgrounds[world])
+        sprites = []
+        r = 30000
+        for i in range(nsprites[world]):
+            sprites.append(
+                make_sprites(
+                    sprite_path=config.resources / "worlds" / world / f"{world}{i}.png",
+                    positions=np.random.uniform(-r, r, (700, 2)),
+                )
+            )
+
+        for sprite in sprites:
+            self.add(sprite)
 
     def update_player_status(self, players, xp):
         for name, player in players.items():

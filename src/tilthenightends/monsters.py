@@ -7,10 +7,10 @@ from .graphics import make_sprites
 
 
 bestiary = {
-    "bat": {"health": 10.0, "attack": 5.0, "speed": 20.0},
-    "rottingghoul": {"health": 20.0, "attack": 10.0, "speed": 18.0},
-    "giantbat": {"health": 60.0, "attack": 40.0, "speed": 20.0},
-    "thereaper": {"health": 150.0, "attack": 50.0, "speed": 15.0},
+    "bat": {"health": 10.0, "attack": 5.0, "speed": 20.0, "radius": 20.0},
+    "rottingghoul": {"health": 20.0, "attack": 10.0, "speed": 18.0, "radius": 20.0},
+    "giantbat": {"health": 60.0, "attack": 40.0, "speed": 20.0, "radius": 40.0},
+    "thereaper": {"health": 150.0, "attack": 50.0, "speed": 15.0, "radius": 50.0},
 }
 
 
