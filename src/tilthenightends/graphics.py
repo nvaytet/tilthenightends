@@ -120,8 +120,13 @@ def make_sprites(sprite_path, positions):
     return SpriteScatterPlotItem(sprite_path, spots=spots)
 
 
-nsprites = {"forest": 7, "mountain": 7, "desert": 9}
-backgrounds = {"forest": "#1a4a0b", "mountain": "#d9dbf0", "desert": "#f7af5a"}
+nsprites = {"forest": 7, "mountain": 7, "desert": 9, "mine": 7}
+backgrounds = {
+    "forest": "#1a4a0b",
+    "mountain": "#d9dbf0",
+    "desert": "#e5a253",
+    "mine": "#808080",
+}
 
 
 class Graphics:
@@ -241,7 +246,7 @@ class Graphics:
             sprites.append(
                 make_sprites(
                     sprite_path=config.resources / "worlds" / world / f"{world}{i}.png",
-                    positions=np.random.uniform(-r, r, (700, 2)),
+                    positions=np.random.uniform(-r, r, (900, 2)),
                 )
             )
 
