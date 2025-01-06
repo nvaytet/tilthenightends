@@ -46,6 +46,7 @@ class Player:
         # self.defense = 0.0
         self.weapon = arsenal[weapon.lower()]()
         self.attack = 0.0
+        self.radius = 20.0
 
         self.levels = {
             # "attack": 0,

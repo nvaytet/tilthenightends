@@ -7,7 +7,7 @@ from .graphics import make_sprites
 
 
 class Projectile:
-    def __init__(self, position, vector, speed, tstart, health, attack):
+    def __init__(self, position, vector, speed, tstart, health, attack, radius):
         self.position = position
         self.vector = vector / np.linalg.norm(vector)
         self.speed = speed
@@ -15,14 +15,14 @@ class Projectile:
         # self.tend = tend
         self.health = health
         self.attack = attack
-        # self.radius = radius
+        self.radius = radius
 
     def move(self, dt):
         self.position += self.vector * dt * self.speed
 
 
 class Weapon:
-    def __init__(self, name, cooldown, damage, speed, health, max_projectiles):
+    def __init__(self, name, cooldown, damage, speed, health, max_projectiles, radius):
         self.name = name
         self.cooldown = cooldown
         self.damage = damage
@@ -36,6 +36,7 @@ class Weapon:
         # self.vectors = np.zeros((MAX_PROJECTILES, 2))
         # self.positions = np.full((MAX_PROJECTILES, 2), np.nan)
         self.timer = 0
+        self.radius = radius
 
     def add_to_graphics(self):
         self.sprites = make_sprites(
@@ -62,7 +63,7 @@ class Weapon:
                 # tend=t + self.longevity,
                 attack=self.damage,
                 health=self.health,
-                # radius=self.radius,
+                radius=self.radius,
             )
             for _ in range(self.nprojectiles)
         ]
@@ -112,7 +113,7 @@ class Runetracer(Weapon):
             speed=100.0,  # * config.scaling,
             # longevity=5,
             health=30,
-            # radius=20,
+            radius=20,
             max_projectiles=5,
         )
 
@@ -131,6 +132,7 @@ class Fireball(Weapon):
             speed=75.0,
             health=40,
             max_projectiles=10,
+            radius=20,
         )
 
     def fire(self, position, t):
@@ -139,7 +141,26 @@ class Fireball(Weapon):
         self.vectors /= np.linalg.norm(self.vectors, axis=1)  # [:, None]
 
 
+# class Bomb(Weapon):
+#     def __init__(self):
+#         super().__init__(
+#             name="Bomb",
+#             cooldown=4,
+#             damage=15,
+#             speed=75.0,
+#             health=40,
+#             max_projectiles=10,
+#             radius=40,
+#         )
+
+#     def fire(self, position, t):
+#         super().fire(position, t)
+#         self.vectors = np.random.uniform(-1, 1, (self.nprojectiles, 2))
+#         self.vectors /= np.linalg.norm(self.vectors, axis=1)  # [:, None]
+
+
 arsenal = {
     "runetracer": Runetracer,
     "fireball": Fireball,
+    # "bomb": Bomb,
 }

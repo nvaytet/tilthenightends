@@ -242,6 +242,7 @@ class Engine:
         evil_positions = np.concatenate([horde.positions for horde in self.monsters])
         evil_healths = np.concatenate([horde.healths for horde in self.monsters])
         evil_attacks = np.concatenate([horde.attacks for horde in self.monsters])
+        evil_radius = np.concatenate([horde.radii for horde in self.monsters])
 
         # Combine all hero and projectile positions
         player_list = list(self.players.values())
@@ -253,15 +254,18 @@ class Engine:
         )
         good_healths = np.array([pp.health for pp in players_and_projectiles])
         good_attacks = np.array([pp.attack for pp in players_and_projectiles])
+        good_radius = np.array([pp.radius for pp in players_and_projectiles])
 
         # Compute pairwise distances
         distances = np.linalg.norm(
             evil_positions[:, np.newaxis, :] - good_positions[np.newaxis, :, :], axis=2
         )
+        sum_of_radii = evil_radius[:, np.newaxis] + good_radius[np.newaxis, :]
 
         # Find indices where distances are less than 5
         # mask = (distances < config.hit_radius * config.scaling).astype(int)
-        mask = (distances < config.hit_radius).astype(int)
+        # mask = (distances < config.hit_radius).astype(int)
+        mask = (distances < sum_of_radii).astype(int)
         monster_damage = np.broadcast_to(good_attacks.reshape(1, -1), mask.shape) * mask
         player_damage = np.broadcast_to(evil_attacks.reshape(-1, 1), mask.shape) * mask
         evil_healths -= monster_damage.sum(axis=1)

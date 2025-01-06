@@ -32,6 +32,7 @@ class Monsters:
         self.positions = self.make_positions(self.size)
         self.healths = np.full(self.size, bestiary[kind]["health"])
         self.attacks = np.full(self.size, bestiary[kind]["attack"])
+        self.radii = np.full(self.size, bestiary[kind]["radius"])
 
         # self.positions = np.random.normal(scale=10, size=(n, 3)).astype("float32") * 5.0
         # self.positions[:, 2] = 0.0
