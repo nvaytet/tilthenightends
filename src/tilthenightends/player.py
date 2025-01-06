@@ -44,7 +44,7 @@ class Player:
         self.max_health = health
         self.health = health  # 100.0
         # self.defense = 0.0
-        self.weapon = arsenal[weapon.lower()]()
+        self.weapon = arsenal[weapon.lower()](owner=self)
         self.attack = 0.0
         self.radius = 20.0
 
@@ -204,9 +204,7 @@ heroes = {
     "seraphina": partial(
         Player, weapon="runetracer", health=100.0, speed=25.0, hero="seraphina"
     ),
-    "theron": partial(
-        Player, weapon="runetracer", health=100.0, speed=25.0, hero="theron"
-    ),
+    "theron": partial(Player, weapon="garlic", health=100.0, speed=25.0, hero="theron"),
 }
 
 

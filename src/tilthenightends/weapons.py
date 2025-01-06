@@ -7,7 +7,7 @@ from .graphics import make_sprites
 
 
 class Projectile:
-    def __init__(self, position, vector, speed, tstart, health, attack, radius):
+    def __init__(self, position, vector, speed, tstart, health, attack, radius, owner):
         self.position = position
         self.vector = vector / np.linalg.norm(vector)
         self.speed = speed
@@ -16,13 +16,25 @@ class Projectile:
         self.health = health
         self.attack = attack
         self.radius = radius
+        self.owner = owner
 
     def move(self, dt):
         self.position += self.vector * dt * self.speed
 
 
 class Weapon:
-    def __init__(self, name, cooldown, damage, speed, health, max_projectiles, radius):
+    def __init__(
+        self,
+        name,
+        cooldown,
+        damage,
+        speed,
+        health,
+        max_projectiles,
+        radius,
+        owner,
+        projectile=Projectile,
+    ):
         self.name = name
         self.cooldown = cooldown
         self.damage = damage
@@ -37,11 +49,15 @@ class Weapon:
         # self.positions = np.full((MAX_PROJECTILES, 2), np.nan)
         self.timer = 0
         self.radius = radius
+        self.owner = owner
+        self.projectile = projectile
 
     def add_to_graphics(self):
         self.sprites = make_sprites(
             sprite_path=config.resources / "weapons" / f"{self.name.lower()}.png",
             positions=np.array([[0, 0]]),
+            width=self.radius * 2,
+            height=self.radius * 2,
         )
         # self.levels = {
         #     "speed": 0,
@@ -55,7 +71,7 @@ class Weapon:
         print("t, self.timer", t, self.timer)
         # self.projectiles.extend(
         self.projectiles = [
-            Projectile(
+            self.projectile(
                 position=position,
                 vector=np.random.uniform(-1, 1, 2),
                 speed=self.speed,
@@ -64,6 +80,7 @@ class Weapon:
                 attack=self.damage,
                 health=self.health,
                 radius=self.radius,
+                owner=self.owner,
             )
             for _ in range(self.nprojectiles)
         ]
@@ -105,7 +122,7 @@ class Weapon:
 
 
 class Runetracer(Weapon):
-    def __init__(self):
+    def __init__(self, **kwargs):
         super().__init__(
             name="Runetracer",
             cooldown=5,
@@ -115,6 +132,7 @@ class Runetracer(Weapon):
             health=30,
             radius=20,
             max_projectiles=5,
+            **kwargs,
         )
 
     def fire(self, position, t):
@@ -124,7 +142,7 @@ class Runetracer(Weapon):
 
 
 class Fireball(Weapon):
-    def __init__(self):
+    def __init__(self, **kwargs):
         super().__init__(
             name="Fireball",
             cooldown=4,
@@ -133,12 +151,39 @@ class Fireball(Weapon):
             health=40,
             max_projectiles=10,
             radius=20,
+            **kwargs,
         )
 
     def fire(self, position, t):
         super().fire(position, t)
         self.vectors = np.random.uniform(-1, 1, (self.nprojectiles, 2))
         self.vectors /= np.linalg.norm(self.vectors, axis=1)  # [:, None]
+
+
+class GarlicProjectile(Projectile):
+    def move(self, dt):
+        # vector must follow owner
+        self.position = self.owner.position
+
+
+class Garlic(Weapon):
+    def __init__(self, **kwargs):
+        super().__init__(
+            name="Garlic",
+            cooldown=4,
+            damage=15,
+            speed=0.0,
+            health=100,
+            max_projectiles=1,
+            radius=40,
+            projectile=GarlicProjectile,
+            **kwargs,
+        )
+
+    # def fire(self, position, t):
+    #     super().fire(position, t)
+    #     self.vectors = np.random.uniform(-1, 1, (self.nprojectiles, 2))
+    #     self.vectors /= np.linalg.norm(self.vectors, axis=1)  # [:, None]
 
 
 # class Bomb(Weapon):
@@ -162,5 +207,6 @@ class Fireball(Weapon):
 arsenal = {
     "runetracer": Runetracer,
     "fireball": Fireball,
+    "garlic": Garlic,
     # "bomb": Bomb,
 }
