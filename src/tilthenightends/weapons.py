@@ -130,7 +130,7 @@ class Runetracer(Weapon):
             speed=100.0,  # * config.scaling,
             # longevity=5,
             health=30,
-            radius=20,
+            radius=12,
             max_projectiles=5,
             **kwargs,
         )
@@ -150,7 +150,7 @@ class Fireball(Weapon):
             speed=75.0,
             health=40,
             max_projectiles=10,
-            radius=20,
+            radius=16,
             **kwargs,
         )
 
@@ -180,33 +180,106 @@ class Garlic(Weapon):
             **kwargs,
         )
 
-    # def fire(self, position, t):
-    #     super().fire(position, t)
-    #     self.vectors = np.random.uniform(-1, 1, (self.nprojectiles, 2))
-    #     self.vectors /= np.linalg.norm(self.vectors, axis=1)  # [:, None]
+
+class HolyWater(Weapon):
+    def __init__(self, **kwargs):
+        super().__init__(
+            name="HolyWater",
+            cooldown=4,
+            damage=15,
+            speed=0.0,
+            health=40,
+            max_projectiles=10,
+            radius=40,
+            **kwargs,
+        )
+
+    def fire(self, position, t):
+        phi = np.random.uniform(0, 2 * np.pi, self.nprojectiles)
+        self.projectiles = [
+            self.projectile(
+                position=position + np.array([np.cos(p), np.sin(p)]) * self.radius * 2,
+                vector=np.array([1.0, 0]),
+                speed=self.speed,
+                tstart=t,
+                # tend=t + self.longevity,
+                attack=self.damage,
+                health=self.health,
+                radius=self.radius,
+                owner=self.owner,
+            )
+            for p in phi
+        ]
+
+        self.draw_sprites()
+        self.timer = t + self.cooldown
 
 
-# class Bomb(Weapon):
-#     def __init__(self):
-#         super().__init__(
-#             name="Bomb",
-#             cooldown=4,
-#             damage=15,
-#             speed=75.0,
-#             health=40,
-#             max_projectiles=10,
-#             radius=40,
-#         )
+class DoveProjectile(Projectile):
+    def move(self, dt):
+        # for p in self.projectiles:
+        self.phi = (self.phi + self.speed * dt) % (2 * np.pi)
+        # print("p.phi", p.phi)
+        self.position = (
+            self.owner.position
+            + np.array([np.cos(self.phi), np.sin(self.phi)]) * self.radius * 2
+        )
 
-#     def fire(self, position, t):
-#         super().fire(position, t)
-#         self.vectors = np.random.uniform(-1, 1, (self.nprojectiles, 2))
-#         self.vectors /= np.linalg.norm(self.vectors, axis=1)  # [:, None]
+
+class Dove(Weapon):
+    # Doves circle around the player
+    def __init__(self, **kwargs):
+        super().__init__(
+            name="Dove",
+            cooldown=4,
+            damage=15,
+            speed=2.0,
+            health=40,
+            max_projectiles=10,
+            radius=15,
+            projectile=DoveProjectile,
+            **kwargs,
+        )
+
+    def fire(self, position, t):
+        # phi = np.random.uniform(0, 2 * np.pi, self.nprojectiles)
+        phi = (
+            np.linspace(0, 2 * np.pi, self.nprojectiles)
+            + np.random.uniform(0, 2 * np.pi, self.nprojectiles)
+        ) % (2 * np.pi)
+        self.projectiles = []
+        for p in phi:
+            proj = self.projectile(
+                position=position + np.array([np.cos(p), np.sin(p)]) * self.radius * 2,
+                vector=np.array([1.0, 0]),
+                speed=self.speed,
+                tstart=t,
+                # tend=t + self.longevity,
+                attack=self.damage,
+                health=self.health,
+                radius=self.radius,
+                owner=self.owner,
+            )
+            proj.phi = p
+            self.projectiles.append(proj)
+
+        self.draw_sprites()
+        self.timer = t + self.cooldown
+
+    # def move(self, dt):
+    #     for p in self.projectiles:
+    #         p.phi = (p.phi + self.speed * dt) % (2 * np.pi)
+    #         print("p.phi", p.phi)
+    #         p.position = (
+    #             self.owner.position
+    #             + np.array([np.cos(p.phi), np.sin(p.phi)]) * p.radius * 2
+    #         )
 
 
 arsenal = {
     "runetracer": Runetracer,
     "fireball": Fireball,
     "garlic": Garlic,
-    # "bomb": Bomb,
+    "holywater": HolyWater,
+    "dove": Dove,
 }
