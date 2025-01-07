@@ -34,6 +34,7 @@ class Weapon:
         radius,
         owner,
         projectile=Projectile,
+        nprojectiles=1,
     ):
         self.name = name
         self.cooldown = cooldown
@@ -42,7 +43,7 @@ class Weapon:
         # self.radius = radius
         # self.longevity = longevity
         self.health = health
-        self.nprojectiles = 1
+        self.nprojectiles = nprojectiles
         self.max_projectiles = max_projectiles
         self.projectiles = []
         # self.vectors = np.zeros((MAX_PROJECTILES, 2))
@@ -215,6 +216,44 @@ class HolyWater(Weapon):
         self.timer = t + self.cooldown
 
 
+class Lightning(Weapon):
+    def __init__(self, **kwargs):
+        super().__init__(
+            name="Lightning",
+            cooldown=4,
+            damage=15,
+            speed=0.0,
+            health=40,
+            max_projectiles=10,
+            radius=32,
+            nprojectiles=5,
+            **kwargs,
+        )
+
+    def fire(self, position, t):
+        # phi = np.random.uniform(0, 2 * np.pi, self.nprojectiles)
+        y = np.arange(self.nprojectiles) * self.radius * 2
+        x = np.zeros_like(y)
+        pos = (position + np.random.uniform(-400, 400, 2)) + np.array([x, y]).T
+        self.projectiles = [
+            self.projectile(
+                position=p,
+                vector=np.array([1.0, 0]),
+                speed=self.speed,
+                tstart=t,
+                # tend=t + self.longevity,
+                attack=self.damage,
+                health=self.health,
+                radius=self.radius,
+                owner=self.owner,
+            )
+            for p in pos
+        ]
+
+        self.draw_sprites()
+        self.timer = t + self.cooldown
+
+
 class DoveProjectile(Projectile):
     def move(self, dt):
         # for p in self.projectiles:
@@ -282,4 +321,5 @@ arsenal = {
     "garlic": Garlic,
     "holywater": HolyWater,
     "dove": Dove,
+    "lightning": Lightning,
 }
