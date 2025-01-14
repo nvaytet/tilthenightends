@@ -28,8 +28,14 @@ class Player:
         health: float,
         speed: float,
         hero: str,
-        x: float = 0.0,
-        y: float = 0.0,
+        x: float,
+        y: float,
+        positions: np.ndarray,
+        healths: np.ndarray,
+        attacks: np.ndarray,
+        radii: np.ndarray,
+        # x: float = 0.0,
+        # y: float = 0.0,
         # number: int,
         # name: str,
         # color: str,
@@ -42,20 +48,34 @@ class Player:
         # self.x = x
         # self.y = y
         self.speed = speed  # 5.0  # * config.scaling
-        self.vector = np.array([0.0, 0.0])  # vector / np.linalg.norm(vector)
-        self.max_health = health
-        self.health = health  # 100.0
+        self._vector = np.array([0.0, 1.0])  # vector / np.linalg.norm(vector)
+        # self.max_health = health
+        # self.health = health  # 100.0
         # self.defense = 0.0
         self.weapon = arsenal[weapon.lower()](owner=self)
-        self.attack = 0.0
-        self.radius = 20.0
+        # self.attack = 0.0
+        # self.radius = 20.0
+        # print(self.position)
 
-        self._positions = np.full((MAX_PROJECTILES + 1, 2), np.nan)
-        self._vectors = np.full((MAX_PROJECTILES + 1, 2), np.nan)
-        self._healths = np.zeros(MAX_PROJECTILES + 1)
-        self._attacks = np.zeros(MAX_PROJECTILES + 1)
+        self.positions = positions
+        self.healths = healths
+        self.attacks = attacks
+        self.radii = radii
 
-        self._positions[0, :] = np.array([x, y])
+        # self._positions = np.full((MAX_PROJECTILES + 1, 2), np.nan)
+        # self._vectors = np.full((MAX_PROJECTILES + 1, 2), np.nan)
+        # self._healths = np.zeros(MAX_PROJECTILES + 1)
+        # self._attacks = np.zeros(MAX_PROJECTILES + 1)
+
+        self.position = np.array([x, y])
+        self.health = health
+        self.attacks[0] = 0.0
+        self.radii[0] = 20.0
+
+        self.weapon = arsenal[weapon.lower()](owner=self)
+        self.healths[1:] = self.weapon.health
+        self.attacks[1:] = self.weapon.damage
+        self.radii[1:] = self.weapon.radius
 
         self.levels = {
             # "attack": 0,
@@ -68,17 +88,58 @@ class Player:
             "weapon_nprojectiles": 0,
         }
 
-    def add_to_graphics(self):
+        # print("position", self.positions[0:1, :])
+
         self.avatar = make_sprites(
             sprite_path=config.resources / "heroes" / f"{self.hero}.png",
-            positions=self._positions[0, :],
+            positions=self.positions[0:1, :],
         )
         self.weapon_sprites = make_sprites(
-            sprite_path=config.resources / "weapons" / f"{self.name.lower()}.png",
-            positions=self._positions[1:, :],
+            sprite_path=config.resources / "weapons" / f"{self.weapon.name}.png",
+            positions=self.positions[1:, :],
             width=self.weapon.radius * 2,
             height=self.weapon.radius * 2,
         )
+
+    @property
+    def position(self):
+        return self.positions[0, :]
+
+    @position.setter
+    def position(self, xy):
+        self.positions[0, :] = xy
+
+    @property
+    def health(self):
+        return self.healths[0]
+
+    @health.setter
+    def health(self, value):
+        self.healths[0] = value
+
+    @property
+    def attack(self):
+        return self.attacks[0]
+
+    # @attack.setter
+    # def attack(self, value):
+    #     self.attacks[0] = value
+
+    @property
+    def radius(self):
+        return self.radii[0]
+
+    # def add_to_graphics(self):
+    #     self.avatar = make_sprites(
+    #         sprite_path=config.resources / "heroes" / f"{self.hero}.png",
+    #         positions=self._positions[0, :],
+    #     )
+    #     self.weapon_sprites = make_sprites(
+    #         sprite_path=config.resources / "weapons" / f"{self.name.lower()}.png",
+    #         positions=self._positions[1:, :],
+    #         width=self.weapon.radius * 2,
+    #         height=self.weapon.radius * 2,
+    #     )
 
     def execute_bot_instructions(self, direction: Vector | Towards | None):
         if direction is None:
@@ -86,7 +147,8 @@ class Player:
         if isinstance(direction, Vector):
             self.vector = np.array([direction.x, direction.y])
         elif isinstance(direction, Towards):
-            self.vector = np.array([direction.x - self.x, direction.y - self.y])
+            x, y = self.position
+            self.vector = np.array([direction.x - x, direction.y - y])
 
         # self.vector = np.array(
         #     [int(move.right) - int(move.left), int(move.up) - int(move.down)]
@@ -97,8 +159,9 @@ class Player:
         return self.health > 0
 
     def move(self, dt: float):
-        self.x += self.speed * dt * self.vector[0]
-        self.y += self.speed * dt * self.vector[1]
+        # self.x += self.speed * dt * self.vector[0]
+        # self.y += self.speed * dt * self.vector[1]
+        self.position += self.speed * dt * self.vector
         # self.geometry.attributes["position"].array = np.array(
         #     [[self.x, self.y, 0.0], [self.x - 1.0, self.y - 1.0, 0.0]]
         # ).astype("float32")
@@ -106,9 +169,9 @@ class Player:
         # print(f"Player moved to {self.x}, {self.y}.")
         self.avatar.setData(pos=np.array([[self.x, self.y]]))
 
-    @property
-    def position(self) -> np.ndarray:
-        return np.array([self.x, self.y])
+    # @property
+    # def position(self) -> np.ndarray:
+    #     return np.array([self.x, self.y])
 
     @property
     def vector(self) -> np.ndarray:
@@ -128,8 +191,8 @@ class Player:
     def as_dict(self):
         return {
             "hero": self.hero,
-            "x": self.x,
-            "y": self.y,
+            "position": self.position,
+            # "y": self.y,
             "speed": self.speed,
             "vector": self.vector.tolist(),
             "health": self.health,

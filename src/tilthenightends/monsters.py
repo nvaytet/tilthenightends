@@ -15,7 +15,7 @@ bestiary = {
 
 
 class Monsters:
-    def __init__(self, size, kind, distance, scale=10.0):
+    def __init__(self, size, kind, distance, scale, positions, healths, attacks, radii):
         # Create positions in a ring that has a gaussian profile in radius which peaks
         # at distance
         # r = np.random.normal(
@@ -29,10 +29,22 @@ class Monsters:
         self.size = size
         self.distance = distance
         self.scale = scale
-        self.positions = self.make_positions(self.size)
-        self.healths = np.full(self.size, bestiary[kind]["health"])
-        self.attacks = np.full(self.size, bestiary[kind]["attack"])
-        self.radii = np.full(self.size, bestiary[kind]["radius"])
+        self.positions = positions
+        self.healths = healths
+        self.attacks = attacks
+        self.radii = radii
+        # self.positions = self.make_positions(self.size)
+        # self.healths = np.full(self.size, bestiary[kind]["health"])
+        # self.attacks = np.full(self.size, bestiary[kind]["attack"])
+        # self.radii = np.full(self.size, bestiary[kind]["radius"])
+
+        # self.health = bestiary[kind]["health"]
+        # self.attack = bestiary[kind]["attack"]
+        # self.radius = bestiary[kind]["radius"]
+        self.positions[...] = self.make_positions(self.size)
+        self.healths[...] = bestiary[kind]["health"]
+        self.attacks[...] = bestiary[kind]["attack"]
+        self.radii[...] = bestiary[kind]["radius"]
 
         # self.positions = np.random.normal(scale=10, size=(n, 3)).astype("float32") * 5.0
         # self.positions[:, 2] = 0.0
@@ -41,9 +53,12 @@ class Monsters:
         self.xp = bestiary[kind]["health"]
 
         self.kind = kind
+        # self.istart = None
+        # self.iend = None
 
+        # def make_sprites(self, positions):
         self.sprites = make_sprites(
-            sprite_path=config.resources / "monsters" / f"{kind}.png",
+            sprite_path=config.resources / "monsters" / f"{self.kind}.png",
             positions=self.positions,
         )
 
@@ -87,8 +102,8 @@ class Monsters:
         # Compute vectors from current position to target position
         # p = players[0]
         p = next(iter(players))
-        target = np.array([p.x, p.y])
-        v = target - self.positions
+        # target = np.array([p.x, p.y])
+        v = p.position - self.positions
         # Normalize vectors
         v = v / np.linalg.norm(v, axis=1).reshape(-1, 1)
         # Update positions

@@ -104,28 +104,31 @@ class Engine:
         # ]
         self.bots = {p.hero: p for p in team.players}
 
-        # Distribute players in ring around center
-        start_x = []
-        start_y = []
-        r = 100.0
-        for i in range(len(team.players)):
-            angle = i * 2 * np.pi / len(team.players)
-            start_x.append(r * np.cos(angle))
-            start_y.append(r * np.sin(angle))
+        # # Distribute players in ring around center
+        # start_x = []
+        # start_y = []
+        # r = 100.0
+        # for i in range(len(team.players)):
+        #     angle = i * 2 * np.pi / len(team.players)
+        #     start_x.append(r * np.cos(angle))
+        #     start_y.append(r * np.sin(angle))
 
-        self.players = {
-            p.hero: heroes[p.hero](x=start_x[i], y=start_y[i])
-            for i, p in enumerate(team.players)
-        }
+        # self.players = {
+        #     p.hero: heroes[p.hero](
+        #         # x=start_x[i], y=start_y[i]
+        #     )
+        #     for i, p in enumerate(team.players)
+        # }
 
-        self.graphics = Graphics(players=self.players, world=self.world, manual=manual)
+        # # self.graphics = Graphics(players=self.players, world=self.world, manual=manual)
+        self.graphics = Graphics(players=self.bots, world=self.world, manual=manual)
 
-        for player in self.players.values():
-            player.add_to_graphics()
-            player.weapon.add_to_graphics()
+        # for player in self.players.values():
+        #     player.add_to_graphics()
+        #     player.weapon.add_to_graphics()
 
-        if self._manual:
-            self.graphics.set_hero(self.players[0])
+        # if self._manual:
+        #     self.graphics.set_hero(self.players[0])
 
         self.xp = 0.0
         self.dxp = 1.05
@@ -160,18 +163,123 @@ class Engine:
 
         s = 32.0
         d = 25.0
-        self.monsters = [
-            Monsters(size=2000, kind="bat", distance=400.0 * d, scale=100 * s),
-            Monsters(size=2000, kind="rottingghoul", distance=600 * d, scale=100 * s),
-            Monsters(size=500, kind="giantbat", distance=800 * d, scale=100 * s),
-            Monsters(size=500, kind="thereaper", distance=1000 * d, scale=100 * s),
-        ]
-        for horde in self.monsters:
+        monster_params = {
+            "bat": {"size": 2000, "distance": 400.0 * d, "scale": 100 * s},
+            "rottingghoul": {"size": 2000, "distance": 600 * d, "scale": 100 * s},
+            "giantbat": {"size": 500, "distance": 800 * d, "scale": 100 * s},
+            "thereaper": {"size": 500, "distance": 1000 * d, "scale": 100 * s},
+        }
+
+        n_monsters = sum(horde["size"] for horde in monster_params.values())
+        self.monster_arrays = {
+            "positions": np.zeros((n_monsters, 2), dtype="float32"),
+            "healths": np.zeros(n_monsters, dtype="float32"),
+            "attacks": np.zeros(n_monsters, dtype="float32"),
+            "radii": np.zeros(n_monsters, dtype="float32"),
+        }
+
+        self.monsters = {}
+        iend = 0
+        for kind, horde in monster_params.items():
+            istart = iend
+            iend = horde["size"] + iend
+            self.monsters[kind] = Monsters(
+                size=horde["size"],
+                kind=kind,
+                distance=horde["distance"],
+                scale=horde["scale"],
+                positions=self.monster_arrays["positions"][istart:iend, :],
+                healths=self.monster_arrays["healths"][istart:iend],
+                attacks=self.monster_arrays["attacks"][istart:iend],
+                radii=self.monster_arrays["radii"][istart:iend],
+            )
+
+        #     "bat": Monsters(size=2000, kind="bat", distance=400.0 * d, scale=100 * s),
+        #     "rottingghoul": Monsters(
+        #         size=2000, kind="rottingghoul", distance=600 * d, scale=100 * s
+        #     ),
+        #     "giantbat": Monsters(
+        #         size=500, kind="giantbat", distance=800 * d, scale=100 * s
+        #     ),
+        #     "thereaper": Monsters(
+        #         size=500, kind="thereaper", distance=1000 * d, scale=100 * s
+        #     ),
+        # }
+
+        # n_monsters = sum(horde.size for horde in self.monsters.values())
+        # self.monster_arrays = {
+        #     "positions": np.zeros((n_monsters, 2), dtype="float32"),
+        #     "healths": np.zeros(n_monsters, dtype="float32"),
+        #     "attacks": np.zeros(n_monsters, dtype="float32"),
+        #     "radii": np.zeros(n_monsters, dtype="float32"),
+        # }
+        # # self.monster_indices = {}
+        # n = 0
+        for horde in self.monsters.values():
             self.graphics.add(horde.sprites)
 
-        for player in self.players.values():
+        step = config.max_projectiles + 1
+        n_players_and_projectiles = step * len(self.bots)
+        self.player_arrays = {
+            "positions": np.full(
+                (n_players_and_projectiles, 2), np.nan, dtype="float32"
+            ),
+            "healths": np.zeros(n_players_and_projectiles, dtype="float32"),
+            "attacks": np.zeros(n_players_and_projectiles, dtype="float32"),
+            "radii": np.zeros(n_players_and_projectiles, dtype="float32"),
+        }
+
+        # # Distribute players in ring around center
+        #         start_x = []
+        #         start_y = []
+        #         r = 100.0
+        #         for i in range(len(team.players)):
+        #             angle = i * 2 * np.pi / len(team.players)
+        #             start_x.append(r * np.cos(angle))
+        #             start_y.append(r * np.sin(angle))
+
+        r = 100.0
+        # n = 0
+
+        # self.players = {
+        #     p.hero: heroes[p.hero](
+        #         # x=start_x[i], y=start_y[i]
+        #     )
+        #     for i, p in enumerate(team.players)
+        # }
+
+        # self.graphics = Graphics(players=self.players, world=self.world, manual=manual)
+        # self.graphics = Graphics(players=self.bots, world=self.world, manual=manual)
+
+        # for player in self.players.values():
+        #     player.add_to_graphics()
+        #     player.weapon.add_to_graphics()
+
+        self.players = {}
+
+        for i, bot in enumerate(self.bots.values()):
+            angle = i * 2 * np.pi / len(team.players)
+            s = slice(i * step, (i + 1) * step)
+            player = heroes[bot.hero](
+                x=r * np.cos(angle),
+                y=r * np.sin(angle),
+                positions=self.player_arrays["positions"][s, :],
+                healths=self.player_arrays["healths"][s],
+                attacks=self.player_arrays["attacks"][s],
+                radii=self.player_arrays["radii"][s],
+            )
+            self.players[bot.hero] = player
+            # # j = i * step
+            # # self.player_arrays["positions"][j, 0] = r * np.cos(angle)
+            # # self.player_arrays["positions"][j, 1] = r * np.sin(angle)
+            # self.player_arrays["healths"][j] = player.health
+            # self.player_arrays["attacks"][j] = player.attack
+            # self.player_arrays["radii"][j] = player.radius
+
+            # self.player_arrays["healths"][j + 1 : j + step] = player.weapon.max_health
+
             self.graphics.add(player.avatar)
-            self.graphics.add(player.weapon.sprites)
+            self.graphics.add(player.weapon_sprites)
             # player.weapon.fire(0, 0, 0)
 
         # self.start_button = ipw.Button(description="Start!")
@@ -187,11 +295,14 @@ class Engine:
 
         # self.toolbar = ipw.HBox([self.start_button, self.camera_lock])
 
+        if self._manual:
+            self.graphics.set_hero(self.players[0])
+
         self.dt = 1.0 / config.fps
         # self._previous_t = 0.0
 
         self.graphics.update_player_status(self.players, xp=self.xp)
-        self.move_camera()
+        # self.move_camera()
 
     # def execute_player_bot(self, team: str, info: dict) -> Instructions:
     #     instructions = None
@@ -238,38 +349,45 @@ class Engine:
         # If any monster is within 5 pixels of a player, the player takes damage equal
         # to the monster's damage. If the player's health is less than or equal to
         # zero, the player is destroyed.
-        # Combine all monster positions, healths, and attacks
-        evil_positions = np.concatenate([horde.positions for horde in self.monsters])
-        evil_healths = np.concatenate([horde.healths for horde in self.monsters])
-        evil_attacks = np.concatenate([horde.attacks for horde in self.monsters])
-        evil_radius = np.concatenate([horde.radii for horde in self.monsters])
 
-        # Combine all hero and projectile positions
-        player_list = list(self.players.values())
-        # players_and_projectiles = player_list + [
-        #     proj for player in player_list for proj in player.weapon.projectiles
-        # ]
+        # # Combine all monster positions, healths, and attacks
+        # evil_positions = np.concatenate([horde.positions for horde in self.monsters])
+        # evil_healths = np.concatenate([horde.healths for horde in self.monsters])
+        # evil_attacks = np.concatenate([horde.attacks for horde in self.monsters])
+        # evil_radius = np.concatenate([horde.radii for horde in self.monsters])
+
+        # # Combine all hero and projectile positions
+        # player_list = list(self.players.values())
+        # # players_and_projectiles = player_list + [
+        # #     proj for player in player_list for proj in player.weapon.projectiles
+        # # ]
+        # # good_positions = np.concatenate(
+        # #     [pp.position.reshape(1, 2) for pp in players_and_projectiles]
+        # # )
+        # # good_healths = np.array([pp.health for pp in players_and_projectiles])
+        # # good_attacks = np.array([pp.attack for pp in players_and_projectiles])
+        # # good_radius = np.array([pp.radius for pp in players_and_projectiles])
         # good_positions = np.concatenate(
-        #     [pp.position.reshape(1, 2) for pp in players_and_projectiles]
+        #     [
+        #         np.concatenate([p.position.reshape(1, 2), p.weapon.positions])
+        #         for p in player_list
+        #     ]
         # )
-        # good_healths = np.array([pp.health for pp in players_and_projectiles])
-        # good_attacks = np.array([pp.attack for pp in players_and_projectiles])
-        # good_radius = np.array([pp.radius for pp in players_and_projectiles])
-        good_positions = np.concatenate(
-            [
-                np.concatenate([p.position.reshape(1, 2), p.weapon.positions])
-                for p in player_list
-            ]
-        )
-        good_healths = np.concatenate(
-            np.concatenate([p.health, p.weapon.healths]) for p in player_list
-        )
-        good_attacks = np.concatenate(
-            np.concatenate([p.attack, p.weapon.attacks]) for p in player_list
-        )
-        good_radius = np.concatenate(
-            np.concatenate([p.radius, p.weapon.radii]) for p in player_list
-        )
+        # good_healths = np.concatenate(
+        #     np.concatenate([p.health, p.weapon.healths]) for p in player_list
+        # )
+        # good_attacks = np.concatenate(
+        #     np.concatenate([p.attack, p.weapon.attacks]) for p in player_list
+        # )
+        # good_radius = np.concatenate(
+        #     np.concatenate([p.radius, p.weapon.radii]) for p in player_list
+        # )
+
+        # # Compute pairwise distances
+        # distances = np.linalg.norm(
+        #     evil_positions[:, np.newaxis, :] - good_positions[np.newaxis, :, :], axis=2
+        # )
+        # sum_of_radii = evil_radius[:, np.newaxis] + good_radius[np.newaxis, :]
 
         # Compute pairwise distances
         distances = np.linalg.norm(
@@ -374,37 +492,27 @@ class Engine:
 
     def update(self):
         t = self.elapsed_timer.elapsed() / 1000.0
-        # print("dt", t - self._previous_t)
-        # self._previous_t = t
-        self.call_player_bots(t=t, dt=self.dt)
-        for player in self.players.values():
-            player.move(self.dt)
-            if t > player.weapon.timer:
-                player.weapon.fire(player.position, t)
-            player.weapon.update(self.dt)
-        # if self.camera_lock.value:
-        #     # player center of mass
-        #     x, y = np.mean([[p.x, p.y] for p in self.players], axis=0)
-        #     self.graphics.camera.position = [x, y, self.graphics.camera.position[2]]
-        #     lookat = [x, y, 0]
-        #     self.graphics.controller.target = lookat
-        #     self.graphics.camera.lookAt(lookat)
-        for horde in self.monsters:
+        # self.call_player_bots(t=t, dt=self.dt)
+
+        # for player in self.players.values():
+        #     player.move(self.dt)
+        #     if t > player.weapon.timer:
+        #         player.weapon.fire(player.position, t)
+        #     player.weapon.update(self.dt)
+
+        for horde in self.monsters.values():
             horde.move(self.dt, players=self.players.values())
 
         if self._follow:  # and (int(t * 3) % 3 == 0):
             self.move_camera()
 
-        self.fight(t=t)
-        self.resolve_xp(t=t)
+        # self.fight(t=t)
+        # self.resolve_xp(t=t)
 
         # Update player status every 10 frames
         if int(t * 10) % 10 == 0:
             self.graphics.update_player_status(self.players, xp=self.xp)
             self.graphics.update_time(t=t)
-
-        # # Set camera position to player center of mass
-        # x, y = np.mean([[p.x, p.y] for p in self.players], axis=0)
 
         if self._manual:
             self.graphics.update()

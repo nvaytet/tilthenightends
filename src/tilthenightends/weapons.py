@@ -42,14 +42,14 @@ class Weapon:
         self.speed = speed
         # self.radius = radius
         # self.longevity = longevity
-        self.max_health = health
+        self.health = health
         self.projectile_counter = 0
         self.nprojectiles = nprojectiles
         self.max_projectiles = max_projectiles
         # self.projectiles = []
-        self._vectors = np.zeros((MAX_PROJECTILES, 2))
-        self._positions = np.full((MAX_PROJECTILES, 2), np.nan)
-        self._healths = np.full(MAX_PROJECTILES, self.max_health)
+        # self._vectors = np.zeros((MAX_PROJECTILES, 2))
+        # self._positions = np.full((MAX_PROJECTILES, 2), np.nan)
+        # self._healths = np.full(MAX_PROJECTILES, self.max_health)
         # self._radii = np.full(MAX_PROJECTILES, radius)
         self.timer = 0
         self.radius = radius
@@ -57,29 +57,31 @@ class Weapon:
         self.projectile = projectile
         self._active_slots = np.zeros(MAX_PROJECTILES, dtype=bool)
 
-    @property
-    def positions(self):
-        return self._positions[self._active_slots, :]
+        # self.hea
 
-    @property
-    def vectors(self):
-        return self._vectors[self._active_slots, :]
+    # @property
+    # def positions(self):
+    #     return self._positions[self._active_slots, :]
 
-    @property
-    def healths(self):
-        return self._healths[self._active_slots]
+    # @property
+    # def vectors(self):
+    #     return self._vectors[self._active_slots, :]
 
-    @healths.setter
-    def healths(self, value):
-        self._healths[self._active_slots] = value
+    # @property
+    # def healths(self):
+    #     return self._healths[self._active_slots]
 
-    @property
-    def attacks(self):
-        return np.full(self.projectile_counter, self.damage)
+    # @healths.setter
+    # def healths(self, value):
+    #     self._healths[self._active_slots] = value
 
-    @property
-    def radii(self):
-        return np.full(self.projectile_counter, self.radius)
+    # @property
+    # def attacks(self):
+    #     return np.full(self.projectile_counter, self.damage)
+
+    # @property
+    # def radii(self):
+    #     return np.full(self.projectile_counter, self.radius)
 
     def add_to_graphics(self):
         self.sprites = make_sprites(
