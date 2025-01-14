@@ -246,15 +246,30 @@ class Engine:
 
         # Combine all hero and projectile positions
         player_list = list(self.players.values())
-        players_and_projectiles = player_list + [
-            proj for player in player_list for proj in player.weapon.projectiles
-        ]
+        # players_and_projectiles = player_list + [
+        #     proj for player in player_list for proj in player.weapon.projectiles
+        # ]
+        # good_positions = np.concatenate(
+        #     [pp.position.reshape(1, 2) for pp in players_and_projectiles]
+        # )
+        # good_healths = np.array([pp.health for pp in players_and_projectiles])
+        # good_attacks = np.array([pp.attack for pp in players_and_projectiles])
+        # good_radius = np.array([pp.radius for pp in players_and_projectiles])
         good_positions = np.concatenate(
-            [pp.position.reshape(1, 2) for pp in players_and_projectiles]
+            [
+                np.concatenate([p.position.reshape(1, 2), p.weapon.positions])
+                for p in player_list
+            ]
         )
-        good_healths = np.array([pp.health for pp in players_and_projectiles])
-        good_attacks = np.array([pp.attack for pp in players_and_projectiles])
-        good_radius = np.array([pp.radius for pp in players_and_projectiles])
+        good_healths = np.concatenate(
+            np.concatenate([p.health, p.weapon.healths]) for p in player_list
+        )
+        good_attacks = np.concatenate(
+            np.concatenate([p.attack, p.weapon.attacks]) for p in player_list
+        )
+        good_radius = np.concatenate(
+            np.concatenate([p.radius, p.weapon.radii]) for p in player_list
+        )
 
         # Compute pairwise distances
         distances = np.linalg.norm(
@@ -271,10 +286,13 @@ class Engine:
         evil_healths -= monster_damage.sum(axis=1)
         good_healths -= player_damage.sum(axis=0)
 
-        for pp, health in zip(players_and_projectiles, good_healths):
-            pp.health = health
-            # if pp.health <= 0:
-            #     pp.die()
+        # for pp, health in zip(players_and_projectiles, good_healths):
+        #     pp.health = health
+        #     # if pp.health <= 0:
+        #     #     pp.die()
+
+        # Update healths
+
         for player in self.players.values():
             if player.health <= 0:
                 player.die(t=t)
@@ -283,6 +301,7 @@ class Engine:
             ]
 
         for i, horde in enumerate(self.monsters):
+            # TODO: this doesn't look right, as hordes have different sizes?
             horde.healths = evil_healths[i * horde.size : (i + 1) * horde.size]
             inds = np.where(horde.healths <= 0)[0]
             ndead = len(inds)

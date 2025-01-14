@@ -3,7 +3,7 @@ import numpy as np
 from . import config
 from .graphics import make_sprites
 
-# MAX_PROJECTILES = 100
+MAX_PROJECTILES = 100
 
 
 class Projectile:
@@ -42,21 +42,49 @@ class Weapon:
         self.speed = speed
         # self.radius = radius
         # self.longevity = longevity
-        self.health = health
+        self.max_health = health
+        self.projectile_counter = 0
         self.nprojectiles = nprojectiles
         self.max_projectiles = max_projectiles
-        self.projectiles = []
-        # self.vectors = np.zeros((MAX_PROJECTILES, 2))
-        # self.positions = np.full((MAX_PROJECTILES, 2), np.nan)
+        # self.projectiles = []
+        self._vectors = np.zeros((MAX_PROJECTILES, 2))
+        self._positions = np.full((MAX_PROJECTILES, 2), np.nan)
+        self._healths = np.full(MAX_PROJECTILES, self.max_health)
+        # self._radii = np.full(MAX_PROJECTILES, radius)
         self.timer = 0
         self.radius = radius
         self.owner = owner
         self.projectile = projectile
+        self._active_slots = np.zeros(MAX_PROJECTILES, dtype=bool)
+
+    @property
+    def positions(self):
+        return self._positions[self._active_slots, :]
+
+    @property
+    def vectors(self):
+        return self._vectors[self._active_slots, :]
+
+    @property
+    def healths(self):
+        return self._healths[self._active_slots]
+
+    @healths.setter
+    def healths(self, value):
+        self._healths[self._active_slots] = value
+
+    @property
+    def attacks(self):
+        return np.full(self.projectile_counter, self.damage)
+
+    @property
+    def radii(self):
+        return np.full(self.projectile_counter, self.radius)
 
     def add_to_graphics(self):
         self.sprites = make_sprites(
             sprite_path=config.resources / "weapons" / f"{self.name.lower()}.png",
-            positions=np.array([[0, 0]]),
+            positions=self.positions,
             width=self.radius * 2,
             height=self.radius * 2,
         )
@@ -71,20 +99,28 @@ class Weapon:
     def fire(self, position, t):
         print("t, self.timer", t, self.timer)
         # self.projectiles.extend(
-        self.projectiles = [
-            self.projectile(
-                position=position,
-                vector=np.random.uniform(-1, 1, 2),
-                speed=self.speed,
-                tstart=t,
-                # tend=t + self.longevity,
-                attack=self.damage,
-                health=self.health,
-                radius=self.radius,
-                owner=self.owner,
-            )
-            for _ in range(self.nprojectiles)
-        ]
+        # self.projectiles = [
+        #     self.projectile(
+        #         position=position,
+        #         vector=np.random.uniform(-1, 1, 2),
+        #         speed=self.speed,
+        #         tstart=t,
+        #         # tend=t + self.longevity,
+        #         attack=self.damage,
+        #         health=self.health,
+        #         radius=self.radius,
+        #         owner=self.owner,
+        #     )
+        #     for _ in range(self.nprojectiles)
+        # ]
+
+        # Find an empty slot in the arrays
+        ind = np.where(np.isnan(self._positions[:, 0]))[0]
+        self._positions[ind, :] = position
+        self._vectors[ind, :] = np.random.uniform(-1, 1, 2)
+        self._healths[ind] = self.max_health
+        self._active_slots[ind] = True
+        self.projectile_counter = np.sum(self._active_slots)
 
         # self.positions[: self.nprojectiles, 0] = x
         # self.positions[: self.nprojectiles, 1] = y
@@ -95,11 +131,12 @@ class Weapon:
         self.timer = t + self.cooldown
 
     def draw_sprites(self):
-        pos = [p.position for p in self.projectiles]
-        # print(pos.shape)
-        # print("len(pos)", len(pos), np.array(pos).shape, self.projectiles[0].position)
-        if pos:
-            self.sprites.setData(pos=np.array(pos))
+        # pos = [p.position for p in self.projectiles]
+        # # print(pos.shape)
+        # # print("len(pos)", len(pos), np.array(pos).shape, self.projectiles[0].position)
+        # if pos:
+        #     self.sprites.setData(pos=np.array(pos))
+        self.sprites.setData(pos=self._positions)
 
     def update(self, dt):
         # self.positions += self.vectors * dt * self.speed
