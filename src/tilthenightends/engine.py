@@ -227,6 +227,7 @@ class Engine:
             "healths": np.zeros(n_players_and_projectiles, dtype="float32"),
             "attacks": np.zeros(n_players_and_projectiles, dtype="float32"),
             "radii": np.zeros(n_players_and_projectiles, dtype="float32"),
+            "vectors": np.zeros((n_players_and_projectiles, 2), dtype="float32"),
         }
 
         # # Distribute players in ring around center
@@ -267,6 +268,7 @@ class Engine:
                 healths=self.player_arrays["healths"][s],
                 attacks=self.player_arrays["attacks"][s],
                 radii=self.player_arrays["radii"][s],
+                vectors=self.player_arrays["vectors"][s, :],
             )
             self.players[bot.hero] = player
             # # j = i * step
@@ -492,13 +494,13 @@ class Engine:
 
     def update(self):
         t = self.elapsed_timer.elapsed() / 1000.0
-        # self.call_player_bots(t=t, dt=self.dt)
+        self.call_player_bots(t=t, dt=self.dt)
 
-        # for player in self.players.values():
-        #     player.move(self.dt)
-        #     if t > player.weapon.timer:
-        #         player.weapon.fire(player.position, t)
-        #     player.weapon.update(self.dt)
+        for player in self.players.values():
+            player.move(self.dt)
+            # if t > player.weapon.timer:
+            #     player.weapon.fire(player.position, t)
+            # player.weapon.update(self.dt)
 
         for horde in self.monsters.values():
             horde.move(self.dt, players=self.players.values())

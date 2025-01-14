@@ -1,9 +1,8 @@
 import numpy as np
 
 from . import config
-from .graphics import make_sprites
 
-MAX_PROJECTILES = 100
+# MAX_PROJECTILES = 100
 
 
 class Projectile:
@@ -55,7 +54,7 @@ class Weapon:
         self.radius = radius
         self.owner = owner
         self.projectile = projectile
-        self._active_slots = np.zeros(MAX_PROJECTILES, dtype=bool)
+        self._active_slots = np.zeros(config.max_projectiles, dtype=bool)
 
         # self.hea
 
@@ -83,20 +82,20 @@ class Weapon:
     # def radii(self):
     #     return np.full(self.projectile_counter, self.radius)
 
-    def add_to_graphics(self):
-        self.sprites = make_sprites(
-            sprite_path=config.resources / "weapons" / f"{self.name.lower()}.png",
-            positions=self.positions,
-            width=self.radius * 2,
-            height=self.radius * 2,
-        )
-        # self.levels = {
-        #     "speed": 0,
-        #     "health": 0,
-        #     "damage": 0,
-        #     "cooldown": 0,
-        #     "nprojectiles": 0,
-        # }
+    # def add_to_graphics(self):
+    #     self.sprites = make_sprites(
+    #         sprite_path=config.resources / "weapons" / f"{self.name.lower()}.png",
+    #         positions=self.positions,
+    #         width=self.radius * 2,
+    #         height=self.radius * 2,
+    #     )
+    # self.levels = {
+    #     "speed": 0,
+    #     "health": 0,
+    #     "damage": 0,
+    #     "cooldown": 0,
+    #     "nprojectiles": 0,
+    # }
 
     def fire(self, position, t):
         print("t, self.timer", t, self.timer)
@@ -117,7 +116,7 @@ class Weapon:
         # ]
 
         # Find an empty slot in the arrays
-        ind = np.where(np.isnan(self._positions[:, 0]))[0]
+        ind = np.where(np.isnan(self.owner.positions[1:, 0]))[0]
         self._positions[ind, :] = position
         self._vectors[ind, :] = np.random.uniform(-1, 1, 2)
         self._healths[ind] = self.max_health

@@ -15,7 +15,7 @@ import numpy as np
 from . import config
 from .graphics import make_sprites
 from .tools import Vector, Towards, LevelupOptions
-from .weapons import arsenal
+# from .weapons import arsenal
 
 MAX_PROJECTILES = 100
 
@@ -24,7 +24,7 @@ class Player:
     def __init__(
         self,
         # vector: np.ndarray,
-        weapon: str,
+        # weapon: str,
         health: float,
         speed: float,
         hero: str,
@@ -34,33 +34,28 @@ class Player:
         healths: np.ndarray,
         attacks: np.ndarray,
         radii: np.ndarray,
-        # x: float = 0.0,
-        # y: float = 0.0,
-        # number: int,
-        # name: str,
-        # color: str,
-        # avatar: Union[int, str],
-        # position: float,
-        # back_batch: pyglet.graphics.Batch,
-        # main_batch: pyglet.graphics.Batch,
+        vectors: np.ndarray,
+        weapon: dict,
     ):
         self.hero = hero
         # self.x = x
         # self.y = y
         self.speed = speed  # 5.0  # * config.scaling
-        self._vector = np.array([0.0, 1.0])  # vector / np.linalg.norm(vector)
+        # self._vector = np.array([0.0, 1.0])  # vector / np.linalg.norm(vector)
         # self.max_health = health
         # self.health = health  # 100.0
         # self.defense = 0.0
-        self.weapon = arsenal[weapon.lower()](owner=self)
+        # self.weapon = arsenal[weapon.lower()](owner=self)
         # self.attack = 0.0
         # self.radius = 20.0
         # print(self.position)
+        self.weapon = weapon
 
         self.positions = positions
         self.healths = healths
         self.attacks = attacks
         self.radii = radii
+        self.vectors = vectors
 
         # self._positions = np.full((MAX_PROJECTILES + 1, 2), np.nan)
         # self._vectors = np.full((MAX_PROJECTILES + 1, 2), np.nan)
@@ -72,10 +67,10 @@ class Player:
         self.attacks[0] = 0.0
         self.radii[0] = 20.0
 
-        self.weapon = arsenal[weapon.lower()](owner=self)
-        self.healths[1:] = self.weapon.health
-        self.attacks[1:] = self.weapon.damage
-        self.radii[1:] = self.weapon.radius
+        # self.weapon = arsenal[weapon.lower()](owner=self)
+        self.healths[1:] = self.weapon["health"]
+        self.attacks[1:] = self.weapon["damage"]
+        self.radii[1:] = self.weapon["radius"]
 
         self.levels = {
             # "attack": 0,
@@ -167,7 +162,7 @@ class Player:
         # ).astype("float32")
         # self.avatar.position = [self.x, self.y, 0.0]
         # print(f"Player moved to {self.x}, {self.y}.")
-        self.avatar.setData(pos=np.array([[self.x, self.y]]))
+        self.avatar.setData(pos=self.positions[0:1, :])
 
     # @property
     # def position(self) -> np.ndarray:
@@ -175,14 +170,15 @@ class Player:
 
     @property
     def vector(self) -> np.ndarray:
-        return self._vector
+        return self.vectors[0, :]
 
     @vector.setter
     def vector(self, value: np.ndarray):
-        self._vector = np.asarray(value)
-        norm = np.linalg.norm(value)
+        v = np.asarray(value)
+        norm = np.linalg.norm(v)
         if norm > 0.0:
-            self._vector = self._vector / norm
+            v = v / norm
+        self.vectors[0, :] = v
 
     def die(self, t):
         # Start countdown to respawn
@@ -227,33 +223,86 @@ class Player:
         # Healing bonus for leveling up
         self.health = self.max_health
 
+    def fire(self, t):
+        print("t, self.timer", t, self.timer)
+        # Find an empty slot in the arrays
+        ind = np.where(np.isnan(self.positions[1:, 0]))[0]
+        self.positions[ind, :] = self.position
+        self.vectors[ind, :] = np.random.uniform(-1, 1, 2)
+        self.healths[ind] = self.weapon["health"]
+        self._active_slots[ind] = True
+        self.projectile_counter = np.sum(self._active_slots)
+
+        # self.positions[: self.nprojectiles, 0] = x
+        # self.positions[: self.nprojectiles, 1] = y
+        # self.tstart = t
+        # self.tend = t + self.longevity
+        # self.sprites.setData(pos=self.positions)
+        self.draw_sprites()
+        self.timer = t + self.cooldown
+
+
+class Runetracer(Player):
+    def __init__(
+        self,
+        *args,
+        weapon=dict(
+            name="Runetracer",
+            cooldown=5,
+            damage=10,
+            speed=100.0,
+            health=30,
+            radius=12,
+            max_projectiles=5,
+        ),
+        **kwargs,
+    ):
+        super().__init__(
+            *args,
+            weapon=weapon,
+            **kwargs,
+        )
+
 
 heroes = {
-    "alaric": partial(
-        Player, weapon="fireball", health=100.0, speed=25.0, hero="alaric"
-    ),
-    "cedric": partial(
-        Player, weapon="runetracer", health=100.0, speed=25.0, hero="cedric"
-    ),
-    "evelyn": partial(
-        Player, weapon="runetracer", health=100.0, speed=25.0, hero="evelyn"
-    ),
-    "garron": partial(Player, weapon="dove", health=100.0, speed=25.0, hero="garron"),
-    "isolde": partial(
-        Player, weapon="holywater", health=100.0, speed=25.0, hero="isolde"
-    ),
-    "kaelen": partial(
-        Player, weapon="lightning", health=100.0, speed=25.0, hero="kaelen"
-    ),
-    "lyra": partial(Player, weapon="runetracer", health=100.0, speed=25.0, hero="lyra"),
-    "selene": partial(
-        Player, weapon="runetracer", health=100.0, speed=25.0, hero="selene"
-    ),
-    "seraphina": partial(
-        Player, weapon="runetracer", health=100.0, speed=25.0, hero="seraphina"
-    ),
-    "theron": partial(Player, weapon="garlic", health=100.0, speed=25.0, hero="theron"),
+    "alaric": partial(Runetracer, health=100.0, speed=25.0, hero="alaric"),
+    "cedric": partial(Runetracer, health=100.0, speed=25.0, hero="cedric"),
+    "evelyn": partial(Runetracer, health=100.0, speed=25.0, hero="evelyn"),
+    "garron": partial(Runetracer, health=100.0, speed=25.0, hero="garron"),
+    "isolde": partial(Runetracer, health=100.0, speed=25.0, hero="isolde"),
+    "kaelen": partial(Runetracer, health=100.0, speed=25.0, hero="kaelen"),
+    "lyra": partial(Runetracer, health=100.0, speed=25.0, hero="lyra"),
+    "selene": partial(Runetracer, health=100.0, speed=25.0, hero="selene"),
+    "seraphina": partial(Runetracer, health=100.0, speed=25.0, hero="seraphina"),
+    "theron": partial(Runetracer, health=100.0, speed=25.0, hero="theron"),
 }
+
+# heroes = {
+#     "alaric": partial(
+#         Player, weapon="fireball", health=100.0, speed=25.0, hero="alaric"
+#     ),
+#     "cedric": partial(
+#         Player, weapon="runetracer", health=100.0, speed=25.0, hero="cedric"
+#     ),
+#     "evelyn": partial(
+#         Player, weapon="runetracer", health=100.0, speed=25.0, hero="evelyn"
+#     ),
+#     "garron": partial(Player, weapon="dove", health=100.0, speed=25.0, hero="garron"),
+#     "isolde": partial(
+#         Player, weapon="holywater", health=100.0, speed=25.0, hero="isolde"
+#     ),
+#     "kaelen": partial(
+#         Player, weapon="lightning", health=100.0, speed=25.0, hero="kaelen"
+#     ),
+#     "lyra": partial(Player, weapon="runetracer", health=100.0, speed=25.0, hero="lyra"),
+#     "selene": partial(
+#         Player, weapon="runetracer", health=100.0, speed=25.0, hero="selene"
+#     ),
+#     "seraphina": partial(
+#         Player, weapon="runetracer", health=100.0, speed=25.0, hero="seraphina"
+#     ),
+#     "theron": partial(Player, weapon="garlic", health=100.0, speed=25.0, hero="theron"),
+# }
 
 
 # class Strategist:
