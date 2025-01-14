@@ -75,9 +75,9 @@ class Player:
         )
         self.weapon_sprites = make_sprites(
             sprite_path=config.resources / "weapons" / f"{self.name.lower()}.png",
-            positions=self.positions,
-            width=self.radius * 2,
-            height=self.radius * 2,
+            positions=self._positions[1:, :],
+            width=self.weapon.radius * 2,
+            height=self.weapon.radius * 2,
         )
 
     def execute_bot_instructions(self, direction: Vector | Towards | None):
