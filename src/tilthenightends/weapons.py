@@ -30,10 +30,12 @@ class Weapon:
     health: float
     max_projectiles: int
     radius: float
+    duration: float
     # owner: Any
     # projectile: Type[Projectile] = Projectile
     nprojectiles: int = 1
     timer: float = 0
+    # duration: float = 0
     # _active_slots: np.ndarray = field(init=False)
 
     def as_dict(self):

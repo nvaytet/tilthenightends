@@ -8,7 +8,6 @@
 
 # from .tools import Instructions, image_to_sprite, recenter_image, text_to_raw_image
 
-from functools import partial
 from typing import Any
 import numpy as np
 
@@ -17,7 +16,7 @@ from .graphics import make_sprites
 from .tools import Vector, Towards, LevelupOptions
 from .weapons import Weapon
 
-MAX_PROJECTILES = 100
+# MAX_PROJECTILES = 100
 
 
 class Player:
@@ -35,10 +34,12 @@ class Player:
         attacks: np.ndarray,
         radii: np.ndarray,
         vectors: np.ndarray,
-        speeds: np.ndarray,
+        # speeds: np.ndarray,
         weapon: Weapon,
+        storage_position: float,
     ):
         self.hero = hero
+        self.timer = 0.0
         # self.x = x
         # self.y = y
         # self.speed = speed  # 5.0  # * config.scaling
@@ -51,6 +52,7 @@ class Player:
         # self.radius = 20.0
         # print(self.position)
         self.weapon = weapon
+        self.storage_position = storage_position
         # self.weapon_timer =
 
         self.positions = positions
@@ -58,7 +60,8 @@ class Player:
         self.attacks = attacks
         self.radii = radii
         self.vectors = vectors
-        self.speeds = speeds
+        self.speeds = np.zeros_like(self.attacks).reshape(-1, 1)
+        self.expire = np.zeros_like(self.attacks)
 
         # self._positions = np.full((MAX_PROJECTILES + 1, 2), np.nan)
         # self._vectors = np.full((MAX_PROJECTILES + 1, 2), np.nan)
@@ -70,11 +73,13 @@ class Player:
         self.attacks[0] = 0.0
         self.radii[0] = 20.0
         self.speeds[0] = speed
+        self.expire[0] = np.inf
 
         # self.weapon = arsenal[weapon.lower()](owner=self)
-        self.healths[1:] = self.weapon.health
+        # self.healths[1:] = self.weapon.health
         self.attacks[1:] = self.weapon.damage
         self.radii[1:] = self.weapon.radius
+        self.speeds[1:] = self.weapon.speed
 
         self.levels = {
             # "attack": 0,
@@ -93,11 +98,11 @@ class Player:
             sprite_path=config.resources / "heroes" / f"{self.hero}.png",
             positions=self.positions[0:1, :],
         )
-        print(config.resources / "weapons" / f"{self.weapon.name}.png")
+        # print(config.resources / "weapons" / f"{self.weapon.name}.png")
         # print(self.positions[1:, :])
         # print(
 
-        self.fire(t=0.0)
+        # self.fire(t=0.0)
 
         self.weapon_sprites = make_sprites(
             sprite_path=config.resources / "weapons" / f"{self.weapon.name}.png",
@@ -247,12 +252,17 @@ class Player:
         self.health = self.max_health
 
     def fire(self, t):
-        print("t, self.timer", t, self.weapon.timer)
+        print("t, self.timer", t, self.timer)
         # Find an empty slot in the arrays
-        ind = np.squeeze(np.where(np.isnan(self.positions[:, 0])))[0]
+        ind = np.squeeze(np.where(np.isnan(self.healths)))[0]
         self.positions[ind, :] = self.position
         print("ind", ind, self.positions[ind, :], self.position)
-        self.vectors[ind, :] = np.random.uniform(-1, 1, 2)
+        v = np.random.uniform(-1, 1, 2)
+        norm = np.linalg.norm(v)
+        if norm > 0.0:
+            v /= norm
+        self.vectors[ind, :] = v
+        # print(self.vectors)
         self.healths[ind] = self.weapon.health
         # self._active_slots[ind] = True
         # self.projectile_counter = np.sum(self._active_slots)
@@ -263,43 +273,49 @@ class Player:
         # self.tend = t + self.longevity
         # self.sprites.setData(pos=self.positions)
         # self.draw_sprites()
-        self.weapon.timer = t + self.weapon.cooldown
+        self.timer = t + self.weapon.cooldown
+        self.expire[ind] = t + self.weapon.duration
+
+    def expire_projectiles(self, t):
+        inds = self.expire < t
+        self.healths[inds] = np.nan
+        self.positions[inds, :] = self.storage_position
 
 
-class Runetracer(Player):
-    def __init__(
-        self,
-        *args,
-        weapon=Weapon(
-            name="runetracer",
-            cooldown=5,
-            damage=10,
-            speed=100.0,
-            health=30,
-            radius=12,
-            max_projectiles=5,
-        ),
-        **kwargs,
-    ):
-        super().__init__(
-            *args,
-            weapon=weapon,
-            **kwargs,
-        )
+# class Runetracer(Player):
+#     def __init__(
+#         self,
+#         *args,
+#         weapon=Weapon(
+#             name="runetracer",
+#             cooldown=5,
+#             damage=10,
+#             speed=100.0,
+#             health=30,
+#             radius=12,
+#             max_projectiles=5,
+#         ),
+#         **kwargs,
+#     ):
+#         super().__init__(
+#             *args,
+#             weapon=weapon,
+#             **kwargs,
+#         )
 
 
-heroes = {
-    "alaric": partial(Runetracer, health=100.0, speed=25.0, hero="alaric"),
-    "cedric": partial(Runetracer, health=100.0, speed=25.0, hero="cedric"),
-    "evelyn": partial(Runetracer, health=100.0, speed=25.0, hero="evelyn"),
-    "garron": partial(Runetracer, health=100.0, speed=25.0, hero="garron"),
-    "isolde": partial(Runetracer, health=100.0, speed=25.0, hero="isolde"),
-    "kaelen": partial(Runetracer, health=100.0, speed=25.0, hero="kaelen"),
-    "lyra": partial(Runetracer, health=100.0, speed=25.0, hero="lyra"),
-    "selene": partial(Runetracer, health=100.0, speed=25.0, hero="selene"),
-    "seraphina": partial(Runetracer, health=100.0, speed=25.0, hero="seraphina"),
-    "theron": partial(Runetracer, health=100.0, speed=25.0, hero="theron"),
-}
+# heroes = {
+#     "alaric": partial(Runetracer, health=100.0, speed=25.0, hero="alaric"),
+#     "cedric": partial(Runetracer, health=100.0, speed=25.0, hero="cedric"),
+#     "evelyn": partial(Runetracer, health=100.0, speed=25.0, hero="evelyn"),
+#     "garron": partial(Runetracer, health=100.0, speed=25.0, hero="garron"),
+#     "isolde": partial(Runetracer, health=100.0, speed=25.0, hero="isolde"),
+#     "kaelen": partial(Runetracer, health=100.0, speed=25.0, hero="kaelen"),
+#     "lyra": partial(Runetracer, health=100.0, speed=25.0, hero="lyra"),
+#     "selene": partial(Runetracer, health=100.0, speed=25.0, hero="selene"),
+#     "seraphina": partial(Runetracer, health=100.0, speed=25.0, hero="seraphina"),
+#     "theron": partial(Runetracer, health=100.0, speed=25.0, hero="theron"),
+# }
 
 # heroes = {
 #     "alaric": partial(

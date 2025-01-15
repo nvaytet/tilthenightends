@@ -23,7 +23,8 @@ except ImportError:
 # from .asteroid import Asteroid
 from . import config
 from .graphics import Graphics
-from .player import Team, heroes
+from .heroes import heroes
+from .player import Team
 from .monsters import Monsters
 
 # from .scores import finalize_scores
@@ -194,6 +195,8 @@ class Engine:
                 radii=self.monster_arrays["radii"][istart:iend],
             )
 
+        # self.monster_arrays["positions"][0, :] = np.inf
+
         #     "bat": Monsters(size=2000, kind="bat", distance=400.0 * d, scale=100 * s),
         #     "rottingghoul": Monsters(
         #         size=2000, kind="rottingghoul", distance=600 * d, scale=100 * s
@@ -220,15 +223,18 @@ class Engine:
 
         step = config.max_projectiles + 1
         n_players_and_projectiles = step * len(self.bots)
+
+        storage_position = self.monster_arrays["positions"].max()
+
         self.player_arrays = {
             "positions": np.full(
-                (n_players_and_projectiles, 2), np.nan, dtype="float32"
+                (n_players_and_projectiles, 2), storage_position, dtype="float32"
             ),
-            "healths": np.zeros(n_players_and_projectiles, dtype="float32"),
+            "healths": np.full(n_players_and_projectiles, np.nan, dtype="float32"),
             "attacks": np.zeros(n_players_and_projectiles, dtype="float32"),
             "radii": np.zeros(n_players_and_projectiles, dtype="float32"),
             "vectors": np.zeros((n_players_and_projectiles, 2), dtype="float32"),
-            "speeds": np.zeros((n_players_and_projectiles, 1), dtype="float32"),
+            # "speeds": np.zeros((n_players_and_projectiles, 1), dtype="float32"),
         }
 
         # # Distribute players in ring around center
@@ -270,7 +276,8 @@ class Engine:
                 attacks=self.player_arrays["attacks"][s],
                 radii=self.player_arrays["radii"][s],
                 vectors=self.player_arrays["vectors"][s, :],
-                speeds=self.player_arrays["speeds"][s],
+                # speeds=self.player_arrays["speeds"][s],
+                storage_position=storage_position,
             )
             self.players[bot.hero] = player
             # # j = i * step
@@ -499,10 +506,11 @@ class Engine:
         self.call_player_bots(t=t, dt=self.dt)
 
         for player in self.players.values():
-            if t > player.weapon.timer:
+            if t > player.timer:
                 player.fire(t)
             player.move(self.dt)
             # player.weapon.update(self.dt)
+            player.expire_projectiles(t)
 
         for horde in self.monsters.values():
             horde.move(self.dt, players=self.players.values())
