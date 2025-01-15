@@ -15,7 +15,7 @@ import numpy as np
 from . import config
 from .graphics import make_sprites
 from .tools import Vector, Towards, LevelupOptions
-# from .weapons import arsenal
+from .weapons import Weapon
 
 MAX_PROJECTILES = 100
 
@@ -35,12 +35,13 @@ class Player:
         attacks: np.ndarray,
         radii: np.ndarray,
         vectors: np.ndarray,
-        weapon: dict,
+        speeds: np.ndarray,
+        weapon: Weapon,
     ):
         self.hero = hero
         # self.x = x
         # self.y = y
-        self.speed = speed  # 5.0  # * config.scaling
+        # self.speed = speed  # 5.0  # * config.scaling
         # self._vector = np.array([0.0, 1.0])  # vector / np.linalg.norm(vector)
         # self.max_health = health
         # self.health = health  # 100.0
@@ -50,12 +51,14 @@ class Player:
         # self.radius = 20.0
         # print(self.position)
         self.weapon = weapon
+        # self.weapon_timer =
 
         self.positions = positions
         self.healths = healths
         self.attacks = attacks
         self.radii = radii
         self.vectors = vectors
+        self.speeds = speeds
 
         # self._positions = np.full((MAX_PROJECTILES + 1, 2), np.nan)
         # self._vectors = np.full((MAX_PROJECTILES + 1, 2), np.nan)
@@ -66,11 +69,12 @@ class Player:
         self.health = health
         self.attacks[0] = 0.0
         self.radii[0] = 20.0
+        self.speeds[0] = speed
 
         # self.weapon = arsenal[weapon.lower()](owner=self)
-        self.healths[1:] = self.weapon["health"]
-        self.attacks[1:] = self.weapon["damage"]
-        self.radii[1:] = self.weapon["radius"]
+        self.healths[1:] = self.weapon.health
+        self.attacks[1:] = self.weapon.damage
+        self.radii[1:] = self.weapon.radius
 
         self.levels = {
             # "attack": 0,
@@ -89,6 +93,12 @@ class Player:
             sprite_path=config.resources / "heroes" / f"{self.hero}.png",
             positions=self.positions[0:1, :],
         )
+        print(config.resources / "weapons" / f"{self.weapon.name}.png")
+        # print(self.positions[1:, :])
+        # print(
+
+        self.fire(t=0.0)
+
         self.weapon_sprites = make_sprites(
             sprite_path=config.resources / "weapons" / f"{self.weapon.name}.png",
             positions=self.positions[1:, :],
@@ -124,6 +134,14 @@ class Player:
     def radius(self):
         return self.radii[0]
 
+    @property
+    def speed(self):
+        return self.speeds[0]
+
+    @speed.setter
+    def speed(self, value):
+        self.speeds[0] = value
+
     # def add_to_graphics(self):
     #     self.avatar = make_sprites(
     #         sprite_path=config.resources / "heroes" / f"{self.hero}.png",
@@ -156,13 +174,18 @@ class Player:
     def move(self, dt: float):
         # self.x += self.speed * dt * self.vector[0]
         # self.y += self.speed * dt * self.vector[1]
-        self.position += self.speed * dt * self.vector
+        # self.position += self.speed * dt * self.vector
         # self.geometry.attributes["position"].array = np.array(
         #     [[self.x, self.y, 0.0], [self.x - 1.0, self.y - 1.0, 0.0]]
         # ).astype("float32")
         # self.avatar.position = [self.x, self.y, 0.0]
         # print(f"Player moved to {self.x}, {self.y}.")
+
+        # self.position += self.speed * dt * self.vector
+        self.positions += self.speeds * dt * self.vectors
+
         self.avatar.setData(pos=self.positions[0:1, :])
+        self.weapon_sprites.setData(pos=self.positions[1:, :])
 
     # @property
     # def position(self) -> np.ndarray:
@@ -224,30 +247,31 @@ class Player:
         self.health = self.max_health
 
     def fire(self, t):
-        print("t, self.timer", t, self.timer)
+        print("t, self.timer", t, self.weapon.timer)
         # Find an empty slot in the arrays
-        ind = np.where(np.isnan(self.positions[1:, 0]))[0]
+        ind = np.squeeze(np.where(np.isnan(self.positions[:, 0])))[0]
         self.positions[ind, :] = self.position
+        print("ind", ind, self.positions[ind, :], self.position)
         self.vectors[ind, :] = np.random.uniform(-1, 1, 2)
-        self.healths[ind] = self.weapon["health"]
-        self._active_slots[ind] = True
-        self.projectile_counter = np.sum(self._active_slots)
+        self.healths[ind] = self.weapon.health
+        # self._active_slots[ind] = True
+        # self.projectile_counter = np.sum(self._active_slots)
 
         # self.positions[: self.nprojectiles, 0] = x
         # self.positions[: self.nprojectiles, 1] = y
         # self.tstart = t
         # self.tend = t + self.longevity
         # self.sprites.setData(pos=self.positions)
-        self.draw_sprites()
-        self.timer = t + self.cooldown
+        # self.draw_sprites()
+        self.weapon.timer = t + self.weapon.cooldown
 
 
 class Runetracer(Player):
     def __init__(
         self,
         *args,
-        weapon=dict(
-            name="Runetracer",
+        weapon=Weapon(
+            name="runetracer",
             cooldown=5,
             damage=10,
             speed=100.0,
