@@ -237,6 +237,15 @@ class Engine:
             # "speeds": np.zeros((n_players_and_projectiles, 1), dtype="float32"),
         }
 
+        self.buffers = {
+            "positions": np.zeros(
+                (n_monsters, n_players_and_projectiles, 2), dtype="float32"
+            ),
+            "sum_of_radii": np.zeros(
+                (n_monsters, n_players_and_projectiles), dtype="float32"
+            ),
+        }
+
         # # Distribute players in ring around center
         #         start_x = []
         #         start_y = []
@@ -400,20 +409,58 @@ class Engine:
         # )
         # sum_of_radii = evil_radius[:, np.newaxis] + good_radius[np.newaxis, :]
 
+        return
+
         # Compute pairwise distances
         distances = np.linalg.norm(
-            evil_positions[:, np.newaxis, :] - good_positions[np.newaxis, :, :], axis=2
+            self.monster_arrays["positions"][:, np.newaxis, :]
+            - self.player_arrays["positions"][np.newaxis, :, :],
+            axis=2,
         )
-        sum_of_radii = evil_radius[:, np.newaxis] + good_radius[np.newaxis, :]
+        sum_of_radii = (
+            self.monster_arrays["radii"][:, np.newaxis]
+            + self.player_arrays["radii"][np.newaxis, :]
+        )
+        # pos_shape = self.buffers["positions"].shape
+        # sum_shape = self.buffers["sum_of_radii"].shape
+        # monster_shape = self.monster_arrays["positions"].shape
+        # monster_shape = (monster_shape[0], 1, monster_shape[1])
+        # player_shape = self.player_arrays["positions"].shape
+        # player_shape = (1, player_shape[0], player_shape[1])
+        # self.buffers["positions"][...] = np.broadcast_to(
+        #     self.monster_arrays["positions"].reshape(monster_shape, copy=False),
+        #     pos_shape,
+        # )
+        # self.buffers["positions"] -= np.broadcast_to(
+        #     self.player_arrays["positions"].reshape(player_shape, copy=False), pos_shape
+        # )
+        # distances = np.linalg.norm(self.buffers["positions"], axis=2)
+        # self.buffers["sum_of_radii"][...] = np.broadcast_to(
+        #     self.monster_arrays["radii"].reshape(-1, 1, copy=False), sum_shape
+        # )
+        # self.buffers["sum_of_radii"] += np.broadcast_to(
+        #     self.player_arrays["radii"].reshape(1, -1, copy=False), sum_shape
+        # )
 
         # Find indices where distances are less than 5
         # mask = (distances < config.hit_radius * config.scaling).astype(int)
         # mask = (distances < config.hit_radius).astype(int)
+        # mask = (distances < self.buffers["sum_of_radii"]).astype(int)
         mask = (distances < sum_of_radii).astype(int)
-        monster_damage = np.broadcast_to(good_attacks.reshape(1, -1), mask.shape) * mask
-        player_damage = np.broadcast_to(evil_attacks.reshape(-1, 1), mask.shape) * mask
-        evil_healths -= monster_damage.sum(axis=1)
-        good_healths -= player_damage.sum(axis=0)
+        # monster_damage = np.broadcast_to(good_attacks.reshape(1, -1), mask.shape) * mask
+        # player_damage = np.broadcast_to(evil_attacks.reshape(-1, 1), mask.shape) * mask
+        monster_damage = (
+            np.broadcast_to(self.player_arrays["attacks"].reshape(1, -1), mask.shape)
+            * mask
+        )
+        player_damage = (
+            np.broadcast_to(self.monster_arrays["attacks"].reshape(-1, 1), mask.shape)
+            * mask
+        )
+        # evil_healths -= monster_damage.sum(axis=1)
+        # good_healths -= player_damage.sum(axis=0)
+        self.monster_arrays["healths"] -= monster_damage.sum(axis=1)
+        self.player_arrays["healths"] -= player_damage.sum(axis=0)
 
         # for pp, health in zip(players_and_projectiles, good_healths):
         #     pp.health = health
@@ -425,34 +472,42 @@ class Engine:
         for player in self.players.values():
             if player.health <= 0:
                 player.die(t=t)
-            player.weapon.projectiles = [
-                proj for proj in player.weapon.projectiles if proj.health > 0
-            ]
+        #     player.weapon.projectiles = [
+        #         proj for proj in player.weapon.projectiles if proj.health > 0
+        #     ]
 
-        for i, horde in enumerate(self.monsters):
-            # TODO: this doesn't look right, as hordes have different sizes?
-            horde.healths = evil_healths[i * horde.size : (i + 1) * horde.size]
-            inds = np.where(horde.healths <= 0)[0]
-            ndead = len(inds)
-            # print("ndead", ndead)
-            if ndead > 0:
-                new_pos = horde.positions.copy()
-                new_pos[inds, :] = horde.make_positions(
-                    ndead, offset=horde.positions[inds]
-                )
-                horde.positions = new_pos
-                # horde.positions[inds, :] = horde.make_positions(
-                #     ndead, offset=player.position
-                # )
-                horde.healths[inds] = horde.xp
-                self.xp += ndead * horde.xp
+        # for i, horde in enumerate(self.monsters):
+        #     # TODO: this doesn't look right, as hordes have different sizes?
+        #     horde.healths = evil_healths[i * horde.size : (i + 1) * horde.size]
+        #     inds = np.where(horde.healths <= 0)[0]
+        #     ndead = len(inds)
+        #     # print("ndead", ndead)
+        #     if ndead > 0:
+        #         new_pos = horde.positions.copy()
+        #         new_pos[inds, :] = horde.make_positions(
+        #             ndead, offset=horde.positions[inds]
+        #         )
+        #         horde.positions = new_pos
+        #         # horde.positions[inds, :] = horde.make_positions(
+        #         #     ndead, offset=player.position
+        #         # )
+        #         horde.healths[inds] = horde.xp
+        #         self.xp += ndead * horde.xp
 
-        # if len(evil_indices) > 0:
-        #     print("distances.shape", distances.shape)
-        #     print("evil_indices", evil_indices)
-        #     print("good_indices", good_indices)
-        #     # Resolve damage
-        #     # Deduct health from monsters
+        # for horde in self.monsters.values():
+        #     inds = np.where(horde.healths <= 0)[0]
+        #     ndead = len(inds)
+        #     if ndead > 0:
+        #         # new_pos = horde.positions.copy()
+        #         # new_pos[inds, :] = horde.make_positions(
+        #         #     ndead, offset=horde.positions[inds]
+        #         # )
+        #         # horde.positions = new_pos
+        #         horde.positions[inds, :] = horde.make_positions(
+        #             ndead, offset=horde.positions[inds]
+        #         )
+        #         horde.healths[inds] = horde.xp
+        #         self.xp += ndead * horde.xp
 
         return
 
@@ -518,7 +573,7 @@ class Engine:
         if self._follow:  # and (int(t * 3) % 3 == 0):
             self.move_camera()
 
-        # self.fight(t=t)
+        self.fight(t=t)
         # self.resolve_xp(t=t)
 
         # Update player status every 10 frames

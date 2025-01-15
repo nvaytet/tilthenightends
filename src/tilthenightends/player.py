@@ -277,9 +277,13 @@ class Player:
         self.expire[ind] = t + self.weapon.duration
 
     def expire_projectiles(self, t):
-        inds = self.expire < t
+        inds = (self.expire < t) | (self.healths < 0.0)
+        inds[0] = False
         self.healths[inds] = np.nan
         self.positions[inds, :] = self.storage_position
+
+    # def kill_projectiles(self):
+    #     inds = self.healths
 
 
 # class Runetracer(Player):
