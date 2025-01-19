@@ -20,7 +20,7 @@ class Config:
         self.resources = ir.files("tilthenightends") / "resources"
         # self.scaling = 64.0 / 2.0
         self.hit_radius = 20.0
-        self.max_projectiles = 100
+        self.max_projectiles = 20
         # # self.avatar_size = (25, 25)
         # # file = font_manager.findfont("sans")
         # # self.large_font = ImageFont.truetype(file, size=16)

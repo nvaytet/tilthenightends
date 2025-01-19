@@ -409,7 +409,7 @@ class Engine:
         # )
         # sum_of_radii = evil_radius[:, np.newaxis] + good_radius[np.newaxis, :]
 
-        return
+        # return
 
         # Compute pairwise distances
         distances = np.linalg.norm(
