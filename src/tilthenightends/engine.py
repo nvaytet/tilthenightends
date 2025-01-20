@@ -238,11 +238,11 @@ class Engine:
         # If any monster is within 5 pixels of a player, the player takes damage equal
         # to the monster's damage. If the player's health is less than or equal to
         # zero, the player is destroyed.
-        # Combine all monster positions, healths, and attacks
-        evil_positions = np.concatenate([horde.positions for horde in self.monsters])
-        evil_healths = np.concatenate([horde.healths for horde in self.monsters])
-        evil_attacks = np.concatenate([horde.attacks for horde in self.monsters])
-        evil_radius = np.concatenate([horde.radii for horde in self.monsters])
+        # # Combine all monster positions, healths, and attacks
+        # evil_positions = np.concatenate([horde.positions for horde in self.monsters])
+        # evil_healths = np.concatenate([horde.healths for horde in self.monsters])
+        # evil_attacks = np.concatenate([horde.attacks for horde in self.monsters])
+        # evil_radius = np.concatenate([horde.radii for horde in self.monsters])
 
         # Combine all hero and projectile positions
         player_list = list(self.players.values())
@@ -255,6 +255,41 @@ class Engine:
         good_healths = np.array([pp.health for pp in players_and_projectiles])
         good_attacks = np.array([pp.attack for pp in players_and_projectiles])
         good_radius = np.array([pp.radius for pp in players_and_projectiles])
+
+        # Find center of mass of players and projectiles
+        center = np.mean(good_positions, axis=0)
+        # Find radius of object furthest from center
+        max_radius = np.max(
+            np.linalg.norm(good_positions - center, axis=1) + good_radius
+        )
+
+        # Filter out monsters that are too far away
+        evil_positions = []
+        evil_healths = []
+        evil_attacks = []
+        evil_radius = []
+        evil_masks = []
+        for horde in self.monsters:
+            distances = np.linalg.norm(horde.positions - center, axis=1)
+            mask = distances < max_radius + 100.0
+            # print(mask.shape)
+            evil_positions.append(horde.positions[mask, :])
+            evil_healths.append(horde.healths[mask])
+            evil_attacks.append(horde.attacks[mask])
+            evil_radius.append(horde.radii[mask])
+            evil_masks.append(mask)
+
+        print(
+            "selected",
+            sum([m.sum() for m in evil_masks]),
+            "monsters within r=",
+            max_radius + 100.0,
+        )
+
+        evil_positions = np.concatenate(evil_positions)
+        evil_healths = np.concatenate(evil_healths)
+        evil_attacks = np.concatenate(evil_attacks)
+        evil_radius = np.concatenate(evil_radius)
 
         # Compute pairwise distances
         distances = np.linalg.norm(
@@ -282,8 +317,12 @@ class Engine:
                 proj for proj in player.weapon.projectiles if proj.health > 0
             ]
 
+        n = 0
         for i, horde in enumerate(self.monsters):
-            horde.healths = evil_healths[i * horde.size : (i + 1) * horde.size]
+            # horde.healths = evil_healths[i * horde.size : (i + 1) * horde.size]
+            size = evil_masks[i].sum()
+            # horde.healths[evil_masks[i]] = evil_healths[n : n + horde.size]
+            horde.healths[evil_masks[i]] = evil_healths[n : n + size]
             inds = np.where(horde.healths <= 0)[0]
             ndead = len(inds)
             # print("ndead", ndead)
@@ -298,6 +337,7 @@ class Engine:
                 # )
                 horde.healths[inds] = horde.xp
                 self.xp += ndead * horde.xp
+            n += size
 
         # if len(evil_indices) > 0:
         #     print("distances.shape", distances.shape)
@@ -337,7 +377,6 @@ class Engine:
             print(self.players[lup.hero].as_dict())
 
     def move_camera(self):
-        # Set pyqtgraph camera to follow center of mass of players
         positions = np.array([[p.x, p.y] for p in self.players.values()])
         xmin, ymin = np.min(positions, axis=0)
         xmax, ymax = np.max(positions, axis=0)
