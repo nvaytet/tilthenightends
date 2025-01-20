@@ -7,12 +7,14 @@ from .graphics import make_sprites
 
 
 class Projectile:
-    def __init__(self, position, vector, speed, tstart, health, attack, radius, owner):
+    def __init__(
+        self, position, vector, speed, tstart, tend, health, attack, radius, owner
+    ):
         self.position = position
         self.vector = vector / np.linalg.norm(vector)
         self.speed = speed
         self.tstart = tstart
-        # self.tend = tend
+        self.tend = tend
         self.health = health
         self.attack = attack
         self.radius = radius
@@ -30,21 +32,22 @@ class Weapon:
         damage,
         speed,
         health,
-        max_projectiles,
+        # max_projectiles,
         radius,
         owner,
+        longevity,
         projectile=Projectile,
-        nprojectiles=1,
+        # nprojectiles=1,
     ):
         self.name = name
         self.cooldown = cooldown
         self.damage = damage
         self.speed = speed
         # self.radius = radius
-        # self.longevity = longevity
+        self.longevity = longevity
         self.health = health
-        self.nprojectiles = nprojectiles
-        self.max_projectiles = max_projectiles
+        # self.nprojectiles = nprojectiles
+        # self.max_projectiles = max_projectiles
         self.projectiles = []
         # self.vectors = np.zeros((MAX_PROJECTILES, 2))
         # self.positions = np.full((MAX_PROJECTILES, 2), np.nan)
@@ -71,38 +74,42 @@ class Weapon:
     def fire(self, position, t):
         print("t, self.timer", t, self.timer)
         # self.projectiles.extend(
-        self.projectiles = [
+        self.projectiles.append(
             self.projectile(
                 position=position,
-                vector=np.random.uniform(-1, 1, 2),
+                vector=config.rng.uniform(-1, 1, 2),
                 speed=self.speed,
                 tstart=t,
-                # tend=t + self.longevity,
+                tend=t + self.longevity,
                 attack=self.damage,
                 health=self.health,
                 radius=self.radius,
                 owner=self.owner,
             )
-            for _ in range(self.nprojectiles)
-        ]
-
-        # self.positions[: self.nprojectiles, 0] = x
-        # self.positions[: self.nprojectiles, 1] = y
-        # self.tstart = t
-        # self.tend = t + self.longevity
-        # self.sprites.setData(pos=self.positions)
+        )
         self.draw_sprites()
         self.timer = t + self.cooldown
 
     def draw_sprites(self):
         pos = [p.position for p in self.projectiles]
+        # if self.name == "LightningBolt":
+        #     print("pos", np.array(pos))
         # print(pos.shape)
         # print("len(pos)", len(pos), np.array(pos).shape, self.projectiles[0].position)
         if pos:
+            self.sprites.setOpacity(1.0)
             self.sprites.setData(pos=np.array(pos))
+        else:
+            self.sprites.setOpacity(0.0)
 
-    def update(self, dt):
+    def update(self, t, dt):
         # self.positions += self.vectors * dt * self.speed
+
+        # Remove all projectiles that have expired
+        # if self.name == "LightningBolt":
+        #     print(t)
+        #     print([p.tend for p in self.projectiles])
+        self.projectiles = [p for p in self.projectiles if t < p.tend]
         for p in self.projectiles:
             p.move(dt)
         # self.sprites.setData(pos=self.positions)
@@ -116,8 +123,9 @@ class Weapon:
             "damage": self.damage,
             "speed": self.speed,
             "health": self.health,
-            "max_projectiles": self.max_projectiles,
-            "nprojectiles": self.nprojectiles,
+            # "max_projectiles": self.max_projectiles,
+            "size": self.radius,
+            # "nprojectiles": self.nprojectiles,
             # "levels": self.levels.copy(),
         }
 
@@ -129,17 +137,17 @@ class Runetracer(Weapon):
             cooldown=5,
             damage=10,
             speed=100.0,  # * config.scaling,
-            # longevity=5,
+            longevity=5,
             health=30,
             radius=12,
-            max_projectiles=5,
+            # max_projectiles=5,
             **kwargs,
         )
 
-    def fire(self, position, t):
-        super().fire(position, t)
-        self.vectors = np.random.uniform(-1, 1, (self.nprojectiles, 2))
-        self.vectors /= np.linalg.norm(self.vectors, axis=1)  # [:, None]
+    # def fire(self, position, t):
+    #     super().fire(position, t)
+    #     # self.vectors = config.rng.uniform(-1, 1, (self.nprojectiles, 2))
+    #     # self.vectors /= np.linalg.norm(self.vectors, axis=1)  # [:, None]
 
 
 class Fireball(Weapon):
@@ -150,15 +158,16 @@ class Fireball(Weapon):
             damage=15,
             speed=75.0,
             health=40,
-            max_projectiles=10,
+            longevity=15,
+            # max_projectiles=10,
             radius=16,
             **kwargs,
         )
 
-    def fire(self, position, t):
-        super().fire(position, t)
-        self.vectors = np.random.uniform(-1, 1, (self.nprojectiles, 2))
-        self.vectors /= np.linalg.norm(self.vectors, axis=1)  # [:, None]
+    # def fire(self, position, t):
+    #     super().fire(position, t)
+    #     # self.vectors = config.rng.uniform(-1, 1, (self.nprojectiles, 2))
+    #     # self.vectors /= np.linalg.norm(self.vectors, axis=1)  # [:, None]
 
 
 class GarlicProjectile(Projectile):
@@ -175,7 +184,8 @@ class Garlic(Weapon):
             damage=15,
             speed=0.0,
             health=100,
-            max_projectiles=1,
+            longevity=10,
+            # max_projectiles=1,
             radius=40,
             projectile=GarlicProjectile,
             **kwargs,
@@ -190,58 +200,61 @@ class HolyWater(Weapon):
             damage=15,
             speed=0.0,
             health=40,
-            max_projectiles=10,
+            longevity=5,
+            # max_projectiles=10,
             radius=40,
             **kwargs,
         )
 
     def fire(self, position, t):
-        phi = np.random.uniform(0, 2 * np.pi, self.nprojectiles)
-        self.projectiles = [
+        phi = config.rng.uniform(0, 2 * np.pi)
+        self.projectiles.append(
             self.projectile(
-                position=position + np.array([np.cos(p), np.sin(p)]) * self.radius * 2,
+                position=position
+                + np.array([np.cos(phi), np.sin(phi)]) * self.radius * 2,
                 vector=np.array([1.0, 0]),
                 speed=self.speed,
                 tstart=t,
-                # tend=t + self.longevity,
+                tend=t + self.longevity,
                 attack=self.damage,
                 health=self.health,
                 radius=self.radius,
                 owner=self.owner,
             )
-            for p in phi
-        ]
+            # for p in phi
+        )
 
         self.draw_sprites()
         self.timer = t + self.cooldown
 
 
-class Lightning(Weapon):
+class LightningBolt(Weapon):
     def __init__(self, **kwargs):
         super().__init__(
-            name="Lightning",
+            name="LightningBolt",
             cooldown=4,
             damage=15,
             speed=0.0,
             health=40,
-            max_projectiles=10,
+            # max_projectiles=10,
             radius=32,
-            nprojectiles=5,
+            # nprojectiles=5,
+            longevity=0.2,
             **kwargs,
         )
+        self.nprojectiles = 5
 
     def fire(self, position, t):
-        # phi = np.random.uniform(0, 2 * np.pi, self.nprojectiles)
         y = np.arange(self.nprojectiles) * self.radius * 2
         x = np.zeros_like(y)
-        pos = (position + np.random.uniform(-400, 400, 2)) + np.array([x, y]).T
+        pos = (position + config.rng.uniform(-400, 400, 2)) + np.array([x, y]).T
         self.projectiles = [
             self.projectile(
                 position=p,
                 vector=np.array([1.0, 0]),
                 speed=self.speed,
                 tstart=t,
-                # tend=t + self.longevity,
+                tend=t + self.longevity,
                 attack=self.damage,
                 health=self.health,
                 radius=self.radius,
@@ -274,33 +287,36 @@ class Dove(Weapon):
             damage=15,
             speed=2.0,
             health=40,
-            max_projectiles=10,
+            # max_projectiles=10,
             radius=15,
+            longevity=5,
             projectile=DoveProjectile,
             **kwargs,
         )
 
     def fire(self, position, t):
-        # phi = np.random.uniform(0, 2 * np.pi, self.nprojectiles)
-        phi = (
-            np.linspace(0, 2 * np.pi, self.nprojectiles)
-            + np.random.uniform(0, 2 * np.pi, self.nprojectiles)
-        ) % (2 * np.pi)
-        self.projectiles = []
-        for p in phi:
-            proj = self.projectile(
-                position=position + np.array([np.cos(p), np.sin(p)]) * self.radius * 2,
-                vector=np.array([1.0, 0]),
-                speed=self.speed,
-                tstart=t,
-                # tend=t + self.longevity,
-                attack=self.damage,
-                health=self.health,
-                radius=self.radius,
-                owner=self.owner,
-            )
-            proj.phi = p
-            self.projectiles.append(proj)
+        # phi = config.rng.uniform(0, 2 * np.pi, self.nprojectiles)
+        # phi = (
+        #     np.linspace(0, 2 * np.pi, self.nprojectiles)
+        #     + config.rng.uniform(0, 2 * np.pi, self.nprojectiles)
+        # ) % (2 * np.pi)
+        phi = config.rng.uniform(0, 2 * np.pi)
+        # self.projectiles = []
+        # for p in phi:
+        proj = self.projectile(
+            position=position + np.array([np.cos(phi), np.sin(phi)]) * self.radius * 2,
+            vector=np.array([1.0, 0]),
+            speed=self.speed,
+            tstart=t,
+            tend=t + self.longevity,
+            attack=self.damage,
+            health=self.health,
+            radius=self.radius,
+            owner=self.owner,
+        )
+        proj.phi = phi
+        # self.projectiles.append(proj)
+        self.projectiles.append(proj)
 
         self.draw_sprites()
         self.timer = t + self.cooldown
@@ -321,5 +337,5 @@ arsenal = {
     "garlic": Garlic,
     "holywater": HolyWater,
     "dove": Dove,
-    "lightning": Lightning,
+    "lightningbolt": LightningBolt,
 }

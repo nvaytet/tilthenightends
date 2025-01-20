@@ -79,15 +79,20 @@ class Engine:
         follow: bool = False,
         manual: bool = False,
         music: bool = False,
+        side: str = None,
         # crater_scaling: float = 1.0,
         # player_collisions: bool = True,
         # asteroid_collisions: bool = True,
         # speedup: float = 1.0,
     ):
+        # Set the seed
+        BitGen = type(config.rng.bit_generator)
+        config.rng.bit_generator.state = BitGen(seed).state
+
         self.team = team
         self.world = world
-        if seed is not None:
-            np.random.seed(seed)
+        # if seed is not None:
+        #     np.random.seed(seed)
         self._manual = manual
         self._music = music
         self.safe = safe
@@ -118,7 +123,9 @@ class Engine:
             for i, p in enumerate(team.players)
         }
 
-        self.graphics = Graphics(players=self.players, world=self.world, manual=manual)
+        self.graphics = Graphics(
+            players=self.players, world=self.world, manual=manual, side=side
+        )
 
         for player in self.players.values():
             player.add_to_graphics()
@@ -279,12 +286,12 @@ class Engine:
             evil_radius.append(horde.radii[mask])
             evil_masks.append(mask)
 
-        print(
-            "selected",
-            sum([m.sum() for m in evil_masks]),
-            "monsters within r=",
-            max_radius + 100.0,
-        )
+        # print(
+        #     "selected",
+        #     sum([m.sum() for m in evil_masks]),
+        #     "monsters within r=",
+        #     max_radius + 100.0,
+        # )
 
         evil_positions = np.concatenate(evil_positions)
         evil_healths = np.concatenate(evil_healths)
@@ -401,7 +408,7 @@ class Engine:
             player.move(self.dt)
             if t > player.weapon.timer:
                 player.weapon.fire(player.position, t)
-            player.weapon.update(self.dt)
+            player.weapon.update(t, self.dt)
         # if self.camera_lock.value:
         #     # player center of mass
         #     x, y = np.mean([[p.x, p.y] for p in self.players], axis=0)

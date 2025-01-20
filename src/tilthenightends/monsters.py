@@ -62,12 +62,12 @@ class Monsters:
         # self.sprites = p3.Points(geometry=self.geometry, material=self.material)
 
     def make_positions(self, n, offset=None):
-        r = np.random.normal(
+        r = config.rng.normal(
             scale=self.scale,  # * config.scaling,
             loc=self.distance,  # * config.scaling,
             size=n,
         )
-        theta = np.random.uniform(0, 2 * np.pi, n)
+        theta = config.rng.uniform(0, 2 * np.pi, n)
         positions = np.zeros((n, 2), dtype="float32")
         positions[:, 0] = r * np.cos(theta)
         positions[:, 1] = r * np.sin(theta)

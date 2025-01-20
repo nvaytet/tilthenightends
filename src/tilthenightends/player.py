@@ -193,7 +193,7 @@ heroes = {
         Player, weapon="holywater", health=100.0, speed=25.0, hero="isolde"
     ),
     "kaelen": partial(
-        Player, weapon="lightning", health=100.0, speed=25.0, hero="kaelen"
+        Player, weapon="lightningbolt", health=100.0, speed=25.0, hero="kaelen"
     ),
     "lyra": partial(Player, weapon="runetracer", health=100.0, speed=25.0, hero="lyra"),
     "selene": partial(

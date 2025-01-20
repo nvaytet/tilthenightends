@@ -169,7 +169,7 @@ backgrounds = {
 
 
 class Graphics:
-    def __init__(self, players: dict, world: str, manual=False):
+    def __init__(self, players: dict, world: str, manual=False, side=None):
         self._manual = manual
         self._title = "Til the Night Ends"
 
@@ -177,7 +177,13 @@ class Graphics:
 
         self.main_window = QMainWindow()
         self.main_window.setWindowTitle(self._title)
-        self.main_window.setGeometry(0, 0, 1400, 900)
+        width = 1900
+        left = 0
+        if side is not None:
+            width = width // 2
+        if side == "right":
+            left = width + 1
+        self.main_window.setGeometry(left, 0, width, 1000)
 
         # Create a central widget to hold the two widgets
         central_widget = QWidget()
@@ -285,7 +291,7 @@ class Graphics:
             sprites.append(
                 make_sprites(
                     sprite_path=config.resources / "worlds" / world / f"{world}{i}.png",
-                    positions=np.random.uniform(-r, r, (900, 2)),
+                    positions=config.rng.uniform(-r, r, (900, 2)),
                 )
             )
 
