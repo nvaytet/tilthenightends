@@ -253,9 +253,11 @@ class Engine:
 
         # Combine all hero and projectile positions
         player_list = list(self.players.values())
-        players_and_projectiles = player_list + [
+
+        projectiles = [
             proj for player in player_list for proj in player.weapon.projectiles
         ]
+        players_and_projectiles = player_list + projectiles
         good_positions = np.concatenate(
             [pp.position.reshape(1, 2) for pp in players_and_projectiles]
         )
@@ -315,9 +317,31 @@ class Engine:
 
         for pp, health in zip(players_and_projectiles, good_healths):
             pp.health = health
-            # if pp.health <= 0:
-            #     pp.die()
-        for player in self.players.values():
+
+        # Apply healing from weapons
+        # Compute distances between players and projectiles
+        # If any player is within a projectile radius, the player is healed
+        # equal to the projectile's healing power
+        distances = np.linalg.norm(
+            np.concatenate([pp.position.reshape(1, 2) for pp in player_list])[
+                :, np.newaxis, :
+            ]
+            - np.concatenate([proj.position.reshape(1, 2) for proj in projectiles])[
+                np.newaxis, :, :
+            ],
+            axis=2,
+        )
+        mask = (distances < np.array([proj.radius for proj in projectiles])).astype(int)
+        healing = (
+            np.broadcast_to(
+                np.array([proj.healing for proj in projectiles]).reshape(1, -1),
+                mask.shape,
+            )
+            * mask
+        ).sum(axis=1)
+
+        for i, player in enumerate(self.players.values()):
+            player.health += healing[i]
             if player.health <= 0:
                 player.die(t=t)
             player.weapon.projectiles = [

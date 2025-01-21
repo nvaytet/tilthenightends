@@ -169,10 +169,11 @@ class Player:
         elif what == LevelupOptions.weapon_cooldown:
             self.weapon.cooldown *= 0.9
             self.levels["weapon_cooldown"] += 1
-        elif what == LevelupOptions.weapon_nprojectiles:
-            if self.weapon.nprojectiles < self.weapon.max_projectiles:
+        elif what == LevelupOptions.weapon_size:
+            if self.weapon.name == "LightningBolt":
                 self.weapon.nprojectiles += 1
-                self.levels["weapon_nprojectiles"] += 1
+            else:
+                self.weapon.radius *= 1.15
 
         # Healing bonus for leveling up
         self.health = self.max_health

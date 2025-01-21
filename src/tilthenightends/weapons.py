@@ -8,7 +8,17 @@ from .graphics import make_sprites
 
 class Projectile:
     def __init__(
-        self, position, vector, speed, tstart, tend, health, attack, radius, owner
+        self,
+        position,
+        vector,
+        speed,
+        tstart,
+        tend,
+        health,
+        attack,
+        radius,
+        owner,
+        healing=0.0,
     ):
         self.position = position
         self.vector = vector / np.linalg.norm(vector)
@@ -19,6 +29,7 @@ class Projectile:
         self.attack = attack
         self.radius = radius
         self.owner = owner
+        self.healing = healing
 
     def move(self, dt):
         self.position += self.vector * dt * self.speed
@@ -43,14 +54,9 @@ class Weapon:
         self.cooldown = cooldown
         self.damage = damage
         self.speed = speed
-        # self.radius = radius
         self.longevity = longevity
         self.health = health
-        # self.nprojectiles = nprojectiles
-        # self.max_projectiles = max_projectiles
         self.projectiles = []
-        # self.vectors = np.zeros((MAX_PROJECTILES, 2))
-        # self.positions = np.full((MAX_PROJECTILES, 2), np.nan)
         self.timer = 0
         self.radius = radius
         self.owner = owner
@@ -63,17 +69,8 @@ class Weapon:
             width=self.radius * 2,
             height=self.radius * 2,
         )
-        # self.levels = {
-        #     "speed": 0,
-        #     "health": 0,
-        #     "damage": 0,
-        #     "cooldown": 0,
-        #     "nprojectiles": 0,
-        # }
 
     def fire(self, position, t):
-        print("t, self.timer", t, self.timer)
-        # self.projectiles.extend(
         self.projectiles.append(
             self.projectile(
                 position=position,
@@ -92,10 +89,6 @@ class Weapon:
 
     def draw_sprites(self):
         pos = [p.position for p in self.projectiles]
-        # if self.name == "LightningBolt":
-        #     print("pos", np.array(pos))
-        # print(pos.shape)
-        # print("len(pos)", len(pos), np.array(pos).shape, self.projectiles[0].position)
         if pos:
             self.sprites.setOpacity(1.0)
             self.sprites.setData(pos=np.array(pos))
@@ -103,18 +96,10 @@ class Weapon:
             self.sprites.setOpacity(0.0)
 
     def update(self, t, dt):
-        # self.positions += self.vectors * dt * self.speed
-
-        # Remove all projectiles that have expired
-        # if self.name == "LightningBolt":
-        #     print(t)
-        #     print([p.tend for p in self.projectiles])
         self.projectiles = [p for p in self.projectiles if t < p.tend]
         for p in self.projectiles:
             p.move(dt)
-        # self.sprites.setData(pos=self.positions)
         self.draw_sprites()
-        # self.timer -= dt
 
     def as_dict(self):
         return {
@@ -128,6 +113,10 @@ class Weapon:
             # "nprojectiles": self.nprojectiles,
             # "levels": self.levels.copy(),
         }
+
+    @property
+    def size(self):
+        return
 
 
 class Runetracer(Weapon):
@@ -220,6 +209,7 @@ class HolyWater(Weapon):
                 health=self.health,
                 radius=self.radius,
                 owner=self.owner,
+                healing=self.damage,
             )
             # for p in phi
         )
@@ -236,13 +226,11 @@ class LightningBolt(Weapon):
             damage=15,
             speed=0.0,
             health=40,
-            # max_projectiles=10,
             radius=32,
-            # nprojectiles=5,
             longevity=0.2,
             **kwargs,
         )
-        self.nprojectiles = 5
+        self.nprojectiles = 1
 
     def fire(self, position, t):
         y = np.arange(self.nprojectiles) * self.radius * 2
