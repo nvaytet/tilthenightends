@@ -341,7 +341,7 @@ class Engine:
         ).sum(axis=1)
 
         for i, player in enumerate(self.players.values()):
-            player.health += healing[i]
+            player.health = min(player.health + healing[i] * self.dt, player.max_health)
             if player.health <= 0:
                 player.die(t=t)
             player.weapon.projectiles = [

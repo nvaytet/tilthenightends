@@ -201,7 +201,7 @@ heroes = {
         Player, weapon="runetracer", health=100.0, speed=25.0, hero="selene"
     ),
     "seraphina": partial(
-        Player, weapon="runetracer", health=100.0, speed=25.0, hero="seraphina"
+        Player, weapon="plasmagun", health=100.0, speed=25.0, hero="seraphina"
     ),
     "theron": partial(Player, weapon="garlic", health=100.0, speed=25.0, hero="theron"),
 }

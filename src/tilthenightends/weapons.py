@@ -31,7 +31,7 @@ class Projectile:
         self.owner = owner
         self.healing = healing
 
-    def move(self, dt):
+    def move(self, t, dt):
         self.position += self.vector * dt * self.speed
 
 
@@ -89,6 +89,8 @@ class Weapon:
 
     def draw_sprites(self):
         pos = [p.position for p in self.projectiles]
+        if self.name == "PlasmaGun":
+            print("plasmagun position", pos)
         if pos:
             self.sprites.setOpacity(1.0)
             self.sprites.setData(pos=np.array(pos))
@@ -98,7 +100,9 @@ class Weapon:
     def update(self, t, dt):
         self.projectiles = [p for p in self.projectiles if t < p.tend]
         for p in self.projectiles:
-            p.move(dt)
+            p.move(t, dt)
+            if self.name == "PlasmaGun":
+                print("plasmagun", p.position, p.vector, p.speed)
         self.draw_sprites()
 
     def as_dict(self):
@@ -119,6 +123,20 @@ class Weapon:
         return
 
 
+class RunetracerProjectile(Projectile):
+    def __init__(self, *args, tstart, **kwargs):
+        super().__init__(*args, tstart=tstart, **kwargs)
+        self.period = 2.0
+        self.next_move = tstart + self.period
+
+    def move(self, t, dt):
+        super().move(t, dt)
+        if t > self.next_move:
+            self.vector = config.rng.uniform(-1, 1, 2)
+            self.vector /= np.linalg.norm(self.vector)
+            self.next_move += self.period
+
+
 class Runetracer(Weapon):
     def __init__(self, **kwargs):
         super().__init__(
@@ -129,7 +147,7 @@ class Runetracer(Weapon):
             longevity=5,
             health=30,
             radius=12,
-            # max_projectiles=5,
+            projectile=RunetracerProjectile,
             **kwargs,
         )
 
@@ -160,7 +178,7 @@ class Fireball(Weapon):
 
 
 class GarlicProjectile(Projectile):
-    def move(self, dt):
+    def move(self, t, dt):
         # vector must follow owner
         self.position = self.owner.position
 
@@ -256,7 +274,7 @@ class LightningBolt(Weapon):
 
 
 class DoveProjectile(Projectile):
-    def move(self, dt):
+    def move(self, t, dt):
         # for p in self.projectiles:
         self.phi = (self.phi + self.speed * dt) % (2 * np.pi)
         # print("p.phi", p.phi)
@@ -319,6 +337,45 @@ class Dove(Weapon):
     #         )
 
 
+class PlasmaGun(Weapon):
+    def __init__(self, **kwargs):
+        super().__init__(
+            name="PlasmaGun",
+            cooldown=4,
+            damage=15,
+            speed=100.0,
+            health=40,
+            longevity=5,
+            radius=16,
+            **kwargs,
+        )
+
+    def fire(self, position, t):
+        phi = config.rng.uniform(0, 2 * np.pi)
+        # 5 projectiles in a star shaped pattern
+        for i in range(5):
+            pp = (phi + i * 2 * np.pi / 5) % (2 * np.pi)
+            vx = np.cos(pp)
+            vy = np.sin(pp)
+            self.projectiles.append(
+                self.projectile(
+                    position=position,
+                    vector=np.array([vx, vy]),
+                    speed=self.speed,
+                    tstart=t,
+                    tend=t + self.longevity,
+                    attack=self.damage,
+                    health=self.health,
+                    radius=self.radius,
+                    owner=self.owner,
+                )
+            )
+            print("PLASMA", self.projectiles[-1].vector, self.projectiles[-1].speed)
+
+        self.draw_sprites()
+        self.timer = t + self.cooldown
+
+
 arsenal = {
     "runetracer": Runetracer,
     "fireball": Fireball,
@@ -326,4 +383,5 @@ arsenal = {
     "holywater": HolyWater,
     "dove": Dove,
     "lightningbolt": LightningBolt,
+    "plasmagun": PlasmaGun,
 }
