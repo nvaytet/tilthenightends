@@ -32,7 +32,7 @@ class Projectile:
         self.healing = healing
 
     def move(self, t, dt):
-        self.position += self.vector * dt * self.speed
+        self.position = self.position + (self.vector * dt * self.speed)
 
 
 class Weapon:
@@ -89,8 +89,6 @@ class Weapon:
 
     def draw_sprites(self):
         pos = [p.position for p in self.projectiles]
-        if self.name == "PlasmaGun":
-            print("plasmagun position", pos)
         if pos:
             self.sprites.setOpacity(1.0)
             self.sprites.setData(pos=np.array(pos))
@@ -101,8 +99,6 @@ class Weapon:
         self.projectiles = [p for p in self.projectiles if t < p.tend]
         for p in self.projectiles:
             p.move(t, dt)
-            if self.name == "PlasmaGun":
-                print("plasmagun", p.position, p.vector, p.speed)
         self.draw_sprites()
 
     def as_dict(self):
@@ -346,7 +342,7 @@ class PlasmaGun(Weapon):
             speed=100.0,
             health=40,
             longevity=5,
-            radius=16,
+            radius=8,
             **kwargs,
         )
 
@@ -359,7 +355,7 @@ class PlasmaGun(Weapon):
             vy = np.sin(pp)
             self.projectiles.append(
                 self.projectile(
-                    position=position,
+                    position=position.copy(),
                     vector=np.array([vx, vy]),
                     speed=self.speed,
                     tstart=t,
@@ -370,7 +366,6 @@ class PlasmaGun(Weapon):
                     owner=self.owner,
                 )
             )
-            print("PLASMA", self.projectiles[-1].vector, self.projectiles[-1].speed)
 
         self.draw_sprites()
         self.timer = t + self.cooldown
