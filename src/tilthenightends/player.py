@@ -47,6 +47,7 @@ class Player:
         self.weapon = arsenal[weapon.lower()](owner=self)
         self.attack = 0.0
         self.radius = 20.0
+        self._closest_monster = None
 
         self.levels = {
             # "attack": 0,
@@ -187,7 +188,7 @@ heroes = {
         Player, weapon="runetracer", health=100.0, speed=25.0, hero="cedric"
     ),
     "evelyn": partial(
-        Player, weapon="runetracer", health=100.0, speed=25.0, hero="evelyn"
+        Player, weapon="magicwand", health=100.0, speed=25.0, hero="evelyn"
     ),
     "garron": partial(Player, weapon="dove", health=100.0, speed=25.0, hero="garron"),
     "isolde": partial(

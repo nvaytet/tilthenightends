@@ -306,6 +306,12 @@ class Engine:
         )
         sum_of_radii = evil_radius[:, np.newaxis] + good_radius[np.newaxis, :]
 
+        # Find the closest monster to each player
+        closest_monster_positions = None
+        if len(evil_healths) > 0:
+            closest_monster_indices = np.argmin(distances, axis=0)
+            closest_monster_positions = evil_positions[closest_monster_indices, :]
+
         # Find indices where distances are less than 5
         # mask = (distances < config.hit_radius * config.scaling).astype(int)
         # mask = (distances < config.hit_radius).astype(int)
@@ -340,7 +346,16 @@ class Engine:
             * mask
         ).sum(axis=1)
 
+        # # Find the closest monster to each player
+        # closest_monster_indices = np.argmin(distances, axis=0)
+        # print(closest_monster_indices)
+        # closest_monster_positions = evil_positions[closest_monster_indices, :]
+
         for i, player in enumerate(self.players.values()):
+            if closest_monster_positions is not None:
+                player._closest_monster = closest_monster_positions[i, :]
+            else:
+                player._closest_monster = None
             player.health = min(player.health + healing[i] * self.dt, player.max_health)
             if player.health <= 0:
                 player.die(t=t)

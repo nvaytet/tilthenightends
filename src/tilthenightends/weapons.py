@@ -20,7 +20,7 @@ class Projectile:
         owner,
         healing=0.0,
     ):
-        self.position = position
+        self.position = position.copy()
         self.vector = vector / np.linalg.norm(vector)
         self.speed = speed
         self.tstart = tstart
@@ -355,7 +355,7 @@ class PlasmaGun(Weapon):
             vy = np.sin(pp)
             self.projectiles.append(
                 self.projectile(
-                    position=position.copy(),
+                    position=position,
                     vector=np.array([vx, vy]),
                     speed=self.speed,
                     tstart=t,
@@ -371,6 +371,42 @@ class PlasmaGun(Weapon):
         self.timer = t + self.cooldown
 
 
+class MagicWand(Weapon):
+    def __init__(self, **kwargs):
+        super().__init__(
+            name="MagicWand",
+            cooldown=4,
+            damage=15,
+            speed=50.0,
+            health=30,
+            longevity=5,
+            radius=16,
+            **kwargs,
+        )
+
+    def fire(self, position, t):
+        target = self.owner._closest_monster
+        if target is None:
+            return
+        self.projectiles.append(
+            self.projectile(
+                position=position,
+                vector=target - position,
+                speed=self.speed,
+                tstart=t,
+                tend=t + self.longevity,
+                attack=self.damage,
+                health=self.health,
+                radius=self.radius,
+                owner=self.owner,
+                healing=self.damage,
+            )
+        )
+
+        self.draw_sprites()
+        self.timer = t + self.cooldown
+
+
 arsenal = {
     "runetracer": Runetracer,
     "fireball": Fireball,
@@ -379,4 +415,5 @@ arsenal = {
     "dove": Dove,
     "lightningbolt": LightningBolt,
     "plasmagun": PlasmaGun,
+    "magicwand": MagicWand,
 }
