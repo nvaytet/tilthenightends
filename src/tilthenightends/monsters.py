@@ -33,6 +33,7 @@ class Monsters:
         self.healths = np.full(self.size, bestiary[kind]["health"])
         self.attacks = np.full(self.size, bestiary[kind]["attack"])
         self.radii = np.full(self.size, bestiary[kind]["radius"])
+        self.freezes = np.zeros(self.size)
 
         # self.positions = np.random.normal(scale=10, size=(n, 3)).astype("float32") * 5.0
         # self.positions[:, 2] = 0.0
@@ -83,15 +84,19 @@ class Monsters:
     def y(self):
         return self.positions[:, 1]
 
-    def move(self, dt, players):
+    def move(self, t, dt, players):
         # Compute vectors from current position to target position
         # p = players[0]
-        p = next(iter(players))
+        # p = next(iter(players))
+        # target the player with the least health
+        p = min([pp for pp in players if pp.alive], key=lambda p: p.health)
         target = np.array([p.x, p.y])
         v = target - self.positions
         # Normalize vectors
         v = v / np.linalg.norm(v, axis=1).reshape(-1, 1)
         # Update positions
-        self.positions += v * dt * self.speed
+        # frozen = self.freezes > t
+        # print(self.freezes)
+        self.positions += v * dt * self.speed * (self.freezes < t).reshape(-1, 1)
         # self.geometry.attributes["position"].array = self.positions.astype("float32")
         self.sprites.setData(pos=self.positions)

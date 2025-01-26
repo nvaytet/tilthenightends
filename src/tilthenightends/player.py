@@ -43,6 +43,7 @@ class Player:
         self.vector = np.array([0.0, 0.0])  # vector / np.linalg.norm(vector)
         self.max_health = health
         self.health = health  # 100.0
+        self.freeze = 0.0
         # self.defense = 0.0
         self.weapon = arsenal[weapon.lower()](owner=self)
         self.attack = 0.0
@@ -197,7 +198,9 @@ heroes = {
     "kaelen": partial(
         Player, weapon="lightningbolt", health=100.0, speed=25.0, hero="kaelen"
     ),
-    "lyra": partial(Player, weapon="runetracer", health=100.0, speed=25.0, hero="lyra"),
+    "lyra": partial(
+        Player, weapon="frozenshard", health=100.0, speed=25.0, hero="lyra"
+    ),
     "selene": partial(
         Player, weapon="runetracer", health=100.0, speed=25.0, hero="selene"
     ),

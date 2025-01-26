@@ -264,6 +264,7 @@ class Engine:
         good_healths = np.array([pp.health for pp in players_and_projectiles])
         good_attacks = np.array([pp.attack for pp in players_and_projectiles])
         good_radius = np.array([pp.radius for pp in players_and_projectiles])
+        good_freeze = np.array([(pp.freeze + t) for pp in players_and_projectiles])
 
         # Find center of mass of players and projectiles
         center = np.mean(good_positions, axis=0)
@@ -317,9 +318,11 @@ class Engine:
         # mask = (distances < config.hit_radius).astype(int)
         mask = (distances < sum_of_radii).astype(int)
         monster_damage = np.broadcast_to(good_attacks.reshape(1, -1), mask.shape) * mask
+        monster_freeze = np.broadcast_to(good_freeze.reshape(1, -1), mask.shape) * mask
         player_damage = np.broadcast_to(evil_attacks.reshape(-1, 1), mask.shape) * mask
         evil_healths -= monster_damage.sum(axis=1)
         good_healths -= player_damage.sum(axis=0)
+        evil_freeze = monster_freeze.max(axis=1)
 
         for pp, health in zip(players_and_projectiles, good_healths):
             pp.health = health
@@ -369,6 +372,7 @@ class Engine:
             size = evil_masks[i].sum()
             # horde.healths[evil_masks[i]] = evil_healths[n : n + horde.size]
             horde.healths[evil_masks[i]] = evil_healths[n : n + size]
+            horde.freezes[evil_masks[i]] = evil_freeze[n : n + size]
             inds = np.where(horde.healths <= 0)[0]
             ndead = len(inds)
             # print("ndead", ndead)
@@ -394,15 +398,15 @@ class Engine:
 
         return
 
-        good_troops = np.concatenate(
-            [
-                np.array([p.position for p in self.players]),
-                *[p.weapon.positions[: p.weapon.nprojectiles] for p in self.players],
-            ]
-        )
-        bad_troops = np.concatenate([m.positions for m in self.monsters])
-        print(good_troops.shape, bad_troops.shape)
-        assert False
+        # good_troops = np.concatenate(
+        #     [
+        #         np.array([p.position for p in self.players]),
+        #         *[p.weapon.positions[: p.weapon.nprojectiles] for p in self.players],
+        #     ]
+        # )
+        # bad_troops = np.concatenate([m.positions for m in self.monsters])
+        # print(good_troops.shape, bad_troops.shape)
+        # assert False
 
     def resolve_xp(self, t: float):
         # print("self.xp", self.xp, "self.next_xp", self.next_xp)
@@ -456,7 +460,7 @@ class Engine:
         #     self.graphics.controller.target = lookat
         #     self.graphics.camera.lookAt(lookat)
         for horde in self.monsters:
-            horde.move(self.dt, players=self.players.values())
+            horde.move(t, self.dt, players=self.players.values())
 
         if self._follow:  # and (int(t * 3) % 3 == 0):
             self.move_camera()

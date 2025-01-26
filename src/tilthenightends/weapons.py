@@ -19,6 +19,7 @@ class Projectile:
         radius,
         owner,
         healing=0.0,
+        freeze=0.0,
     ):
         self.position = position.copy()
         self.vector = vector / np.linalg.norm(vector)
@@ -30,6 +31,7 @@ class Projectile:
         self.radius = radius
         self.owner = owner
         self.healing = healing
+        self.freeze = freeze
 
     def move(self, t, dt):
         self.position = self.position + (self.vector * dt * self.speed)
@@ -407,6 +409,40 @@ class MagicWand(Weapon):
         self.timer = t + self.cooldown
 
 
+class FrozenShard(Weapon):
+    def __init__(self, **kwargs):
+        super().__init__(
+            name="FrozenShard",
+            cooldown=4,
+            damage=0,
+            speed=250.0,
+            health=100,
+            longevity=3,
+            radius=16,
+            **kwargs,
+        )
+
+    def fire(self, position, t):
+        phi = config.rng.uniform(0, 2 * np.pi)
+        self.projectiles.append(
+            self.projectile(
+                position=position,
+                vector=np.array([np.cos(phi), np.sin(phi)]),
+                speed=self.speed,
+                tstart=t,
+                tend=t + self.longevity,
+                attack=self.damage,
+                health=self.health,
+                radius=self.radius,
+                owner=self.owner,
+                freeze=self.longevity,
+            )
+        )
+
+        self.draw_sprites()
+        self.timer = t + self.cooldown
+
+
 arsenal = {
     "runetracer": Runetracer,
     "fireball": Fireball,
@@ -416,4 +452,5 @@ arsenal = {
     "lightningbolt": LightningBolt,
     "plasmagun": PlasmaGun,
     "magicwand": MagicWand,
+    "frozenshard": FrozenShard,
 }
