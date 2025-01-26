@@ -443,6 +443,38 @@ class FrozenShard(Weapon):
         self.timer = t + self.cooldown
 
 
+class ProximityMine(Weapon):
+    def __init__(self, **kwargs):
+        super().__init__(
+            name="ProximityMine",
+            cooldown=4,
+            damage=100,
+            speed=0.0,
+            health=1,
+            longevity=60.0,
+            radius=16,
+            **kwargs,
+        )
+
+    def fire(self, position, t):
+        self.projectiles.append(
+            self.projectile(
+                position=position,
+                vector=np.array([1, 0]),
+                speed=self.speed,
+                tstart=t,
+                tend=t + self.longevity,
+                attack=self.damage,
+                health=self.health,
+                radius=self.radius,
+                owner=self.owner,
+            )
+        )
+
+        self.draw_sprites()
+        self.timer = t + self.cooldown
+
+
 arsenal = {
     "runetracer": Runetracer,
     "fireball": Fireball,
@@ -453,4 +485,5 @@ arsenal = {
     "plasmagun": PlasmaGun,
     "magicwand": MagicWand,
     "frozenshard": FrozenShard,
+    "proximitymine": ProximityMine,
 }
