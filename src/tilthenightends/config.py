@@ -24,3 +24,4 @@ class Config:
     # scaling = 64.0 / 2.0
     hit_radius: float = 20.0
     rng: np.random.Generator = np.random.default_rng()
+    map_size: int = 30000

@@ -286,12 +286,14 @@ class Graphics:
     def add_scenery(self, world: str):
         self.window.setBackground(backgrounds[world])
         sprites = []
-        r = 30000
+        # r = 30000
         for i in range(nsprites[world]):
             sprites.append(
                 make_sprites(
                     sprite_path=config.resources / "worlds" / world / f"{world}{i}.png",
-                    positions=config.rng.uniform(-r, r, (900, 2)),
+                    positions=config.rng.uniform(
+                        -config.map_size, config.map_size, (900, 2)
+                    ),
                 )
             )
 
