@@ -372,7 +372,9 @@ class Engine:
             size = evil_masks[i].sum()
             # horde.healths[evil_masks[i]] = evil_healths[n : n + horde.size]
             horde.healths[evil_masks[i]] = evil_healths[n : n + size]
-            horde.freezes[evil_masks[i]] = evil_freeze[n : n + size]
+            horde.freezes[evil_masks[i]] = np.maximum(
+                horde.freezes[evil_masks[i]], evil_freeze[n : n + size]
+            )
             inds = np.where(horde.healths <= 0)[0]
             ndead = len(inds)
             # print("ndead", ndead)

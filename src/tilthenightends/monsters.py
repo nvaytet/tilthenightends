@@ -97,6 +97,6 @@ class Monsters:
         # Update positions
         # frozen = self.freezes > t
         # print(self.freezes)
-        self.positions += v * dt * self.speed * (self.freezes < t).reshape(-1, 1)
+        self.positions += v * dt * self.speed * (self.freezes <= t).reshape(-1, 1)
         # self.geometry.attributes["position"].array = self.positions.astype("float32")
         self.sprites.setData(pos=self.positions)
