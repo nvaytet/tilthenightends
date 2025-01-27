@@ -451,7 +451,7 @@ class ProximityMine(Weapon):
             damage=100,
             speed=0.0,
             health=1,
-            longevity=60.0,
+            longevity=6.0,
             radius=16,
             **kwargs,
         )

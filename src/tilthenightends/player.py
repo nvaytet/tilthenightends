@@ -49,6 +49,7 @@ class Player:
         self.attack = 0.0
         self.radius = 20.0
         self._closest_monster = None
+        self.respawn_time = np.inf
 
         self.levels = {
             # "attack": 0,
@@ -94,6 +95,11 @@ class Player:
             sprite_path=config.resources / "heroes" / f"{self.hero}.png",
             positions=np.array([[self.x, self.y]]),
         )
+        self.dead_avatar = make_sprites(
+            sprite_path=config.resources / "heroes" / f"{self.hero}_dead.png",
+            positions=np.array([[self.x, self.y]]),
+        )
+        self.dead_avatar.setOpacity(0.0)
 
     def execute_bot_instructions(self, direction: Vector | Towards | None):
         if direction is None:
@@ -106,6 +112,13 @@ class Player:
         # self.vector = np.array(
         #     [int(move.right) - int(move.left), int(move.up) - int(move.down)]
         # )
+
+    def maybe_respawn(self, t):
+        if t > self.respawn_time:
+            self.health = self.max_health * 0.5
+            self.respawn_time = np.inf
+            self.dead_avatar.setOpacity(0.0)
+            self.avatar.setOpacity(1.0)
 
     @property
     def alive(self) -> bool:
@@ -120,6 +133,7 @@ class Player:
         # self.avatar.position = [self.x, self.y, 0.0]
         # print(f"Player moved to {self.x}, {self.y}.")
         self.avatar.setData(pos=np.array([[self.x, self.y]]))
+        # self.dead_avatar.setData(pos=np.array([[self.x, self.y]]))
 
     @property
     def position(self) -> np.ndarray:
@@ -138,6 +152,10 @@ class Player:
 
     def die(self, t):
         # Start countdown to respawn
+        self.respawn_time = t + 15.0
+        self.dead_avatar.setOpacity(1.0)
+        self.dead_avatar.setData(pos=np.array([[self.x, self.y]]))
+        self.avatar.setOpacity(0.0)
         return
 
     def as_dict(self):

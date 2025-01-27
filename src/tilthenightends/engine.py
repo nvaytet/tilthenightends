@@ -178,6 +178,7 @@ class Engine:
 
         for player in self.players.values():
             self.graphics.add(player.avatar)
+            self.graphics.add(player.dead_avatar)
             self.graphics.add(player.weapon.sprites)
             # player.weapon.fire(0, 0, 0)
 
@@ -449,7 +450,8 @@ class Engine:
         # print("dt", t - self._previous_t)
         # self._previous_t = t
         self.call_player_bots(t=t, dt=self.dt)
-        for player in self.players.values():
+        alive_players = [p for p in self.players.values() if p.alive]
+        for player in alive_players:
             player.move(self.dt)
             if t > player.weapon.timer:
                 player.weapon.fire(player.position, t)
@@ -462,7 +464,7 @@ class Engine:
         #     self.graphics.controller.target = lookat
         #     self.graphics.camera.lookAt(lookat)
         for horde in self.monsters:
-            horde.move(t, self.dt, players=self.players.values())
+            horde.move(t, self.dt, players=alive_players)
 
         if self._follow:  # and (int(t * 3) % 3 == 0):
             self.move_camera()
