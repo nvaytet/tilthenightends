@@ -14,7 +14,7 @@ tne.play(
     world="mine",
     manual=False,  # Set to True to play manually using the keyboard arrow keys
     music=False,
-    seed=42,
+    # seed=44,
     # follow=True,
     restart=None,
 )

@@ -300,13 +300,22 @@ class Graphics:
         for sprite in sprites:
             self.add(sprite)
 
-    def update_player_status(self, players, xp):
+    def update_player_status(self, players, xp, t):
         for name, player in players.items():
             img = "green_pixel.png" if player.health > 50 else "red_pixel.png"
             self.player_status[name]["footer"].setText(
                 f'<img src="{config.resources / "other" / img}" '
                 f'width="{player.health // 2}" height="4">'
             )
+            if not player.alive:
+                countdown = int(round(player.respawn_time - t))
+                imgtext = self.player_status[name]["image"].text()
+                prefix = imgtext.split(">")[0]
+                newtext = (
+                    f'{prefix}><span style="font-size: 2em; color: red;">'
+                    f"{countdown}</span>"
+                )
+                self.player_status[name]["image"].setText(newtext)
             text = [
                 f'<img src="{config.resources / "other" / "blank.png"}" '
                 f'width="5" height="32">'

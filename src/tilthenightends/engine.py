@@ -212,7 +212,7 @@ class Engine:
         if restart is not None:
             self.restart_from_state(restart)
 
-        self.graphics.update_player_status(self.players, xp=self.xp)
+        self.graphics.update_player_status(self.players, xp=self.xp, t=0)
         self.move_camera()
 
     def restart_from_state(self, restart):
@@ -525,7 +525,7 @@ class Engine:
 
         # Update player status every 10 frames
         if int(t * 10) % 10 == 0:
-            self.graphics.update_player_status(self.players, xp=self.xp)
+            self.graphics.update_player_status(self.players, xp=self.xp, t=t)
             self.graphics.update_time(t=t)
 
         # # Set camera position to player center of mass
