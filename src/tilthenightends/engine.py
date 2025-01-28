@@ -1,7 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 from typing import Optional
-import datetime
 import glob
 import json
 
@@ -284,7 +283,12 @@ class Engine:
         # evil_radius = np.concatenate([horde.radii for horde in self.monsters])
 
         # Combine all hero and projectile positions
-        player_list = list(self.players.values())
+        # player_list = list(self.players.values())
+        player_list = [p for p in self.players.values() if p.alive]
+
+        # TODO: remove this once we exit game when all players are dead
+        if len(player_list) == 0:
+            return
 
         projectiles = [
             proj for player in player_list for proj in player.weapon.projectiles
@@ -386,7 +390,8 @@ class Engine:
         # print(closest_monster_indices)
         # closest_monster_positions = evil_positions[closest_monster_indices, :]
 
-        for i, player in enumerate(self.players.values()):
+        # for i, player in enumerate(self.players.values()):
+        for i, player in enumerate(player_list):
             if closest_monster_positions is not None:
                 player._closest_monster = closest_monster_positions[i, :]
             else:
@@ -492,8 +497,8 @@ class Engine:
         # print("dt", t - self._previous_t)
         # self._previous_t = t
         self.call_player_bots(t=t, dt=self.dt)
-        alive_players = {p for p in self.players.values() if p.alive}
-        dead_players = set(self.players.values()) - alive_players
+        alive_players = [p for p in self.players.values() if p.alive]
+        dead_players = [p for p in self.players.values() if not p.alive]
         for player in alive_players:
             player.move(self.dt)
             if t > player.weapon.timer:
@@ -542,7 +547,7 @@ class Engine:
             mixer.music.load(
                 str(config.resources / "worlds" / self.world / f"{self.world}.mp3")
             )
-            mixer.music.play()
+            mixer.music.play(-1)
 
         # # for playing note.wav file
         # playsound('/path/note.wav')
@@ -556,19 +561,19 @@ class Engine:
         self.elapsed_timer.start()
         pg.exec()
 
-        # Dump state at the end of the run
-        state = {
-            "players": {p.hero: p.as_dict() for p in self.players.values()},
-            "monsters": [m.as_dict() for m in self.monsters],
-            "loot": {
-                "chicken": self.chicken.as_dict(),
-                "treasures": self.treasures.as_dict(),
-            },
-            "xp": self.xp,
-            "next_xp": self.next_xp,
-            "xp_step": self.xp_step,
-            "elapsed": self.elapsed_timer.elapsed() / 1000.0,
-            "dt": self.dt,
-        }
-        now = str(datetime.datetime.now()).replace(" ", "-").replace(":", "-")
-        json.dump(state, open(f"state-{now}.json", "w"))
+        # # Dump state at the end of the run
+        # state = {
+        #     "players": {p.hero: p.as_dict() for p in self.players.values()},
+        #     "monsters": [m.as_dict() for m in self.monsters],
+        #     "loot": {
+        #         "chicken": self.chicken.as_dict(),
+        #         "treasures": self.treasures.as_dict(),
+        #     },
+        #     "xp": self.xp,
+        #     "next_xp": self.next_xp,
+        #     "xp_step": self.xp_step,
+        #     "elapsed": self.elapsed_timer.elapsed() / 1000.0,
+        #     "dt": self.dt,
+        # }
+        # now = str(datetime.datetime.now()).replace(" ", "-").replace(":", "-")
+        # json.dump(state, open(f"state-{now}.json", "w"))

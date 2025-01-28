@@ -99,3 +99,16 @@ class Monsters:
             self.vectors * dt * self.speed * (self.freezes <= t).reshape(-1, 1)
         )
         self.sprites.setData(pos=self.positions)
+
+    def as_dict(self):
+        return {
+            "kind": self.kind,
+            "size": self.size,
+            "positions": self.positions,
+            "healths": self.healths,
+            "attacks": self.attacks,
+            "radii": self.radii,
+            "freezes": self.freezes,
+            "speed": self.speed,
+            "xp": self.xp,
+        }

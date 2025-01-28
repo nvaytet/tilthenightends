@@ -115,7 +115,7 @@ class Player:
 
     def maybe_respawn(self, t):
         if t > self.respawn_time:
-            print(f"Player {self.hero} respawning.", t)
+            print(f"Player {self.hero} respawning.", t, self.respawn_time)
             self.health = self.max_health * 0.5
             self.respawn_time = np.inf
             self.dead_avatar.setOpacity(0.0)
@@ -152,12 +152,14 @@ class Player:
             self._vector = self._vector / norm
 
     def die(self, t):
+        # print(f"Player {self.hero} DIED.", t)
         # Start countdown to respawn
-        self.respawn_time = t + 15.0
+        self.respawn_time = t + config.respawn_time
         self.dead_avatar.setOpacity(1.0)
         self.dead_avatar.setData(pos=np.array([[self.x, self.y]]))
         self.avatar.setOpacity(0.0)
-        return
+        print(f"Player {self.hero} DIED.", t, self.respawn_time)
+        # return
 
     def as_dict(self):
         return {
@@ -172,6 +174,9 @@ class Player:
         }
 
     def levelup(self, what):
+        if not self.alive:
+            print(f"Player {self.hero} is dead and cannot level up.")
+            return
         if what == LevelupOptions.player_health:
             self.max_health *= 1.05
             self.levels["health"] += 1

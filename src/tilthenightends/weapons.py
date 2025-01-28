@@ -308,7 +308,8 @@ class Dove(Weapon):
         # self.projectiles = []
         # for p in phi:
         proj = self.projectile(
-            position=position + np.array([np.cos(phi), np.sin(phi)]) * self.radius * 2,
+            position=position
+            + np.array([np.cos(phi), np.sin(phi)]) * self.radius * 2.5,
             vector=np.array([1.0, 0]),
             speed=self.speed,
             tstart=t,
