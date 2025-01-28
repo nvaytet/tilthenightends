@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 from typing import Optional
+import datetime
+import glob
+import json
 
 import numpy as np
 
@@ -24,6 +27,7 @@ except ImportError:
 from . import config
 from .graphics import Graphics
 from .player import Team, heroes
+from .loot import Loot
 from .monsters import Monsters
 
 # from .scores import finalize_scores
@@ -80,14 +84,15 @@ class Engine:
         manual: bool = False,
         music: bool = False,
         side: str = None,
+        restart: str | int | None = None,
         # crater_scaling: float = 1.0,
         # player_collisions: bool = True,
         # asteroid_collisions: bool = True,
         # speedup: float = 1.0,
     ):
         # Set the seed
-        BitGen = type(config.rng.bit_generator)
-        config.rng.bit_generator.state = BitGen(seed).state
+        # BitGen = type(config.rng.bit_generator)
+        # config.rng.bit_generator.state = BitGen(seed).state
 
         self.team = team
         self.world = world
@@ -165,6 +170,9 @@ class Engine:
         # for sprites in scenery:
         #     self.graphics.add(sprites)
 
+        self.chicken = Loot(size=300, kind="chicken")
+        self.treasures = Loot(size=150, kind="treasure")
+
         s = 32.0
         d = 25.0
         self.monsters = [
@@ -173,6 +181,10 @@ class Engine:
             Monsters(size=500, kind="giantbat", distance=800 * d, scale=100 * s),
             Monsters(size=500, kind="thereaper", distance=1000 * d, scale=100 * s),
         ]
+
+        self.graphics.add(self.chicken.sprites)
+        self.graphics.add(self.treasures.sprites)
+
         for horde in self.monsters:
             self.graphics.add(horde.sprites)
 
@@ -198,8 +210,27 @@ class Engine:
         self.dt = 1.0 / config.fps
         # self._previous_t = 0.0
 
+        if restart is not None:
+            self.restart_from_state(restart)
+
         self.graphics.update_player_status(self.players, xp=self.xp)
         self.move_camera()
+
+    def restart_from_state(self, restart):
+        if restart == -1:
+            # Find the most recent state file
+            restart = sorted(glob.glob("state-*.json"), reverse=True)[-1]
+        state = json.load(open(restart))
+        for hero, info in state["players"].items():
+            self.players[hero].from_dict(info)
+        for i, info in enumerate(state["monsters"]):
+            self.monsters[i].from_dict(info)
+        self.xp = state["xp"]
+        self.next_xp = state["next_xp"]
+        self.xp_step = state["xp_step"]
+        self.elapsed_timer = QtCore.QElapsedTimer()
+        self.elapsed_timer.start()
+        self.dt = state["dt"]
 
     # def execute_player_bot(self, team: str, info: dict) -> Instructions:
     #     instructions = None
@@ -445,12 +476,24 @@ class Engine:
             ymax += padding
         self.graphics.viewbox.setRange(xRange=(xmin, xmax), yRange=(ymin, ymax))
 
+    def resolve_pickup(self):
+        for player in self.players.values():
+            pos = player.position
+            if self.chicken.maybe_pickup(pos):
+                player.health = min(
+                    player.health + 0.5 * player.max_health, player.max_health
+                )
+            maybe_xp = self.treasures.maybe_pickup(pos)
+            if maybe_xp:
+                self.xp += maybe_xp
+
     def update(self):
         t = self.elapsed_timer.elapsed() / 1000.0
         # print("dt", t - self._previous_t)
         # self._previous_t = t
         self.call_player_bots(t=t, dt=self.dt)
-        alive_players = [p for p in self.players.values() if p.alive]
+        alive_players = {p for p in self.players.values() if p.alive}
+        dead_players = set(self.players.values()) - alive_players
         for player in alive_players:
             player.move(self.dt)
             if t > player.weapon.timer:
@@ -469,8 +512,11 @@ class Engine:
         if self._follow:  # and (int(t * 3) % 3 == 0):
             self.move_camera()
 
+        self.resolve_pickup()
         self.fight(t=t)
         self.resolve_xp(t=t)
+        for player in dead_players:
+            player.maybe_respawn(t=t)
 
         # Update player status every 10 frames
         if int(t * 10) % 10 == 0:
@@ -510,32 +556,19 @@ class Engine:
         self.elapsed_timer.start()
         pg.exec()
 
-        # if self.music is not None:
-        #     self.music.stop()
-
-    #     self.streaming_task = asyncio.create_task(self.loop())
-
-    # async def async_range(self, count):
-    #     # dt = 1.0 / config.fps
-    #     for i in range(count):
-    #         yield (i)
-    #         await asyncio.sleep(self.dt * 0.1)
-
-    # async def loop(self):
-    #     # dt = 1.0 / config.fps
-    #     async for i in self.async_range(1000):
-    #         for player in self.players:
-    #             player.move(self.dt)
-    #         if self.camera_lock.value:
-    #             # player center of mass
-    #             x, y = np.mean([[p.x, p.y] for p in self.players], axis=0)
-    #             self.graphics.camera.position = [x, y, self.graphics.camera.position[2]]
-    #             lookat = [x, y, 0]
-    #             self.graphics.controller.target = lookat
-    #             self.graphics.camera.lookAt(lookat)
-    #         for monster_group in self.monsters:
-    #             monster_group.move(self.dt, players=self.players)
-    #         # time.sleep(dt)
-
-    # def display(self):
-    #     return ipw.VBox([self.graphics.renderer, self.toolbar])
+        # Dump state at the end of the run
+        state = {
+            "players": {p.hero: p.as_dict() for p in self.players.values()},
+            "monsters": [m.as_dict() for m in self.monsters],
+            "loot": {
+                "chicken": self.chicken.as_dict(),
+                "treasures": self.treasures.as_dict(),
+            },
+            "xp": self.xp,
+            "next_xp": self.next_xp,
+            "xp_step": self.xp_step,
+            "elapsed": self.elapsed_timer.elapsed() / 1000.0,
+            "dt": self.dt,
+        }
+        now = str(datetime.datetime.now()).replace(" ", "-").replace(":", "-")
+        json.dump(state, open(f"state-{now}.json", "w"))

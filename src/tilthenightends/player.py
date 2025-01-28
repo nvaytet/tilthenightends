@@ -59,7 +59,7 @@ class Player:
             "weapon_health": 0,
             "weapon_damage": 0,
             "weapon_cooldown": 0,
-            "weapon_nprojectiles": 0,
+            "weapon_size": 0,
         }
 
         # Create a position buffer geometry
@@ -115,6 +115,7 @@ class Player:
 
     def maybe_respawn(self, t):
         if t > self.respawn_time:
+            print(f"Player {self.hero} respawning.", t)
             self.health = self.max_health * 0.5
             self.respawn_time = np.inf
             self.dead_avatar.setOpacity(0.0)

@@ -278,7 +278,7 @@ class DoveProjectile(Projectile):
         # print("p.phi", p.phi)
         self.position = (
             self.owner.position
-            + np.array([np.cos(self.phi), np.sin(self.phi)]) * self.radius * 2
+            + np.array([np.cos(self.phi), np.sin(self.phi)]) * self.radius * 2.5
         )
 
 
@@ -415,8 +415,8 @@ class FrozenShard(Weapon):
             name="FrozenShard",
             cooldown=4,
             damage=0,
-            speed=250.0,
-            health=100,
+            speed=400.0,
+            health=np.inf,
             longevity=3,
             radius=16,
             **kwargs,
@@ -424,6 +424,7 @@ class FrozenShard(Weapon):
 
     def fire(self, position, t):
         phi = config.rng.uniform(0, 2 * np.pi)
+        print("frozen shard phi", phi, t)
         self.projectiles.append(
             self.projectile(
                 position=position,

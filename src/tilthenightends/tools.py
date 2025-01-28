@@ -37,7 +37,7 @@ class LevelupOptions(Enum):
     weapon_speed = auto()
     weapon_damage = auto()
     weapon_cooldown = auto()
-    weapon_nprojectiles = auto()
+    weapon_size = auto()
 
 
 @dataclass
