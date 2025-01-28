@@ -9,12 +9,12 @@ from .graphics import make_sprites
 class Loot:
     def __init__(self, size, kind):
         self.kind = kind
-        # self.positions = config.rng.uniform(
-        #     -config.map_size, config.map_size, (size, 2)
-        # )
         self.positions = config.rng.uniform(
-            -config.map_size * 0.1, config.map_size * 0.1, (size, 2)
+            -config.map_size, config.map_size, (size, 2)
         )
+        # self.positions = config.rng.uniform(
+        #     -config.map_size * 0.1, config.map_size * 0.1, (size, 2)
+        # )
 
         r = np.linalg.norm(self.positions, axis=1)
         self.xp = r * 0.01

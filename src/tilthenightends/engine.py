@@ -286,9 +286,9 @@ class Engine:
         # player_list = list(self.players.values())
         player_list = [p for p in self.players.values() if p.alive]
 
-        # TODO: remove this once we exit game when all players are dead
-        if len(player_list) == 0:
-            return
+        # # TODO: remove this once we exit game when all players are dead
+        # if len(player_list) == 0:
+        #     return
 
         projectiles = [
             proj for player in player_list for proj in player.weapon.projectiles
@@ -499,10 +499,14 @@ class Engine:
 
     def update(self):
         t = self.elapsed_timer.elapsed() / 1000.0
+        alive_players = [p for p in self.players.values() if p.alive]
+        if len(alive_players) == 0:
+            return
+
         # print("dt", t - self._previous_t)
         # self._previous_t = t
         self.call_player_bots(t=t, dt=self.dt)
-        alive_players = [p for p in self.players.values() if p.alive]
+        # alive_players = [p for p in self.players.values() if p.alive]
         dead_players = [p for p in self.players.values() if not p.alive]
         for player in alive_players:
             player.move(self.dt)
