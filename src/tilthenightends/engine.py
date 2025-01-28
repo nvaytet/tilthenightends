@@ -367,23 +367,28 @@ class Engine:
         # Compute distances between players and projectiles
         # If any player is within a projectile radius, the player is healed
         # equal to the projectile's healing power
-        distances = np.linalg.norm(
-            np.concatenate([pp.position.reshape(1, 2) for pp in player_list])[
-                :, np.newaxis, :
-            ]
-            - np.concatenate([proj.position.reshape(1, 2) for proj in projectiles])[
-                np.newaxis, :, :
-            ],
-            axis=2,
-        )
-        mask = (distances < np.array([proj.radius for proj in projectiles])).astype(int)
-        healing = (
-            np.broadcast_to(
-                np.array([proj.healing for proj in projectiles]).reshape(1, -1),
-                mask.shape,
+        if len(projectiles) > 0:
+            distances = np.linalg.norm(
+                np.concatenate([pp.position.reshape(1, 2) for pp in player_list])[
+                    :, np.newaxis, :
+                ]
+                - np.concatenate([proj.position.reshape(1, 2) for proj in projectiles])[
+                    np.newaxis, :, :
+                ],
+                axis=2,
             )
-            * mask
-        ).sum(axis=1)
+            mask = (distances < np.array([proj.radius for proj in projectiles])).astype(
+                int
+            )
+            healing = (
+                np.broadcast_to(
+                    np.array([proj.healing for proj in projectiles]).reshape(1, -1),
+                    mask.shape,
+                )
+                * mask
+            ).sum(axis=1)
+        else:
+            healing = np.zeros(len(player_list))
 
         # # Find the closest monster to each player
         # closest_monster_indices = np.argmin(distances, axis=0)

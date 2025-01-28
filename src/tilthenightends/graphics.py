@@ -292,7 +292,7 @@ class Graphics:
                 make_sprites(
                     sprite_path=config.resources / "worlds" / world / f"{world}{i}.png",
                     positions=config.rng.uniform(
-                        -config.map_size, config.map_size, (900, 2)
+                        -config.map_size, config.map_size, (500, 2)
                     ),
                 )
             )

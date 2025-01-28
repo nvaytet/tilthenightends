@@ -120,6 +120,7 @@ class Player:
             self.respawn_time = np.inf
             self.dead_avatar.setOpacity(0.0)
             self.avatar.setOpacity(1.0)
+            self.weapon.timer = t + self.weapon.cooldown
 
     @property
     def alive(self) -> bool:
@@ -159,6 +160,8 @@ class Player:
         self.dead_avatar.setData(pos=np.array([[self.x, self.y]]))
         self.avatar.setOpacity(0.0)
         print(f"Player {self.hero} DIED.", t, self.respawn_time)
+        self.weapon.projectiles = []
+        self.weapon.draw_sprites()
         # return
 
     def as_dict(self):
