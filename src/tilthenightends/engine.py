@@ -565,7 +565,12 @@ class Engine:
         if mixer is not None and self._music:
             mixer.init()
             mixer.music.load(
-                str(config.resources / "worlds" / self.world / f"{self.world}.mp3")
+                str(
+                    config.resources
+                    / "worlds"
+                    / self.world.name
+                    / f"{self.world.name}.mp3"
+                )
             )
             mixer.music.play(-1)
 

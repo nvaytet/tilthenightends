@@ -19,7 +19,7 @@ bestiary = {
     "mantis": {"health": 150.0, "attack": 50.0, "speed": 15.0, "radius": 50.0},
     "skeleton": {"health": 10.0, "attack": 5.0, "speed": 20.0, "radius": 15.0},
     "mamba": {"health": 20.0, "attack": 10.0, "speed": 18.0, "radius": 15.0},
-    "volcano": {"health": 20.0, "attack": 20.0, "speed": 20.0, "radius": 15.0},
+    "volcano": {"health": 20.0, "attack": 20.0, "speed": 50.0, "radius": 15.0},
     "snake": {"health": 60.0, "attack": 40.0, "speed": 20.0, "radius": 30.0},
     "minotaur": {"health": 150.0, "attack": 50.0, "speed": 15.0, "radius": 50.0},
     "ghost": {"health": 10.0, "attack": 5.0, "speed": 20.0, "radius": 15.0},
@@ -32,7 +32,7 @@ bestiary = {
 
 
 class Monsters:
-    def __init__(self, size, kind, distance, scale=10.0):
+    def __init__(self, size, kind, distance, scale=10.0, clumpy=False):
         # Create positions in a ring that has a gaussian profile in radius which peaks
         # at distance
         # r = np.random.normal(
@@ -46,6 +46,7 @@ class Monsters:
         self.size = size
         self.distance = distance
         self.scale = scale
+        self.clumpy = clumpy
         self.positions = self.make_positions(self.size)
         self.vectors = np.zeros((self.size, 2), dtype="float32")
         self.healths = np.full(self.size, bestiary[kind]["health"])
@@ -82,17 +83,43 @@ class Monsters:
         # self.sprites = p3.Points(geometry=self.geometry, material=self.material)
 
     def make_positions(self, n, offset=None):
-        r = config.rng.normal(
-            scale=self.scale,  # * config.scaling,
-            loc=self.distance,  # * config.scaling,
-            size=n,
-        )
-        theta = config.rng.uniform(0, 2 * np.pi, n)
-        positions = np.zeros((n, 2), dtype="float32")
-        positions[:, 0] = r * np.cos(theta)
-        positions[:, 1] = r * np.sin(theta)
-        if offset is not None:
-            positions += offset
+        if self.clumpy:
+            n1 = int(n * 0.2)
+            n2 = n - n1
+            r1 = config.rng.normal(
+                scale=self.scale,  # * config.scaling,
+                loc=self.distance,  # * config.scaling,
+                size=n1,
+            )
+            theta1 = config.rng.uniform(0, 2 * np.pi, n1)
+            positions1 = np.zeros((n1, 2), dtype="float32")
+            positions1[:, 0] = r1 * np.cos(theta1)
+            positions1[:, 1] = r1 * np.sin(theta1)
+            # r2 = config.rng.normal(
+            #     scale=self.scale,  # * config.scaling,
+            #     loc=self.distance * 1.1,  # * config.scaling,
+            #     size=n2,
+            # )
+            # theta2 = config.rng.uniform(0, 2 * np.pi, n2)
+            # positions2 = np.zeros((n2, 2), dtype="float32")
+            # positions2[:, 0] = r2 * np.cos(theta2)
+            # positions2[:, 1] = r2 * np.sin(theta2)
+            # positions = np.concatenate([positions1, positions2])
+            if offset is not None:
+                positions += offset
+
+        else:
+            r = config.rng.normal(
+                scale=self.scale,  # * config.scaling,
+                loc=self.distance,  # * config.scaling,
+                size=n,
+            )
+            theta = config.rng.uniform(0, 2 * np.pi, n)
+            positions = np.zeros((n, 2), dtype="float32")
+            positions[:, 0] = r * np.cos(theta)
+            positions[:, 1] = r * np.sin(theta)
+            if offset is not None:
+                positions += offset
         return positions
 
     @property

@@ -124,7 +124,11 @@ class Mine(World):
             background="#808080",
             monsters=[
                 Monsters(
-                    size=2000, kind="ghost", distance=config.map_size / 3, scale=s
+                    size=2000,
+                    kind="ghost",
+                    distance=config.map_size / 3,
+                    scale=s,
+                    clumpy=False,
                 ),
                 Monsters(
                     size=1000, kind="molisano", distance=config.map_size / 2, scale=s
