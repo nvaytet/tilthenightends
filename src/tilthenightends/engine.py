@@ -27,7 +27,7 @@ from . import config
 from .graphics import Graphics
 from .player import Team, heroes
 from .loot import Loot
-from .monsters import Monsters
+from .worlds import Forest, Desert, Mountain, Mine
 
 # from .scores import finalize_scores
 # from .terrain import Terrain
@@ -94,7 +94,15 @@ class Engine:
         # config.rng.bit_generator.state = BitGen(seed).state
 
         self.team = team
-        self.world = world
+        match world:
+            case "forest":
+                self.world = Forest()
+            case "desert":
+                self.world = Desert()
+            case "mountain":
+                self.world = Mountain()
+            case "mine":
+                self.world = Mine()
         # if seed is not None:
         #     np.random.seed(seed)
         self._manual = manual
@@ -172,19 +180,22 @@ class Engine:
         self.chicken = Loot(size=300, kind="chicken")
         self.treasures = Loot(size=150, kind="treasure")
 
-        s = 32.0
-        d = 25.0
-        self.monsters = [
-            Monsters(size=2000, kind="bat", distance=400.0 * d, scale=100 * s),
-            Monsters(size=2000, kind="rottingghoul", distance=600 * d, scale=100 * s),
-            Monsters(size=500, kind="giantbat", distance=800 * d, scale=100 * s),
-            Monsters(size=500, kind="thereaper", distance=1000 * d, scale=100 * s),
-        ]
+        self.monsters = self.world.monsters
+
+        # s = 32.0
+        # d = 25.0
+        # self.monsters = [
+        #     Monsters(size=2000, kind="bat", distance=400.0 * d, scale=100 * s),
+        #     Monsters(size=2000, kind="rottingghoul", distance=600 * d, scale=100 * s),
+        #     Monsters(size=500, kind="giantbat", distance=800 * d, scale=100 * s),
+        #     Monsters(size=500, kind="thereaper", distance=1000 * d, scale=100 * s),
+        # ]
 
         self.graphics.add(self.chicken.sprites)
         self.graphics.add(self.treasures.sprites)
 
         for horde in self.monsters:
+            horde.make_sprites()
             self.graphics.add(horde.sprites)
 
         for player in self.players.values():

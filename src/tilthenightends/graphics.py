@@ -36,6 +36,8 @@ from pyqtgraph.Qt.QtWidgets import (
 #     from PyQt5.QtCore import Qt
 
 from . import config
+from .sprites import make_sprites
+from .worlds import World
 
 
 # class SpriteScatterPlotItem(pg.ScatterPlotItem):
@@ -57,53 +59,6 @@ from . import config
 #                 ),
 #                 self.sprite,
 #             )
-
-
-class SpriteScatterPlotItem(pg.ScatterPlotItem):
-    def __init__(
-        self, sprite_path, scale=1.0, width=None, height=None, *args, **kwargs
-    ):
-        super().__init__(*args, **kwargs)
-
-        # Load the sprite and flip it vertically
-        self.original_sprite = QtGui.QPixmap(str(sprite_path)).transformed(
-            QtGui.QTransform().scale(1, -1)
-        )
-
-        # Determine scaling
-        if width is not None and height is not None:
-            self.sprite_size = QtCore.QSize(width, height)
-        elif scale != 1.0:
-            self.sprite_size = self.original_sprite.size() * scale
-        else:
-            self.sprite_size = self.original_sprite.size()
-
-        # Scale the sprite to the desired size
-        self.sprite = self.original_sprite.scaled(
-            self.sprite_size, QtCore.Qt.AspectRatioMode.IgnoreAspectRatio
-        )
-
-    def paint(self, p, opt, widget):
-        p.setRenderHint(QtGui.QPainter.Antialiasing)
-        for i in range(len(self.data)):
-            spot = self.data[i]
-            x, y = spot[0], spot[1]
-            # Draw the scaled sprite
-            p.drawPixmap(
-                QtCore.QPointF(
-                    x - self.sprite_size.width() / 2,
-                    y - self.sprite_size.height() / 2,
-                ),
-                self.sprite,
-            )
-
-
-# class KeyPressWindow(pg.GraphicsLayoutWidget):
-#     sigKeyPress = QtCore.pyqtSignal(object)
-
-#     def keyPressEvent(self, ev):
-#         self.scene().keyPressEvent(ev)
-#         self.sigKeyPress.emit(ev)
 
 
 class KeyPressWindow(pg.GraphicsLayoutWidget):
@@ -154,22 +109,22 @@ class KeyPressWindow(pg.GraphicsLayoutWidget):
     #         super().keyPressEvent(event)
 
 
-def make_sprites(sprite_path, positions, **kwargs):
-    spots = [{"pos": pos, "data": 1} for pos in positions]
-    return SpriteScatterPlotItem(sprite_path, spots=spots, **kwargs)
+# def make_sprites(sprite_path, positions, **kwargs):
+#     spots = [{"pos": pos, "data": 1} for pos in positions]
+#     return SpriteScatterPlotItem(sprite_path, spots=spots, **kwargs)
 
 
-nsprites = {"forest": 7, "mountain": 7, "desert": 9, "mine": 7}
-backgrounds = {
-    "forest": "#1a4a0b",
-    "mountain": "#d9dbf0",
-    "desert": "#e5a253",
-    "mine": "#808080",
-}
+# nsprites = {"forest": 7, "mountain": 7, "desert": 9, "mine": 7}
+# backgrounds = {
+#     "forest": "#1a4a0b",
+#     "mountain": "#d9dbf0",
+#     "desert": "#e5a253",
+#     "mine": "#808080",
+# }
 
 
 class Graphics:
-    def __init__(self, players: dict, world: str, manual=False, side=None):
+    def __init__(self, players: dict, world: World, manual=False, side=None):
         self._manual = manual
         self._title = "Til the Night Ends"
 
@@ -283,14 +238,17 @@ class Graphics:
 
         self.main_window.show()
 
-    def add_scenery(self, world: str):
-        self.window.setBackground(backgrounds[world])
+    def add_scenery(self, world: World):
+        self.window.setBackground(world.background)
         sprites = []
         # r = 30000
-        for i in range(nsprites[world]):
+        for i in range(world.nsprites):
             sprites.append(
                 make_sprites(
-                    sprite_path=config.resources / "worlds" / world / f"{world}{i}.png",
+                    sprite_path=config.resources
+                    / "worlds"
+                    / world.name
+                    / f"{world.name}{i}.png",
                     positions=config.rng.uniform(
                         -config.map_size, config.map_size, (500, 2)
                     ),
