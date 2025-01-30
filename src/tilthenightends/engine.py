@@ -109,6 +109,7 @@ class Engine:
         self._music = music
         self.safe = safe
         self._follow = follow
+        self.game_ended = False
 
         # self.graphics = Graphics(manual=manual)
 
@@ -512,6 +513,10 @@ class Engine:
         t = self.elapsed_timer.elapsed() / 1000.0
         alive_players = [p for p in self.players.values() if p.alive]
         if len(alive_players) == 0:
+            if not self.game_ended:
+                self.graphics.update_player_status(self.players, xp=self.xp, t=t)
+                self.graphics.update_time(t=t)
+                self.game_ended = True
             return
 
         # print("dt", t - self._previous_t)

@@ -11,7 +11,7 @@ from survivor_bot import team
 
 tne.play(
     team=team,
-    world="desert",
+    world="mountain",
     manual=False,  # Set to True to play manually using the keyboard arrow keys
     music=True,
     # seed=44,

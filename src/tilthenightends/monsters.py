@@ -84,36 +84,31 @@ class Monsters:
 
     def make_positions(self, n, offset=None):
         if self.clumpy:
-            n1 = int(n * 0.2)
-            n2 = n - n1
-            r1 = config.rng.normal(
-                scale=self.scale,  # * config.scaling,
-                loc=self.distance,  # * config.scaling,
-                size=n1,
-            )
-            theta1 = config.rng.uniform(0, 2 * np.pi, n1)
+            n1 = int(n * 0.04)
+            n2 = n // n1
+            # Make some seeding positions
+            r = config.rng.normal(scale=self.scale, loc=self.distance, size=n1)
+            theta = config.rng.uniform(0, 2 * np.pi, n1)
             positions1 = np.zeros((n1, 2), dtype="float32")
-            positions1[:, 0] = r1 * np.cos(theta1)
-            positions1[:, 1] = r1 * np.sin(theta1)
-            # r2 = config.rng.normal(
-            #     scale=self.scale,  # * config.scaling,
-            #     loc=self.distance * 1.1,  # * config.scaling,
-            #     size=n2,
-            # )
-            # theta2 = config.rng.uniform(0, 2 * np.pi, n2)
-            # positions2 = np.zeros((n2, 2), dtype="float32")
-            # positions2[:, 0] = r2 * np.cos(theta2)
-            # positions2[:, 1] = r2 * np.sin(theta2)
-            # positions = np.concatenate([positions1, positions2])
+            positions1[:, 0] = r * np.cos(theta)
+            positions1[:, 1] = r * np.sin(theta)
+            offsets = config.rng.normal(
+                # scale=config.rng.uniform(
+                #     self.scale * 0.05, self.scale * 0.2, n2
+                # ).reshape(-1, 1, 1),
+                scale=0.05 * self.scale,
+                loc=0,
+                size=(n2, n1, 2),
+            )
+
+            pos = positions1 + offsets
+            pos = pos.reshape(-1, 2)
+            positions = np.concatenate([pos, positions1[: (n - pos.shape[0])]])
             if offset is not None:
                 positions += offset
 
         else:
-            r = config.rng.normal(
-                scale=self.scale,  # * config.scaling,
-                loc=self.distance,  # * config.scaling,
-                size=n,
-            )
+            r = config.rng.normal(scale=self.scale, loc=self.distance, size=n)
             theta = config.rng.uniform(0, 2 * np.pi, n)
             positions = np.zeros((n, 2), dtype="float32")
             positions[:, 0] = r * np.cos(theta)

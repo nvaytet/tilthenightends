@@ -64,6 +64,7 @@ class Mountain(World):
                     kind="lizard",
                     distance=config.map_size / 2,
                     scale=s,
+                    clumpy=True,
                 ),
                 Monsters(
                     size=1000,
