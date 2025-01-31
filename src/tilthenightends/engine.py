@@ -84,6 +84,7 @@ class Engine:
         music: bool = False,
         side: str = None,
         restart: str | int | None = None,
+        xp_cheat: float | None = 1.0,
         # crater_scaling: float = 1.0,
         # player_collisions: bool = True,
         # asteroid_collisions: bool = True,
@@ -151,6 +152,7 @@ class Engine:
         self.dxp = 1.05
         self.xp_step = 20.0
         self.next_xp = self.xp_step
+        self.xpmult = xp_cheat if xp_cheat is not None else 1.0
 
         # self.nx = config.nx
         # self.ny = config.ny
@@ -442,7 +444,7 @@ class Engine:
                 #     ndead, offset=player.position
                 # )
                 horde.healths[inds] = horde.xp
-                self.xp += ndead * horde.xp
+                self.xp += ndead * horde.xp * self.xpmult
             n += size
 
         # if len(evil_indices) > 0:
@@ -507,7 +509,7 @@ class Engine:
                 )
             maybe_xp = self.treasures.maybe_pickup(pos)
             if maybe_xp:
-                self.xp += maybe_xp
+                self.xp += maybe_xp * self.xpmult
 
     def update(self):
         t = self.elapsed_timer.elapsed() / 1000.0

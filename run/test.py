@@ -17,4 +17,5 @@ tne.play(
     # seed=44,
     # follow=True,
     restart=None,
+    xp_cheat=1.0,
 )
