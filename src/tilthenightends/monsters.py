@@ -24,7 +24,7 @@ bestiary = {
     "minotaur": {"health": 150.0, "attack": 50.0, "speed": 15.0, "radius": 50.0},
     "ghost": {"health": 10.0, "attack": 5.0, "speed": 20.0, "radius": 15.0},
     "molisano": {"health": 20.0, "attack": 10.0, "speed": 18.0, "radius": 15.0},
-    "swordgardian": {"health": 20.0, "attack": 20.0, "speed": 20.0, "radius": 15.0},
+    "swordgardian": {"health": 20.0, "attack": 20.0, "speed": 30.0, "radius": 15.0},
     "thehag": {"health": 60.0, "attack": 40.0, "speed": 20.0, "radius": 30.0},
     "medusa": {"health": 150.0, "attack": 50.0, "speed": 15.0, "radius": 50.0},
     "thedrowner": {"health": 300.0, "attack": 100.0, "speed": 15.0, "radius": 100.0},

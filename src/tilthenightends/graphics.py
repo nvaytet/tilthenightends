@@ -265,16 +265,19 @@ class Graphics:
                 f'<img src="{config.resources / "other" / img}" '
                 f'width="{player.health // 2}" height="4">'
             )
-            imgtext = self.player_status[name]["image"].text().split(">")
-            if len(imgtext) > 2 and player.alive:
-                self.player_status[name]["image"].setText(f"{imgtext[0]}>")
-            elif not player.alive:
-                countdown = int(round(player.respawn_time - t))
-                newtext = (
-                    f'{imgtext[0]}><span style="font-size: 3em; color: red;">'
-                    f"{countdown}</span>"
+
+            if not player.alive:
+                suffix = "_dead"
+                countdown = (
+                    f'<span style="font-size: 3em; color: red;">'
+                    f"{int(round(player.respawn_time - t))}</span>"
                 )
-                self.player_status[name]["image"].setText(newtext)
+            else:
+                suffix = ""
+                countdown = ""
+            path = config.resources / "heroes" / f"{player.hero}{suffix}.png"
+            imgtext = f'<img src="{path}" width="32" height="32">{countdown}'
+            self.player_status[name]["image"].setText(imgtext)
             text = [
                 f'<img src="{config.resources / "other" / "blank.png"}" '
                 f'width="5" height="32">'

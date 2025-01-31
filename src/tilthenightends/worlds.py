@@ -5,11 +5,12 @@ from .monsters import Monsters
 
 
 class World:
-    def __init__(self, name, nsprites, background, monsters):
+    def __init__(self, name, nsprites, background, monsters, dxp):
         self.name = name
         self.nsprites = nsprites
         self.background = background
         self.monsters = monsters
+        self.dxp = dxp
 
 
 s = 0.1067 * config.map_size
@@ -22,6 +23,7 @@ class Forest(World):
             name="forest",
             nsprites=7,
             background="#1a4a0b",
+            dxp=1.05,
             monsters=[
                 Monsters(size=2000, kind="bat", distance=config.map_size / 3, scale=s),
                 Monsters(
@@ -55,6 +57,7 @@ class Mountain(World):
             name="mountain",
             nsprites=7,
             background="#d9dbf0",
+            dxp=1.05,
             monsters=[
                 Monsters(
                     size=2000, kind="zombie", distance=config.map_size / 3, scale=s
@@ -94,6 +97,7 @@ class Desert(World):
             name="desert",
             nsprites=9,
             background="#e5a253",
+            dxp=1.05,
             monsters=[
                 Monsters(
                     size=2000, kind="skeleton", distance=config.map_size / 3, scale=s
@@ -102,7 +106,11 @@ class Desert(World):
                     size=1000, kind="mamba", distance=config.map_size / 2, scale=s
                 ),
                 Monsters(
-                    size=1000, kind="volcano", distance=config.map_size / 1.75, scale=s
+                    size=1000,
+                    kind="volcano",
+                    distance=config.map_size / 1.75,
+                    scale=s,
+                    clumpy=True,
                 ),
                 Monsters(
                     size=500, kind="snake", distance=2 * config.map_size / 3, scale=s
@@ -123,6 +131,7 @@ class Mine(World):
             name="mine",
             nsprites=7,
             background="#808080",
+            dxp=1.02,
             monsters=[
                 Monsters(
                     size=2000,
@@ -132,16 +141,17 @@ class Mine(World):
                     clumpy=False,
                 ),
                 Monsters(
-                    size=1000, kind="molisano", distance=config.map_size / 2, scale=s
+                    size=2000, kind="molisano", distance=config.map_size / 2, scale=s
                 ),
                 Monsters(
                     size=1000,
                     kind="swordgardian",
                     distance=config.map_size / 1.75,
                     scale=s,
+                    clumpy=True,
                 ),
                 Monsters(
-                    size=500, kind="thehag", distance=2 * config.map_size / 3, scale=s
+                    size=1000, kind="thehag", distance=2 * config.map_size / 3, scale=s
                 ),
                 Monsters(
                     size=500,
