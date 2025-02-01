@@ -23,6 +23,7 @@ class Config:
     resources: Path = ir.files("tilthenightends") / "resources"
     # scaling = 64.0 / 2.0
     hit_radius: float = 20.0
+    view_radius: float = 1000.0
     rng: np.random.Generator = np.random.default_rng(seed=21)
     map_size: int = 30000
     respawn_time: float = 15.0

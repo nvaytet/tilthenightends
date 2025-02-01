@@ -207,19 +207,6 @@ class Engine:
             self.graphics.add(player.weapon.sprites)
             # player.weapon.fire(0, 0, 0)
 
-        # self.start_button = ipw.Button(description="Start!")
-        # self.start_button.on_click(self.run)
-
-        # self.camera_lock = ipw.ToggleButton(
-        #     icon="lock",
-        #     tooltip="Lock camera",
-        #     value=True,
-        #     layout={"width": "40px"},
-        # )
-        # # self.camera_lock.observe(self.toggle_camera_lock, names="value")
-
-        # self.toolbar = ipw.HBox([self.start_button, self.camera_lock])
-
         self.dt = 1.0 / config.fps
         # self._previous_t = 0.0
 
@@ -283,18 +270,13 @@ class Engine:
         # Make a list of all the players and the projectiles their weapon has fired.
         # Then make a list of all the monsters from all the hordes.
         # Compute a matrix of distances between (players + projectiles) and monsters.
-        # If any monster is within 5 pixels of a projectile, the monster takes damage
+        # If any monster is within the radius of a projectile, the monster takes damage
         # equal to the projectile's damage.
         # If the monster's health is less than or equal to zero, the monster is
         # destroyed.
-        # If any monster is within 5 pixels of a player, the player takes damage equal
+        # If any monster is within the radius of a player, the player takes damage equal
         # to the monster's damage. If the player's health is less than or equal to
         # zero, the player is destroyed.
-        # # Combine all monster positions, healths, and attacks
-        # evil_positions = np.concatenate([horde.positions for horde in self.monsters])
-        # evil_healths = np.concatenate([horde.healths for horde in self.monsters])
-        # evil_attacks = np.concatenate([horde.attacks for horde in self.monsters])
-        # evil_radius = np.concatenate([horde.radii for horde in self.monsters])
 
         # Combine all hero and projectile positions
         # player_list = list(self.players.values())
@@ -329,15 +311,27 @@ class Engine:
         evil_attacks = []
         evil_radius = []
         evil_masks = []
+
+        visible_evil_positions = []
+        visible_evil_healths = []
+        visible_evil_attacks = []
+        visible_evil_radius = []
+
         for horde in self.monsters:
             distances = np.linalg.norm(horde.positions - center, axis=1)
-            mask = distances < max_radius + 100.0
+            mask = distances < max_radius + 150.0
             # print(mask.shape)
             evil_positions.append(horde.positions[mask, :])
             evil_healths.append(horde.healths[mask])
             evil_attacks.append(horde.attacks[mask])
             evil_radius.append(horde.radii[mask])
             evil_masks.append(mask)
+
+            visible = distances <= config.view_radius
+            visible_evil_positions.append(horde.positions[visible, :])
+            visible_evil_healths.append(horde.healths[visible])
+            visible_evil_attacks.append(horde.attacks[visible])
+            visible_evil_radius.append(horde.radii[visible])
 
         # print(
         #     "selected",
