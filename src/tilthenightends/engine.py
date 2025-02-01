@@ -25,7 +25,8 @@ except ImportError:
 # from .asteroid import Asteroid
 from . import config
 from .graphics import Graphics
-from .player import Team, heroes
+from .player import heroes, PlayerInfo, Team
+from .monsters import MonsterInfo
 from .loot import Loot
 from .worlds import Forest, Desert, Mountain, Mine
 
@@ -111,6 +112,7 @@ class Engine:
         self.safe = safe
         self._follow = follow
         self.game_ended = False
+        self.monster_info = {}
 
         # self.graphics = Graphics(manual=manual)
 
@@ -243,6 +245,14 @@ class Engine:
     #         instructions = self.bots[team].run(**info)
     #     return instructions
 
+    def make_player_info(self):
+        player_info = {}
+        for name, player in self.players.items():
+            info = player.as_dict()
+            del info["hero"]
+            player_info[name] = PlayerInfo(**info)
+        return player_info
+
     def call_player_bots(self, t: float, dt: float):
         # info = {"dt": dt, "board": self.board_new.copy()}
         # info["players"] = {
@@ -250,19 +260,25 @@ class Engine:
         # }
         # info["powerups"] = [PowerupInfo(**p.to_dict()) for p in self.powerups]
         # for player in (p for p in self.active_players() if p.team != self._manual):
-        player_info = [p.as_dict() for p in self.players.values()]
+        # player_info = {}
+        # for name, player in self.players.items():
+        #     info = player.as_dict()
+        #     del info["hero"]
+        #     player_info[name] = PlayerInfo(**info)
+        # player_info = [p.as_dict() for p in self.players.values()]
+        player_info = self.make_player_info()
         for name in self.bots:
             if self.safe:
                 try:
                     move = self.bots[name].run(
-                        t=t, dt=dt, monsters=None, players=player_info
+                        t=t, dt=dt, monsters=self.monster_info, players=player_info
                     )
                     self.players[name].execute_bot_instructions(move)
                 except:  # noqa
                     pass
             else:
                 move = self.bots[name].run(
-                    t=t, dt=dt, monsters=None, players=player_info
+                    t=t, dt=dt, monsters=self.monster_info, players=player_info
                 )
                 self.players[name].execute_bot_instructions(move)
 
@@ -312,10 +328,13 @@ class Engine:
         evil_radius = []
         evil_masks = []
 
-        visible_evil_positions = []
-        visible_evil_healths = []
-        visible_evil_attacks = []
-        visible_evil_radius = []
+        visible_evil = []
+
+        # visible_evil_positions = []
+        # visible_evil_healths = []
+        # visible_evil_attacks = []
+        # visible_evil_radius = []
+        # visible_evil_speed = []
 
         for horde in self.monsters:
             distances = np.linalg.norm(horde.positions - center, axis=1)
@@ -327,11 +346,12 @@ class Engine:
             evil_radius.append(horde.radii[mask])
             evil_masks.append(mask)
 
-            visible = distances <= config.view_radius
-            visible_evil_positions.append(horde.positions[visible, :])
-            visible_evil_healths.append(horde.healths[visible])
-            visible_evil_attacks.append(horde.attacks[visible])
-            visible_evil_radius.append(horde.radii[visible])
+            visible_evil.append(distances <= config.view_radius)
+            # visible_evil_positions.append(horde.positions[visible, :])
+            # visible_evil_healths.append(horde.healths[visible])
+            # visible_evil_attacks.append(horde.attacks[visible])
+            # visible_evil_radius.append(horde.radii[visible])
+            # visible_evil_speed.append(horde.speed)
 
         # print(
         #     "selected",
@@ -417,6 +437,7 @@ class Engine:
             ]
 
         n = 0
+        self.monster_info.clear()
         for i, horde in enumerate(self.monsters):
             # horde.healths = evil_healths[i * horde.size : (i + 1) * horde.size]
             size = evil_masks[i].sum()
@@ -425,6 +446,20 @@ class Engine:
             horde.freezes[evil_masks[i]] = np.maximum(
                 horde.freezes[evil_masks[i]], evil_freeze[n : n + size]
             )
+
+            # Save the visible monsters
+            visible = visible_evil[i] & (horde.healths > 0)
+            nvisible = visible.sum()
+            if nvisible > 0:
+                self.monster_info[horde.kind] = MonsterInfo(
+                    x=horde.positions[visible, 0].copy(),
+                    y=horde.positions[visible, 1].copy(),
+                    healths=horde.healths[visible].copy(),
+                    attacks=horde.attacks[visible].copy(),
+                    radii=horde.radii[visible].copy(),
+                    speeds=np.full(shape=nvisible, fill_value=horde.speed),
+                )
+
             inds = np.where(horde.healths <= 0)[0]
             ndead = len(inds)
             # print("ndead", ndead)
@@ -467,11 +502,11 @@ class Engine:
         self.xp_step *= self.dxp
         self.next_xp += self.xp_step
         print("Leveling up:", self.xp, self.next_xp, self.xp_step)
-        player_info = [p.as_dict() for p in self.players.values()]
+        # player_info = [p.as_dict() for p in self.players.values()]
         lup = self.team.strategist.levelup(
             t=t,
             info={"xp": float(self.xp), "next_levelup": float(self.next_xp)},
-            players=player_info,
+            players=self.make_player_info(),
         )
         if lup is not None:
             print(f"Leveling up {lup.hero} with {lup.what}")

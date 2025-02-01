@@ -1,3 +1,5 @@
+from dataclasses import dataclass
+
 import numpy as np
 
 from . import config
@@ -489,3 +491,13 @@ arsenal = {
     "frozenshard": FrozenShard,
     "proximitymine": ProximityMine,
 }
+
+
+@dataclass(frozen=True)
+class WeaponInfo:
+    name: str
+    cooldown: float
+    damage: float
+    speed: float
+    health: float
+    size: float

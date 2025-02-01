@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
+from dataclasses import dataclass
 import numpy as np
 
 from . import config
@@ -46,8 +47,8 @@ class Monsters:
         self.size = size
         self.distance = distance
         self.scale = scale
-        self.clumpy = clumpy
-        self.positions = self.make_positions(self.size)
+        # self.clumpy = clumpy
+        self.positions = self.make_positions(self.size, clumpy=clumpy)
         self.vectors = np.zeros((self.size, 2), dtype="float32")
         self.healths = np.full(self.size, bestiary[kind]["health"])
         self.attacks = np.full(self.size, bestiary[kind]["attack"])
@@ -82,8 +83,8 @@ class Monsters:
         # # Combine the geometry and material into a Points object
         # self.sprites = p3.Points(geometry=self.geometry, material=self.material)
 
-    def make_positions(self, n, offset=None):
-        if self.clumpy:
+    def make_positions(self, n, clumpy=False, offset=None):
+        if clumpy:
             n1 = int(n * 0.04)
             n2 = n // n1
             # Make some seeding positions
@@ -152,3 +153,13 @@ class Monsters:
             "speed": self.speed,
             "xp": self.xp,
         }
+
+
+@dataclass(frozen=True)
+class MonsterInfo:
+    x: np.ndarray
+    y: np.ndarray
+    healths: np.ndarray
+    attacks: np.ndarray
+    radii: np.ndarray
+    speeds: np.ndarray
