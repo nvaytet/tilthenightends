@@ -13,7 +13,7 @@ tne.play(
     team=team,
     world="mountain",
     manual=False,  # Set to True to play manually using the keyboard arrow keys
-    music=False,
+    music=True,
     # seed=44,
     # follow=True,
     restart=None,

@@ -11,22 +11,13 @@ import numpy as np
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
 
-try:
-    # import vlc
-    # from playsound import playsound
-    from pygame import mixer
-except ImportError:
-    # vlc = None
-    # playsound = None
-    mixer = None
-# from pyglet.window import key
-
 
 # from .asteroid import Asteroid
 from . import config
 from .graphics import Graphics
 from .player import heroes, PlayerInfo, Team
 from .monsters import MonsterInfo
+from .music import play_music
 from .loot import Loot
 from .worlds import Forest, Desert, Mountain, Mine
 
@@ -598,17 +589,20 @@ class Engine:
         #     # self.music.play()
         # # else:
         # #     self.music = None
-        if mixer is not None and self._music:
-            mixer.init()
-            mixer.music.load(
-                str(
-                    config.resources
-                    / "worlds"
-                    / self.world.name
-                    / f"{self.world.name}.mp3"
-                )
-            )
-            mixer.music.play(-1)
+        if self._music:
+            play_music(self.world.name)
+
+        # if mixer is not None and self._music:
+        #     mixer.init()
+        #     mixer.music.load(
+        #         str(
+        #             config.resources
+        #             / "worlds"
+        #             / self.world.name
+        #             / f"{self.world.name}.mp3"
+        #         )
+        #     )
+        #     mixer.music.play(-1)
 
         # # for playing note.wav file
         # playsound('/path/note.wav')
