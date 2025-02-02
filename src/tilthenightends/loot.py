@@ -1,5 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
+from dataclasses import dataclass
+
 import numpy as np
 
 from . import config
@@ -17,7 +19,7 @@ class Loot:
         # )
 
         r = np.linalg.norm(self.positions, axis=1)
-        self.xp = r * 0.01
+        self.xp = r * 0.05
 
         self.dx = 32
         self.trash = config.map_size * 2
@@ -52,6 +54,14 @@ class Loot:
         #     del self.locations[(x, y)]
         #     self.apply(player)
         return False
+
+
+@dataclass(frozen=True)
+class LootInfo:
+    kind: str
+    x: np.ndarray
+    y: np.ndarray
+    xp: np.ndarray | None = None
 
 
 # class Chicken(Loot):

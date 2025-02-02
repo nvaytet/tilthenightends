@@ -13,7 +13,7 @@ from .graphics import Graphics
 from .player import heroes, PlayerInfo, Team
 from .monsters import MonsterInfo
 from .music import play_music
-from .loot import Loot
+from .loot import Loot, LootInfo
 from .worlds import Forest, Desert, Mountain, Mine
 
 
@@ -135,6 +135,7 @@ class Engine:
 
         self.dt = 1.0 / config.fps
         # self._previous_t = 0.0
+        self.player_center = None
 
         if restart is not None:
             self.restart_from_state(restart)
@@ -177,6 +178,29 @@ class Engine:
             player_info[name] = PlayerInfo(**info)
         return player_info
 
+    def make_loot_info(self):
+        loot_info = {}
+        distances = np.linalg.norm(self.chicken.positions - self.player_center, axis=1)
+        visible = distances <= config.view_radius
+        if visible.sum() > 0:
+            loot_info["chicken"] = LootInfo(
+                kind="chicken",
+                x=self.chicken.positions[visible, 0],
+                y=self.chicken.positions[visible, 1],
+            )
+        distances = np.linalg.norm(
+            self.treasures.positions - self.player_center, axis=1
+        )
+        visible = distances <= config.view_radius
+        if visible.sum() > 0:
+            loot_info["treasures"] = LootInfo(
+                kind="treasure",
+                x=self.treasures.positions[visible, 0],
+                y=self.treasures.positions[visible, 1],
+                xp=self.treasures.xp[visible],
+            )
+        return loot_info
+
     def call_player_bots(self, t: float, dt: float):
         # info = {"dt": dt, "board": self.board_new.copy()}
         # info["players"] = {
@@ -191,18 +215,27 @@ class Engine:
         #     player_info[name] = PlayerInfo(**info)
         # player_info = [p.as_dict() for p in self.players.values()]
         player_info = self.make_player_info()
+        loot_info = self.make_loot_info()
         for name in self.bots:
             if self.safe:
                 try:
                     move = self.bots[name].run(
-                        t=t, dt=dt, monsters=self.monster_info, players=player_info
+                        t=t,
+                        dt=dt,
+                        monsters=self.monster_info,
+                        players=player_info,
+                        pickups=loot_info,
                     )
                     self.players[name].execute_bot_instructions(move)
                 except:  # noqa
                     pass
             else:
                 move = self.bots[name].run(
-                    t=t, dt=dt, monsters=self.monster_info, players=player_info
+                    t=t,
+                    dt=dt,
+                    monsters=self.monster_info,
+                    players=player_info,
+                    pickups=loot_info,
                 )
                 self.players[name].execute_bot_instructions(move)
 
@@ -240,6 +273,9 @@ class Engine:
 
         # Find center of mass of players and projectiles
         center = np.mean(good_positions, axis=0)
+        self.player_center = np.mean(
+            np.concatenate([pp.position.reshape(1, 2) for pp in player_list]), axis=0
+        )
         # Find radius of object furthest from center
         max_radius = np.max(
             np.linalg.norm(good_positions - center, axis=1) + good_radius
@@ -270,6 +306,7 @@ class Engine:
             evil_radius.append(horde.radii[mask])
             evil_masks.append(mask)
 
+            distances = np.linalg.norm(horde.positions - self.player_center, axis=1)
             visible_evil.append(distances <= config.view_radius)
             # visible_evil_positions.append(horde.positions[visible, :])
             # visible_evil_healths.append(horde.healths[visible])
