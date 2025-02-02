@@ -5,14 +5,9 @@ import glob
 import json
 
 import numpy as np
-
-# import pyglet
-
 import pyqtgraph as pg
 from pyqtgraph.Qt import QtCore
 
-
-# from .asteroid import Asteroid
 from . import config
 from .graphics import Graphics
 from .player import heroes, PlayerInfo, Team
@@ -21,66 +16,19 @@ from .music import play_music
 from .loot import Loot
 from .worlds import Forest, Desert, Mountain, Mine
 
-# from .scores import finalize_scores
-# from .terrain import Terrain
-# from .tools import AsteroidInfo, Instructions, PlayerInfo, image_to_sprite
-
-
-# @dataclass
-# class Position:
-#     x: float
-#     y: float
-
-
-# @dataclass
-# class Monster:
-#     vector: Tuple[float, float]
-#     image: Image
-
-
-# def add_key_actions(window, pos: Position):
-#     @window.event
-#     def on_key_press(symbol, modifiers):
-#         delta = 20
-#         if symbol == pyglet.window.key.UP:
-#             pos.y += delta
-#         elif symbol == pyglet.window.key.DOWN:
-#             pos.y -= delta
-#         elif symbol == pyglet.window.key.LEFT:
-#             pos.x -= delta
-#         elif symbol == pyglet.window.key.RIGHT:
-#             pos.x += delta
-
-# @window.event
-# def on_key_release(symbol, modifiers):
-#     if symbol == pyglet.window.key.UP:
-#         player.main_thruster = False
-#     elif symbol == pyglet.window.key.LEFT:
-#         player.left_thruster = False
-#     elif symbol == pyglet.window.key.RIGHT:
-#         player.right_thruster = False
-
 
 class Engine:
     def __init__(
         self,
-        # bots: list,
-        # test: bool = True,
         team: Team,
         world: str = "forest",
         safe: bool = False,
         seed: Optional[int] = None,
-        # fullscreen: bool = False,
         follow: bool = False,
-        manual: bool = False,
         music: bool = False,
         side: str = None,
         restart: str | int | None = None,
         xp_cheat: float | None = 1.0,
-        # crater_scaling: float = 1.0,
-        # player_collisions: bool = True,
-        # asteroid_collisions: bool = True,
-        # speedup: float = 1.0,
     ):
         # Set the seed
         # BitGen = type(config.rng.bit_generator)
@@ -98,22 +46,12 @@ class Engine:
                 self.world = Mine()
         # if seed is not None:
         #     np.random.seed(seed)
-        self._manual = manual
         self._music = music
         self.safe = safe
         self._follow = follow
         self.game_ended = False
         self.monster_info = {}
 
-        # self.graphics = Graphics(manual=manual)
-
-        # v1 = np.array([1.0, 1.0])
-        # v2 = np.array([0.9, 1.0])
-
-        # self.players = [
-        #     Player(vector=v1 / np.linalg.norm(v1), weapon="runetracer"),
-        #     Player(vector=v2 / np.linalg.norm(v2), weapon="runetracer"),
-        # ]
         self.bots = {p.hero: p for p in team.players}
 
         # Distribute players in ring around center
@@ -130,16 +68,11 @@ class Engine:
             for i, p in enumerate(team.players)
         }
 
-        self.graphics = Graphics(
-            players=self.players, world=self.world, manual=manual, side=side
-        )
+        self.graphics = Graphics(players=self.players, world=self.world, side=side)
 
         for player in self.players.values():
             player.add_to_graphics()
             player.weapon.add_to_graphics()
-
-        if self._manual:
-            self.graphics.set_hero(self.players[0])
 
         self.xp = 0.0
         self.dxp = 1.05
@@ -577,9 +510,6 @@ class Engine:
 
         # # Set camera position to player center of mass
         # x, y = np.mean([[p.x, p.y] for p in self.players], axis=0)
-
-        if self._manual:
-            self.graphics.update()
 
     def run(self):
         # if playsound is not None and self._music:
