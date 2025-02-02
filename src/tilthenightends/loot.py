@@ -14,9 +14,6 @@ class Loot:
         self.positions = config.rng.uniform(
             -config.map_size, config.map_size, (size, 2)
         )
-        # self.positions = config.rng.uniform(
-        #     -config.map_size * 0.1, config.map_size * 0.1, (size, 2)
-        # )
 
         r = np.linalg.norm(self.positions, axis=1)
         self.xp = r * 0.05
@@ -43,16 +40,11 @@ class Loot:
         y = (y + config.map_size) // self.dx
         ind = self.locations.get((x, y))
         if ind is not None:
-            # self.apply()
-            print("picking up", self.kind, x, y)
+            # print("picking up", self.kind, x, y)
             self.positions[ind, :] = [self.trash, self.trash]
             self.sprites.setData(pos=self.positions)
             del self.locations[(x, y)]
             return self.xp[ind]
-        # if (x, y) in self.locations:
-        #     self.positions[self.locations[(x, y)]] = [0, 0]
-        #     del self.locations[(x, y)]
-        #     self.apply(player)
         return False
 
 
@@ -62,19 +54,3 @@ class LootInfo:
     x: np.ndarray
     y: np.ndarray
     xp: np.ndarray | None = None
-
-
-# class Chicken(Loot):
-#     def __init__(self, size):
-#         super().__init__(size, "chicken")
-
-#     def apply(self):
-#         return player.health += 0.5 * player.max_health
-
-
-# class Treasure(Loot):
-#     def __init__(self, size):
-#         super().__init__(size, "treasure")
-
-#     def apply(self, player):
-#         player.score += 100

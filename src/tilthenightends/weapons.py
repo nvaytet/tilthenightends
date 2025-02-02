@@ -1,11 +1,11 @@
+# SPDX-License-Identifier: BSD-3-Clause
+
 from dataclasses import dataclass
 
 import numpy as np
 
 from . import config
 from .graphics import make_sprites
-
-# MAX_PROJECTILES = 100
 
 
 class Projectile:
@@ -47,12 +47,10 @@ class Weapon:
         damage,
         speed,
         health,
-        # max_projectiles,
         radius,
         owner,
         longevity,
         projectile=Projectile,
-        # nprojectiles=1,
     ):
         self.name = name
         self.cooldown = cooldown
@@ -112,10 +110,7 @@ class Weapon:
             "damage": self.damage,
             "speed": self.speed,
             "health": self.health,
-            # "max_projectiles": self.max_projectiles,
             "size": self.radius,
-            # "nprojectiles": self.nprojectiles,
-            # "levels": self.levels.copy(),
         }
 
     @property
@@ -143,18 +138,13 @@ class Runetracer(Weapon):
             name="Runetracer",
             cooldown=5,
             damage=12,
-            speed=100.0,  # * config.scaling,
+            speed=100.0,
             longevity=10,
             health=30,
             radius=12,
             projectile=RunetracerProjectile,
             **kwargs,
         )
-
-    # def fire(self, position, t):
-    #     super().fire(position, t)
-    #     # self.vectors = config.rng.uniform(-1, 1, (self.nprojectiles, 2))
-    #     # self.vectors /= np.linalg.norm(self.vectors, axis=1)  # [:, None]
 
 
 class Fireball(Weapon):
@@ -166,20 +156,13 @@ class Fireball(Weapon):
             speed=75.0,
             health=40,
             longevity=6,
-            # max_projectiles=10,
             radius=16,
             **kwargs,
         )
 
-    # def fire(self, position, t):
-    #     super().fire(position, t)
-    #     # self.vectors = config.rng.uniform(-1, 1, (self.nprojectiles, 2))
-    #     # self.vectors /= np.linalg.norm(self.vectors, axis=1)  # [:, None]
-
 
 class GarlicProjectile(Projectile):
     def move(self, t, dt):
-        # vector must follow owner
         self.position = self.owner.position
 
 
@@ -192,7 +175,6 @@ class Garlic(Weapon):
             speed=0.0,
             health=100,
             longevity=6,
-            # max_projectiles=1,
             radius=40,
             projectile=GarlicProjectile,
             **kwargs,
@@ -208,7 +190,6 @@ class HolyWater(Weapon):
             speed=0.0,
             health=200,
             longevity=8,
-            # max_projectiles=10,
             radius=40,
             **kwargs,
         )
@@ -229,7 +210,6 @@ class HolyWater(Weapon):
                 owner=self.owner,
                 healing=self.damage,
             )
-            # for p in phi
         )
 
         self.draw_sprites()
@@ -275,9 +255,7 @@ class LightningBolt(Weapon):
 
 class DoveProjectile(Projectile):
     def move(self, t, dt):
-        # for p in self.projectiles:
         self.phi = (self.phi + self.speed * dt) % (2 * np.pi)
-        # print("p.phi", p.phi)
         self.position = (
             self.owner.position
             + np.array([np.cos(self.phi), np.sin(self.phi)]) * self.radius * 2.5
@@ -293,7 +271,6 @@ class Dove(Weapon):
             damage=12,
             speed=2.0,
             health=40,
-            # max_projectiles=10,
             radius=15,
             longevity=5,
             projectile=DoveProjectile,
@@ -301,14 +278,7 @@ class Dove(Weapon):
         )
 
     def fire(self, position, t):
-        # phi = config.rng.uniform(0, 2 * np.pi, self.nprojectiles)
-        # phi = (
-        #     np.linspace(0, 2 * np.pi, self.nprojectiles)
-        #     + config.rng.uniform(0, 2 * np.pi, self.nprojectiles)
-        # ) % (2 * np.pi)
         phi = config.rng.uniform(0, 2 * np.pi)
-        # self.projectiles = []
-        # for p in phi:
         proj = self.projectile(
             position=position
             + np.array([np.cos(phi), np.sin(phi)]) * self.radius * 2.5,
@@ -322,20 +292,10 @@ class Dove(Weapon):
             owner=self.owner,
         )
         proj.phi = phi
-        # self.projectiles.append(proj)
         self.projectiles.append(proj)
 
         self.draw_sprites()
         self.timer = t + self.cooldown
-
-    # def move(self, dt):
-    #     for p in self.projectiles:
-    #         p.phi = (p.phi + self.speed * dt) % (2 * np.pi)
-    #         print("p.phi", p.phi)
-    #         p.position = (
-    #             self.owner.position
-    #             + np.array([np.cos(p.phi), np.sin(p.phi)]) * p.radius * 2
-    #         )
 
 
 class PlasmaGun(Weapon):

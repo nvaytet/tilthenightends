@@ -80,46 +80,14 @@ class Engine:
         self.next_xp = self.xp_step
         self.xpmult = xp_cheat if xp_cheat is not None else 1.0
 
-        # self.nx = config.nx
-        # self.ny = config.ny
-        # self.start_time = None
-        # # self._test = test
-        # # self.asteroids = []
-        # # self.exiting = False
-        # # self.time_of_last_scoreboard_update = 0
-        # # self.time_of_last_asteroid = 0
-        # # self._crater_scaling = crater_scaling
-        # # self._player_collisions = player_collisions
-        # # self._asteroid_collisions = asteroid_collisions
-        # # self._speedup = speedup
-        # self.position = Position(x=5000, y=5000)
-        # self.scale = 1.0
-
-        # self.game_map = Terrain()
-
-        # self.key_state_handler = key.KeyStateHandler()
-        # self.graphics.window.push_handlers(self.key_state_handler)
-
-        # zombie_image = Image.open(config.resources / "bat.png").convert("RGBA")
-
-        # scenery = make_scenery(world=world)
-        # for sprites in scenery:
-        #     self.graphics.add(sprites)
-
+        # Create loot objects
         self.chicken = Loot(size=300, kind="chicken")
         self.treasures = Loot(size=150, kind="treasure")
 
+        # Create monster hordes
         self.monsters = self.world.monsters
 
-        # s = 32.0
-        # d = 25.0
-        # self.monsters = [
-        #     Monsters(size=2000, kind="bat", distance=400.0 * d, scale=100 * s),
-        #     Monsters(size=2000, kind="rottingghoul", distance=600 * d, scale=100 * s),
-        #     Monsters(size=500, kind="giantbat", distance=800 * d, scale=100 * s),
-        #     Monsters(size=500, kind="thereaper", distance=1000 * d, scale=100 * s),
-        # ]
-
+        # Add all sprites to the graphics
         self.graphics.add(self.chicken.sprites)
         self.graphics.add(self.treasures.sprites)
 
@@ -131,10 +99,8 @@ class Engine:
             self.graphics.add(player.avatar)
             self.graphics.add(player.dead_avatar)
             self.graphics.add(player.weapon.sprites)
-            # player.weapon.fire(0, 0, 0)
 
         self.dt = 1.0 / config.fps
-        # self._previous_t = 0.0
         self.player_center = None
 
         if restart is not None:
@@ -158,17 +124,6 @@ class Engine:
         self.elapsed_timer = QtCore.QElapsedTimer()
         self.elapsed_timer.start()
         self.dt = state["dt"]
-
-    # def execute_player_bot(self, team: str, info: dict) -> Instructions:
-    #     instructions = None
-    #     if self.safe:
-    #         try:
-    #             instructions = self.bots[team].run(**info)
-    #         except:  # noqa
-    #             pass
-    #     else:
-    #         instructions = self.bots[team].run(**info)
-    #     return instructions
 
     def make_player_info(self):
         player_info = {}
@@ -202,18 +157,6 @@ class Engine:
         return loot_info
 
     def call_player_bots(self, t: float, dt: float):
-        # info = {"dt": dt, "board": self.board_new.copy()}
-        # info["players"] = {
-        #     team: PlayerInfo(**p.to_dict()) for team, p in self.players.items()
-        # }
-        # info["powerups"] = [PowerupInfo(**p.to_dict()) for p in self.powerups]
-        # for player in (p for p in self.active_players() if p.team != self._manual):
-        # player_info = {}
-        # for name, player in self.players.items():
-        #     info = player.as_dict()
-        #     del info["hero"]
-        #     player_info[name] = PlayerInfo(**info)
-        # player_info = [p.as_dict() for p in self.players.values()]
         player_info = self.make_player_info()
         loot_info = self.make_loot_info()
         for name in self.bots:
@@ -252,12 +195,7 @@ class Engine:
         # zero, the player is destroyed.
 
         # Combine all hero and projectile positions
-        # player_list = list(self.players.values())
         player_list = [p for p in self.players.values() if p.alive]
-
-        # # TODO: remove this once we exit game when all players are dead
-        # if len(player_list) == 0:
-        #     return
 
         projectiles = [
             proj for player in player_list for proj in player.weapon.projectiles
@@ -287,19 +225,11 @@ class Engine:
         evil_attacks = []
         evil_radius = []
         evil_masks = []
-
         visible_evil = []
-
-        # visible_evil_positions = []
-        # visible_evil_healths = []
-        # visible_evil_attacks = []
-        # visible_evil_radius = []
-        # visible_evil_speed = []
 
         for horde in self.monsters:
             distances = np.linalg.norm(horde.positions - center, axis=1)
             mask = distances < max_radius + 150.0
-            # print(mask.shape)
             evil_positions.append(horde.positions[mask, :])
             evil_healths.append(horde.healths[mask])
             evil_attacks.append(horde.attacks[mask])
@@ -308,18 +238,6 @@ class Engine:
 
             distances = np.linalg.norm(horde.positions - self.player_center, axis=1)
             visible_evil.append(distances <= config.view_radius)
-            # visible_evil_positions.append(horde.positions[visible, :])
-            # visible_evil_healths.append(horde.healths[visible])
-            # visible_evil_attacks.append(horde.attacks[visible])
-            # visible_evil_radius.append(horde.radii[visible])
-            # visible_evil_speed.append(horde.speed)
-
-        # print(
-        #     "selected",
-        #     sum([m.sum() for m in evil_masks]),
-        #     "monsters within r=",
-        #     max_radius + 100.0,
-        # )
 
         evil_positions = np.concatenate(evil_positions)
         evil_healths = np.concatenate(evil_healths)
@@ -338,9 +256,7 @@ class Engine:
             closest_monster_indices = np.argmin(distances, axis=0)
             closest_monster_positions = evil_positions[closest_monster_indices, :]
 
-        # Find indices where distances are less than 5
-        # mask = (distances < config.hit_radius * config.scaling).astype(int)
-        # mask = (distances < config.hit_radius).astype(int)
+        # Find indices where distances are less than sum of radii
         mask = (distances < sum_of_radii).astype(int)
         monster_damage = np.broadcast_to(good_attacks.reshape(1, -1), mask.shape) * mask
         monster_freeze = np.broadcast_to(good_freeze.reshape(1, -1), mask.shape) * mask
@@ -379,12 +295,6 @@ class Engine:
         else:
             healing = np.zeros(len(player_list))
 
-        # # Find the closest monster to each player
-        # closest_monster_indices = np.argmin(distances, axis=0)
-        # print(closest_monster_indices)
-        # closest_monster_positions = evil_positions[closest_monster_indices, :]
-
-        # for i, player in enumerate(self.players.values()):
         for i, player in enumerate(player_list):
             if closest_monster_positions is not None:
                 player._closest_monster = closest_monster_positions[i, :]
@@ -400,9 +310,7 @@ class Engine:
         n = 0
         self.monster_info.clear()
         for i, horde in enumerate(self.monsters):
-            # horde.healths = evil_healths[i * horde.size : (i + 1) * horde.size]
             size = evil_masks[i].sum()
-            # horde.healths[evil_masks[i]] = evil_healths[n : n + horde.size]
             horde.healths[evil_masks[i]] = evil_healths[n : n + size]
             horde.freezes[evil_masks[i]] = np.maximum(
                 horde.freezes[evil_masks[i]], evil_freeze[n : n + size]
@@ -423,47 +331,22 @@ class Engine:
 
             inds = np.where(horde.healths <= 0)[0]
             ndead = len(inds)
-            # print("ndead", ndead)
             if ndead > 0:
                 new_pos = horde.positions.copy()
                 new_pos[inds, :] = horde.make_positions(
                     ndead, offset=horde.positions[inds]
                 )
                 horde.positions = new_pos
-                # horde.positions[inds, :] = horde.make_positions(
-                #     ndead, offset=player.position
-                # )
                 horde.healths[inds] = horde.xp
                 self.xp += ndead * horde.xp * self.xpmult
             n += size
 
-        # if len(evil_indices) > 0:
-        #     print("distances.shape", distances.shape)
-        #     print("evil_indices", evil_indices)
-        #     print("good_indices", good_indices)
-        #     # Resolve damage
-        #     # Deduct health from monsters
-
-        return
-
-        # good_troops = np.concatenate(
-        #     [
-        #         np.array([p.position for p in self.players]),
-        #         *[p.weapon.positions[: p.weapon.nprojectiles] for p in self.players],
-        #     ]
-        # )
-        # bad_troops = np.concatenate([m.positions for m in self.monsters])
-        # print(good_troops.shape, bad_troops.shape)
-        # assert False
-
     def resolve_xp(self, t: float):
-        # print("self.xp", self.xp, "self.next_xp", self.next_xp)
         if self.xp < self.next_xp:
             return
         self.xp_step *= self.dxp
         self.next_xp += self.xp_step
         print("Leveling up:", self.xp, self.next_xp, self.xp_step)
-        # player_info = [p.as_dict() for p in self.players.values()]
         lup = self.team.strategist.levelup(
             t=t,
             info={"xp": float(self.xp), "next_levelup": float(self.next_xp)},
@@ -472,7 +355,7 @@ class Engine:
         if lup is not None:
             print(f"Leveling up {lup.hero} with {lup.what}")
             self.players[lup.hero].levelup(lup.what)
-            print(self.players[lup.hero].as_dict())
+            # print(self.players[lup.hero].as_dict())
 
     def move_camera(self):
         positions = np.array([[p.x, p.y] for p in self.players.values()])
@@ -511,23 +394,13 @@ class Engine:
                 self.game_ended = True
             return
 
-        # print("dt", t - self._previous_t)
-        # self._previous_t = t
         self.call_player_bots(t=t, dt=self.dt)
-        # alive_players = [p for p in self.players.values() if p.alive]
         dead_players = [p for p in self.players.values() if not p.alive]
         for player in alive_players:
             player.move(self.dt)
             if t > player.weapon.timer:
                 player.weapon.fire(player.position, t)
             player.weapon.update(t, self.dt)
-        # if self.camera_lock.value:
-        #     # player center of mass
-        #     x, y = np.mean([[p.x, p.y] for p in self.players], axis=0)
-        #     self.graphics.camera.position = [x, y, self.graphics.camera.position[2]]
-        #     lookat = [x, y, 0]
-        #     self.graphics.controller.target = lookat
-        #     self.graphics.camera.lookAt(lookat)
         for horde in self.monsters:
             horde.move(t, self.dt, players=alive_players)
 
@@ -545,35 +418,9 @@ class Engine:
             self.graphics.update_player_status(self.players, xp=self.xp, t=t)
             self.graphics.update_time(t=t)
 
-        # # Set camera position to player center of mass
-        # x, y = np.mean([[p.x, p.y] for p in self.players], axis=0)
-
     def run(self):
-        # if playsound is not None and self._music:
-        #     self.music = playsound(
-        #         str(config.resources / "levels" / "forest" / "forest.mp3")
-        #     )
-        #     # self.music.play()
-        # # else:
-        # #     self.music = None
         if self._music:
             play_music(self.world.name)
-
-        # if mixer is not None and self._music:
-        #     mixer.init()
-        #     mixer.music.load(
-        #         str(
-        #             config.resources
-        #             / "worlds"
-        #             / self.world.name
-        #             / f"{self.world.name}.mp3"
-        #         )
-        #     )
-        #     mixer.music.play(-1)
-
-        # # for playing note.wav file
-        # playsound('/path/note.wav')
-        # print('playing sound using  playsound')
 
         timer = QtCore.QTimer()
         self.elapsed_timer = QtCore.QElapsedTimer()

@@ -1,13 +1,5 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
-
-# import pythreejs as p3
-
-# # import pyglet
-# from matplotlib.colors import hex2color
-
-# from .tools import Instructions, image_to_sprite, recenter_image, text_to_raw_image
-
 from dataclasses import dataclass
 from functools import partial
 from typing import Any
@@ -22,30 +14,21 @@ from .weapons import arsenal
 class Player:
     def __init__(
         self,
-        # vector: np.ndarray,
         weapon: str,
         health: float,
         speed: float,
         hero: str,
         x: float = 0.0,
         y: float = 0.0,
-        # number: int,
-        # name: str,
-        # color: str,
-        # avatar: Union[int, str],
-        # position: float,
-        # back_batch: pyglet.graphics.Batch,
-        # main_batch: pyglet.graphics.Batch,
     ):
         self.hero = hero
         self.x = x
         self.y = y
-        self.speed = speed  # 5.0  # * config.scaling
-        self.vector = np.array([0.0, 0.0])  # vector / np.linalg.norm(vector)
+        self.speed = speed
+        self.vector = np.array([0.0, 0.0])
         self.max_health = health
-        self.health = health  # 100.0
+        self.health = health
         self.freeze = 0.0
-        # self.defense = 0.0
         self.weapon = arsenal[weapon.lower()](owner=self)
         self.attack = 0.0
         self.radius = 20.0
@@ -61,34 +44,6 @@ class Player:
             "weapon_cooldown": 0,
             "weapon_size": 0,
         }
-
-        # Create a position buffer geometry
-        # self.geometry = p3.BufferGeometry(
-        #     attributes={
-        #         "position": p3.BufferAttribute(
-        #             array=np.array(
-        #                 [[self.x, self.y, 0.0], [self.x - 1.0, self.y - 1.0, 0.0]]
-        #             ).astype("float32")
-        #         )
-        #     }
-        # )
-
-        # im = Image.open(config.resources / "heroes" / "pasqualina.png").convert("RGBA")
-        # a = np.flipud(np.array(im).astype("float32")) / 255
-        # self.texture = p3.DataTexture(data=a, format="RGBAFormat", type="FloatType")
-        # # self.material = p3.PointsMaterial(size=2, map=self.texture, transparent=True)
-        # # # Combine the geometry and material into a Points object
-        # # self.avatar = p3.Points(geometry=self.geometry, material=self.material)
-
-        # self.material = p3.SpriteMaterial(
-        #     map=self.texture,
-        #     transparent=True,
-        # )
-        # self.avatar = p3.Sprite(
-        #     material=self.material, position=[self.x, self.y, 0.0], scale=[1, 1, 1]
-        # )
-        # # scale=[size, size, size]
-        # # )
 
     def add_to_graphics(self):
         self.avatar = make_sprites(
@@ -109,10 +64,6 @@ class Player:
         elif isinstance(direction, Towards):
             self.vector = np.array([direction.x - self.x, direction.y - self.y])
 
-        # self.vector = np.array(
-        #     [int(move.right) - int(move.left), int(move.up) - int(move.down)]
-        # )
-
     def maybe_respawn(self, t):
         if t > self.respawn_time:
             print(f"Player {self.hero} respawning.", t, self.respawn_time)
@@ -129,13 +80,7 @@ class Player:
     def move(self, dt: float):
         self.x += self.speed * dt * self.vector[0]
         self.y += self.speed * dt * self.vector[1]
-        # self.geometry.attributes["position"].array = np.array(
-        #     [[self.x, self.y, 0.0], [self.x - 1.0, self.y - 1.0, 0.0]]
-        # ).astype("float32")
-        # self.avatar.position = [self.x, self.y, 0.0]
-        # print(f"Player moved to {self.x}, {self.y}.")
         self.avatar.setData(pos=np.array([[self.x, self.y]]))
-        # self.dead_avatar.setData(pos=np.array([[self.x, self.y]]))
 
     @property
     def position(self) -> np.ndarray:
@@ -153,7 +98,6 @@ class Player:
             self._vector = self._vector / norm
 
     def die(self, t):
-        # print(f"Player {self.hero} DIED.", t)
         # Start countdown to respawn
         self.respawn_time = t + config.respawn_time
         self.dead_avatar.setOpacity(1.0)
@@ -162,7 +106,6 @@ class Player:
         print(f"Player {self.hero} DIED.", t, self.respawn_time)
         self.weapon.projectiles = []
         self.weapon.draw_sprites()
-        # return
 
     def as_dict(self):
         return {

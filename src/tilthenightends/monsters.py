@@ -34,20 +34,9 @@ bestiary = {
 
 class Monsters:
     def __init__(self, size, kind, distance, scale=10.0, clumpy=False):
-        # Create positions in a ring that has a gaussian profile in radius which peaks
-        # at distance
-        # r = np.random.normal(
-        #     scale=scale * config.scaling, loc=distance * config.scaling, size=n
-        # )
-        # theta = np.random.uniform(0, 2 * np.pi, n)
-        # self.positions = np.zeros((n, 2), dtype="float32")
-        # self.positions[:, 0] = r * np.cos(theta)
-        # self.positions[:, 1] = r * np.sin(theta)
-
         self.size = size
         self.distance = distance
         self.scale = scale
-        # self.clumpy = clumpy
         self.positions = self.make_positions(self.size, clumpy=clumpy)
         self.vectors = np.zeros((self.size, 2), dtype="float32")
         self.healths = np.full(self.size, bestiary[kind]["health"])
@@ -55,9 +44,6 @@ class Monsters:
         self.radii = np.full(self.size, bestiary[kind]["radius"])
         self.freezes = np.zeros(self.size)
 
-        # self.positions = np.random.normal(scale=10, size=(n, 3)).astype("float32") * 5.0
-        # self.positions[:, 2] = 0.0
-        # self.speed = 4.0  # * config.scaling
         self.speed = bestiary[kind]["speed"]
         self.xp = bestiary[kind]["health"]
 
@@ -68,20 +54,6 @@ class Monsters:
             sprite_path=config.resources / "monsters" / f"{self.kind}.png",
             positions=self.positions,
         )
-
-        # # Create a position buffer geometry
-        # self.geometry = p3.BufferGeometry(
-        #     attributes={"position": p3.BufferAttribute(array=self.positions)}
-        # )
-        # # Create a points material
-        # im = Image.open(config.resources / "monsters" / f"{kind}.png").convert("RGBA")
-        # a = np.flipud(np.array(im).astype("float32")) / 255
-        # self.texture = p3.DataTexture(data=a, format="RGBAFormat", type="FloatType")
-        # self.material = p3.PointsMaterial(
-        #     size=(im.width * 2) // 64, map=self.texture, transparent=True
-        # )
-        # # Combine the geometry and material into a Points object
-        # self.sprites = p3.Points(geometry=self.geometry, material=self.material)
 
     def make_positions(self, n, clumpy=False, offset=None):
         if clumpy:

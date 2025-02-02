@@ -10,12 +10,11 @@ from survivor_bot import team
 #     bots.append(module.Bot())
 
 tne.play(
-    team=team,
-    world="mountain",
-    manual=False,  # Set to True to play manually using the keyboard arrow keys
+    team=team,  # Must be a Team instance with players and a strategist
+    world="mountain",  # "forest", "mountain", "desert", "mine"
     music=False,
     # seed=44,
     # follow=True,
     restart=None,
-    xp_cheat=5.0,
+    xp_cheat=1.0,
 )
