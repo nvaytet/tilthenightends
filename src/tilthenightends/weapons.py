@@ -142,9 +142,9 @@ class Runetracer(Weapon):
         super().__init__(
             name="Runetracer",
             cooldown=5,
-            damage=10,
+            damage=12,
             speed=100.0,  # * config.scaling,
-            longevity=5,
+            longevity=10,
             health=30,
             radius=12,
             projectile=RunetracerProjectile,
@@ -161,11 +161,11 @@ class Fireball(Weapon):
     def __init__(self, **kwargs):
         super().__init__(
             name="Fireball",
-            cooldown=4,
+            cooldown=5,
             damage=15,
             speed=75.0,
             health=40,
-            longevity=15,
+            longevity=6,
             # max_projectiles=10,
             radius=16,
             **kwargs,
@@ -188,10 +188,10 @@ class Garlic(Weapon):
         super().__init__(
             name="Garlic",
             cooldown=4,
-            damage=15,
+            damage=8,
             speed=0.0,
             health=100,
-            longevity=10,
+            longevity=6,
             # max_projectiles=1,
             radius=40,
             projectile=GarlicProjectile,
@@ -204,10 +204,10 @@ class HolyWater(Weapon):
         super().__init__(
             name="HolyWater",
             cooldown=4,
-            damage=15,
+            damage=5,
             speed=0.0,
-            health=40,
-            longevity=5,
+            health=200,
+            longevity=8,
             # max_projectiles=10,
             radius=40,
             **kwargs,
@@ -290,7 +290,7 @@ class Dove(Weapon):
         super().__init__(
             name="Dove",
             cooldown=4,
-            damage=15,
+            damage=12,
             speed=2.0,
             health=40,
             # max_projectiles=10,
@@ -342,8 +342,8 @@ class PlasmaGun(Weapon):
     def __init__(self, **kwargs):
         super().__init__(
             name="PlasmaGun",
-            cooldown=4,
-            damage=15,
+            cooldown=5,
+            damage=10,
             speed=100.0,
             health=40,
             longevity=5,
@@ -380,7 +380,7 @@ class MagicWand(Weapon):
     def __init__(self, **kwargs):
         super().__init__(
             name="MagicWand",
-            cooldown=4,
+            cooldown=5,
             damage=15,
             speed=50.0,
             health=30,
@@ -420,7 +420,7 @@ class FrozenShard(Weapon):
             damage=0,
             speed=400.0,
             health=np.inf,
-            longevity=3,
+            longevity=5,
             radius=16,
             **kwargs,
         )
@@ -451,7 +451,7 @@ class ProximityMine(Weapon):
     def __init__(self, **kwargs):
         super().__init__(
             name="ProximityMine",
-            cooldown=4,
+            cooldown=5,
             damage=100,
             speed=0.0,
             health=1,
