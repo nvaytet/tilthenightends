@@ -67,7 +67,7 @@ class Player:
     def maybe_respawn(self, t):
         if t > self.respawn_time:
             print(f"Player {self.hero} respawning.", t, self.respawn_time)
-            self.health = self.max_health * 0.5
+            self.health = self.max_health / 3
             self.respawn_time = np.inf
             self.dead_avatar.setOpacity(0.0)
             self.avatar.setOpacity(1.0)
