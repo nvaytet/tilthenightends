@@ -35,6 +35,8 @@ class Engine:
         # config.rng.bit_generator.state = BitGen(seed).state
 
         self.team = team
+        if len(np.unique([p.hero for p in team.players])) != 5:
+            raise ValueError("Heroes must be unique and there must be 5 of them.")
         match world:
             case "forest":
                 self.world = Forest()
