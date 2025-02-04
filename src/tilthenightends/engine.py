@@ -101,7 +101,7 @@ class Engine:
             self.graphics.add(player.weapon.sprites)
 
         self.dt = 1.0 / config.fps
-        self.player_center = None
+        self.player_center = np.array([0.0, 0.0])
 
         if restart is not None:
             self.restart_from_state(restart)
