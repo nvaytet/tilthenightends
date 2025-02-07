@@ -31,8 +31,8 @@ class Engine:
         xp_cheat: float | None = 1.0,
     ):
         # Set the seed
-        # BitGen = type(config.rng.bit_generator)
-        # config.rng.bit_generator.state = BitGen(seed).state
+        BitGen = type(config.rng.bit_generator)
+        config.rng.bit_generator.state = BitGen(seed).state
 
         self.team = team
         if len(np.unique([p.hero for p in team.players])) != 5:

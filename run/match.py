@@ -14,8 +14,6 @@ team2 = team
 music = True
 
 
-# Use argparse to select world
-
 parser = argparse.ArgumentParser()
 parser.add_argument("world")
 args = parser.parse_args()
@@ -28,7 +26,6 @@ if __name__ == "__main__":
         kwargs=dict(
             team=team1,
             world=args.world,
-            manual=False,
             music=False,
             side="left",
             seed=seed,
@@ -39,14 +36,13 @@ if __name__ == "__main__":
         kwargs=dict(
             team=team2,
             world=args.world,
-            manual=False,
             music=False,
             side="right",
             seed=seed,
         ),
     )
     p3 = Process(
-        target=play_music,
+        target=play_music if music else lambda: None,
         kwargs=dict(world=args.world, match=True),
     )
 

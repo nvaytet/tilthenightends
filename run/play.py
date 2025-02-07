@@ -13,7 +13,7 @@ tne.play(
     team=team,  # Must be a Team instance with players and a strategist
     world="forest",  # "forest", "mountain", "desert", "mine"
     music=False,
-    # seed=44,
+    seed=None,
     # follow=True,
     restart=None,
     xp_cheat=1.0,
