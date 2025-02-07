@@ -427,7 +427,7 @@ class Engine:
         timer = QtCore.QTimer()
         self.elapsed_timer = QtCore.QElapsedTimer()
         timer.timeout.connect(self.update)
-        timer.start(1000.0 * self.dt)
+        timer.start(int(1000.0 * self.dt))
         # timer.start(330)
         self.elapsed_timer.start()
         pg.exec()
