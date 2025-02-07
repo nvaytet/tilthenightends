@@ -11,7 +11,7 @@ from survivor_bot import team
 
 tne.play(
     team=team,  # Must be a Team instance with players and a strategist
-    world="mine",  # "forest", "mountain", "desert", "mine"
+    world="forest",  # "forest", "mountain", "desert", "mine"
     music=False,
     # seed=44,
     # follow=True,

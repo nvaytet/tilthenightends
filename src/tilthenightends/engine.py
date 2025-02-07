@@ -389,7 +389,7 @@ class Engine:
     def update(self):
         t = self.elapsed_timer.elapsed() / 1000.0
         alive_players = [p for p in self.players.values() if p.alive]
-        if len(alive_players) == 0:
+        if (len(alive_players) == 0) or (t > config.time_limit):
             if not self.game_ended:
                 self.graphics.update_player_status(self.players, xp=self.xp, t=t)
                 self.graphics.update_time(t=t)
