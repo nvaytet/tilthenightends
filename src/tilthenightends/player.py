@@ -8,7 +8,20 @@ import numpy as np
 from . import config
 from .graphics import make_sprites
 from .tools import Vector, Towards, LevelupOptions
-from .weapons import arsenal
+from .weapons import arsenal, WeaponInfo
+
+
+@dataclass(frozen=True)
+class PlayerInfo:
+    x: float
+    y: float
+    speed: float
+    vector: np.ndarray
+    health: float
+    weapon: WeaponInfo
+    levels: dict
+    alive: bool
+    respawn_time: float
 
 
 class Player:
@@ -121,6 +134,19 @@ class Player:
             "respawn_time": self.respawn_time,
         }
 
+    def as_info(self):
+        return PlayerInfo(
+            x=self.x,
+            y=self.y,
+            speed=self.speed,
+            vector=self.vector,
+            health=self.health,
+            weapon=self.weapon.as_info(),
+            levels=self.levels,
+            alive=self.alive,
+            respawn_time=self.respawn_time,
+        )
+
     def levelup(self, what):
         if not self.alive:
             print(f"Player {self.hero} is dead and cannot level up.")
@@ -188,16 +214,3 @@ class Team:
     def __init__(self, players: list, strategist: Any):
         self.players = players
         self.strategist = strategist
-
-
-@dataclass(frozen=True)
-class PlayerInfo:
-    x: float
-    y: float
-    speed: float
-    vector: np.ndarray
-    health: float
-    weapon: dict
-    levels: dict
-    alive: bool
-    respawn_time: float

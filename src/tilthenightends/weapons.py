@@ -8,6 +8,31 @@ from . import config
 from .graphics import make_sprites
 
 
+@dataclass(frozen=True)
+class WeaponInfo:
+    name: str
+    cooldown: float
+    damage: float
+    speed: float
+    health: float
+    size: float
+
+
+@dataclass(frozen=True)
+class ProjectileInfo:
+    position: np.ndarray
+    vector: np.ndarray
+    speed: float
+    tstart: float
+    tend: float
+    health: float
+    attack: float
+    radius: float
+    owner: str
+    healing: float = 0.0
+    freeze: float = 0.0
+
+
 class Projectile:
     def __init__(
         self,
@@ -37,6 +62,36 @@ class Projectile:
 
     def move(self, t, dt):
         self.position = self.position + (self.vector * dt * self.speed)
+
+    def as_dict(self):
+        return {
+            "position": self.position,
+            "vector": self.vector,
+            "speed": self.speed,
+            "tstart": self.tstart,
+            "tend": self.tend,
+            "health": self.health,
+            "attack": self.attack,
+            "radius": self.radius,
+            "owner": self.owner,
+            "healing": self.healing,
+            "freeze": self.freeze,
+        }
+
+    def as_info(self):
+        return ProjectileInfo(
+            position=self.position,
+            vector=self.vector,
+            speed=self.speed,
+            tstart=self.tstart,
+            tend=self.tend,
+            health=self.health,
+            attack=self.attack,
+            radius=self.radius,
+            owner=self.owner.name,
+            healing=self.healing,
+            freeze=self.freeze,
+        )
 
 
 class Weapon:
@@ -112,6 +167,16 @@ class Weapon:
             "health": self.health,
             "size": self.radius,
         }
+
+    def as_info(self):
+        return WeaponInfo(
+            name=self.name,
+            cooldown=self.cooldown,
+            damage=self.damage,
+            speed=self.speed,
+            health=self.health,
+            size=self.radius,
+        )
 
     @property
     def size(self):
@@ -455,13 +520,3 @@ arsenal = {
     "frozenshard": FrozenShard,
     "proximitymine": ProximityMine,
 }
-
-
-@dataclass(frozen=True)
-class WeaponInfo:
-    name: str
-    cooldown: float
-    damage: float
-    speed: float
-    health: float
-    size: float
