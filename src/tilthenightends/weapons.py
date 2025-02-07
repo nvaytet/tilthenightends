@@ -154,7 +154,7 @@ class Fireball(Weapon):
             cooldown=5,
             damage=15,
             speed=75.0,
-            health=40,
+            health=10,
             longevity=6,
             radius=16,
             **kwargs,
@@ -173,12 +173,16 @@ class Garlic(Weapon):
             cooldown=4,
             damage=8,
             speed=0.0,
-            health=100,
+            health=20,
             longevity=6,
             radius=40,
             projectile=GarlicProjectile,
             **kwargs,
         )
+
+    def fire(self, *args, **kwargs):
+        super().fire(*args, **kwargs)
+        self.timer += self.longevity
 
 
 class HolyWater(Weapon):
@@ -188,7 +192,7 @@ class HolyWater(Weapon):
             cooldown=4,
             damage=5,
             speed=0.0,
-            health=200,
+            health=50,
             longevity=8,
             radius=40,
             **kwargs,
@@ -223,7 +227,7 @@ class LightningBolt(Weapon):
             cooldown=4,
             damage=15,
             speed=0.0,
-            health=40,
+            health=1,
             radius=32,
             longevity=0.2,
             **kwargs,
@@ -270,7 +274,7 @@ class Dove(Weapon):
             cooldown=4,
             damage=12,
             speed=2.0,
-            health=40,
+            health=10,
             radius=15,
             longevity=5,
             projectile=DoveProjectile,
@@ -305,7 +309,7 @@ class PlasmaGun(Weapon):
             cooldown=5,
             damage=10,
             speed=100.0,
-            health=40,
+            health=1,
             longevity=5,
             radius=8,
             **kwargs,
@@ -343,7 +347,7 @@ class MagicWand(Weapon):
             cooldown=5,
             damage=15,
             speed=50.0,
-            health=30,
+            health=10,
             longevity=5,
             radius=16,
             **kwargs,
