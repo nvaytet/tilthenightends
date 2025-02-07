@@ -18,19 +18,19 @@ class WeaponInfo:
     size: float
 
 
-@dataclass(frozen=True)
-class ProjectileInfo:
-    position: np.ndarray
-    vector: np.ndarray
-    speed: float
-    tstart: float
-    tend: float
-    health: float
-    attack: float
-    radius: float
-    owner: str
-    healing: float = 0.0
-    freeze: float = 0.0
+# @dataclass(frozen=True)
+# class ProjectileInfo:
+#     position: np.ndarray
+#     vector: np.ndarray
+#     speed: float
+#     tstart: float
+#     tend: float
+#     health: float
+#     attack: float
+#     radius: float
+#     owner: str
+#     healing: float = 0.0
+#     freeze: float = 0.0
 
 
 class Projectile:
@@ -63,35 +63,35 @@ class Projectile:
     def move(self, t, dt):
         self.position = self.position + (self.vector * dt * self.speed)
 
-    def as_dict(self):
-        return {
-            "position": self.position,
-            "vector": self.vector,
-            "speed": self.speed,
-            "tstart": self.tstart,
-            "tend": self.tend,
-            "health": self.health,
-            "attack": self.attack,
-            "radius": self.radius,
-            "owner": self.owner,
-            "healing": self.healing,
-            "freeze": self.freeze,
-        }
+    # def as_dict(self):
+    #     return {
+    #         "position": self.position,
+    #         "vector": self.vector,
+    #         "speed": self.speed,
+    #         "tstart": self.tstart,
+    #         "tend": self.tend,
+    #         "health": self.health,
+    #         "attack": self.attack,
+    #         "radius": self.radius,
+    #         "owner": self.owner,
+    #         "healing": self.healing,
+    #         "freeze": self.freeze,
+    #     }
 
-    def as_info(self):
-        return ProjectileInfo(
-            position=self.position,
-            vector=self.vector,
-            speed=self.speed,
-            tstart=self.tstart,
-            tend=self.tend,
-            health=self.health,
-            attack=self.attack,
-            radius=self.radius,
-            owner=self.owner.name,
-            healing=self.healing,
-            freeze=self.freeze,
-        )
+    # def as_info(self):
+    #     return ProjectileInfo(
+    #         position=self.position,
+    #         vector=self.vector,
+    #         speed=self.speed,
+    #         tstart=self.tstart,
+    #         tend=self.tend,
+    #         health=self.health,
+    #         attack=self.attack,
+    #         radius=self.radius,
+    #         owner=self.owner.name,
+    #         healing=self.healing,
+    #         freeze=self.freeze,
+    #     )
 
 
 class Weapon:
@@ -158,6 +158,44 @@ class Weapon:
             p.move(t, dt)
         self.draw_sprites()
 
+    def make_projectile_arrays(self):
+        positions = []
+        vectors = []
+        speeds = []
+        tstarts = []
+        tends = []
+        healths = []
+        attacks = []
+        radii = []
+        owners = []
+        healings = []
+        freezes = []
+        for p in self.projectiles:
+            positions.append(p.position)
+            vectors.append(p.vector)
+            speeds.append(p.speed)
+            tstarts.append(p.tstart)
+            tends.append(p.tend)
+            healths.append(p.health)
+            attacks.append(p.attack)
+            radii.append(p.radius)
+            owners.append(p.owner)
+            healings.append(p.healing)
+            freezes.append(p.freeze)
+        return {
+            "positions": np.array(positions),
+            "vectors": np.array(vectors),
+            "speeds": np.array(speeds),
+            "tstarts": np.array(tstarts),
+            "tends": np.array(tends),
+            "healths": np.array(healths),
+            "attacks": np.array(attacks),
+            "radii": np.array(radii),
+            "owners": np.array(owners),
+            "healings": np.array(healings),
+            "freezes": np.array(freezes),
+        }
+
     def as_dict(self):
         return {
             "name": self.name,
@@ -166,6 +204,8 @@ class Weapon:
             "speed": self.speed,
             "health": self.health,
             "size": self.radius,
+            "longevity": self.longevity,
+            "projectiles": self.make_projectile_arrays(),
         }
 
     def as_info(self):

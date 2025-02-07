@@ -10,7 +10,7 @@ from pyqtgraph.Qt import QtCore
 
 from . import config
 from .graphics import Graphics
-from .player import heroes, PlayerInfo, Team
+from .player import heroes, Team
 from .monsters import MonsterInfo
 from .music import play_music
 from .loot import Loot, LootInfo
@@ -81,15 +81,19 @@ class Engine:
         self.xpmult = xp_cheat if xp_cheat is not None else 1.0
 
         # Create loot objects
-        self.chicken = Loot(size=300, kind="chicken")
-        self.treasures = Loot(size=150, kind="treasure")
+        self.loot = {
+            "chicken": Loot(size=300, kind="chicken"),
+            "treasure": Loot(size=150, kind="treasure"),
+        }
 
         # Create monster hordes
         self.monsters = self.world.monsters
 
         # Add all sprites to the graphics
-        self.graphics.add(self.chicken.sprites)
-        self.graphics.add(self.treasures.sprites)
+        for loot in self.loot.values():
+            self.graphics.add(loot.sprites)
+        # self.graphics.add(self.chicken.sprites)
+        # self.graphics.add(self.treasures.sprites)
 
         for horde in self.monsters:
             horde.make_sprites()
@@ -126,34 +130,35 @@ class Engine:
         self.dt = state["dt"]
 
     def make_player_info(self):
-        player_info = {}
-        for name, player in self.players.items():
-            info = player.as_dict()
-            del info["hero"]
-            player_info[name] = PlayerInfo(**info)
-        return player_info
+        return {name: player.as_info() for name, player in self.players.items()}
+        # player_info = {}
+        # for name, player in self.players.items():
+        #     info = player.as_dict()
+        #     del info["hero"]
+        #     player_info[name] = PlayerInfo(**info)
+        # return player_info
 
     def make_loot_info(self):
         loot_info = {}
-        distances = np.linalg.norm(self.chicken.positions - self.player_center, axis=1)
-        visible = distances <= config.view_radius
-        if visible.sum() > 0:
-            loot_info["chicken"] = LootInfo(
-                kind="chicken",
-                x=self.chicken.positions[visible, 0],
-                y=self.chicken.positions[visible, 1],
-            )
-        distances = np.linalg.norm(
-            self.treasures.positions - self.player_center, axis=1
-        )
-        visible = distances <= config.view_radius
-        if visible.sum() > 0:
-            loot_info["treasures"] = LootInfo(
-                kind="treasure",
-                x=self.treasures.positions[visible, 0],
-                y=self.treasures.positions[visible, 1],
-                xp=self.treasures.xp[visible],
-            )
+        for kind, loot in self.loot.items():
+            distances = np.linalg.norm(loot.positions - self.player_center, axis=1)
+            visible = distances <= config.view_radius
+            if visible.sum() > 0:
+                pos = loot.positions[visible, :]
+                loot_info[kind] = LootInfo(
+                    kind=kind, x=pos[:, 0], y=pos[:, 1], xp=loot.xp[visible]
+                )
+        # distances = np.linalg.norm(
+        #     self.treasures.positions - self.player_center, axis=1
+        # )
+        # visible = distances <= config.view_radius
+        # if visible.sum() > 0:
+        #     loot_info["treasures"] = LootInfo(
+        #         kind="treasure",
+        #         x=self.treasures.positions[visible, 0],
+        #         y=self.treasures.positions[visible, 1],
+        #         xp=self.treasures.xp[visible],
+        #     )
         return loot_info
 
     def call_player_bots(self, t: float, dt: float):

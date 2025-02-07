@@ -8,6 +8,14 @@ from . import config
 from .graphics import make_sprites
 
 
+@dataclass(frozen=True)
+class LootInfo:
+    kind: str
+    x: np.ndarray
+    y: np.ndarray
+    xp: np.ndarray
+
+
 class Loot:
     def __init__(self, size, kind):
         self.kind = kind
@@ -15,8 +23,11 @@ class Loot:
             -config.map_size, config.map_size, (size, 2)
         )
 
-        r = np.linalg.norm(self.positions, axis=1)
-        self.xp = r * 0.05
+        if kind == "treasure":
+            r = np.linalg.norm(self.positions, axis=1)
+            self.xp = r * 0.05
+        else:
+            self.xp = np.zeros(size)
 
         self.dx = 32
         self.trash = config.map_size * 2
@@ -47,10 +58,17 @@ class Loot:
             return self.xp[ind]
         return False
 
+    def as_dict(self) -> dict:
+        return {
+            "kind": self.kind,
+            "positions": self.positions,
+            "xp": self.xp,
+        }
 
-@dataclass(frozen=True)
-class LootInfo:
-    kind: str
-    x: np.ndarray
-    y: np.ndarray
-    xp: np.ndarray | None = None
+    # def as_info(self) -> LootInfo:
+    #     return LootInfo(
+    #         kind=self.kind,
+    #         x=self.positions[:, 0],
+    #         y=self.positions[:, 1],
+    #         xp=self.xp,
+    #     )
