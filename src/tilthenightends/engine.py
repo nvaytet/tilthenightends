@@ -46,8 +46,6 @@ class Engine:
                 self.world = Mountain()
             case "mine":
                 self.world = Mine()
-        # if seed is not None:
-        #     np.random.seed(seed)
         self._music = music
         self.safe = safe
         self._follow = follow

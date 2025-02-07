@@ -11,7 +11,7 @@ from tilthenightends.music import play_music
 team1 = team
 team2 = team
 
-music = True
+music = False
 
 
 parser = argparse.ArgumentParser()
@@ -42,7 +42,7 @@ if __name__ == "__main__":
         ),
     )
     p3 = Process(
-        target=play_music if music else lambda: None,
+        target=play_music if music else lambda match: None,
         kwargs=dict(world=args.world, match=True),
     )
 
