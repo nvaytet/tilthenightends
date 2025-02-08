@@ -32,6 +32,13 @@ Survive as long as possible.
 
 | Hero | Ability | Cooldown | Damage | Speed | Health | Longevity | Radius |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Alaric (Fireball) ![alaric](https://github.com/user-attachments/assets/05f2a016-4d0d-45b9-a75f-5c67f097056e) ![fireball](https://github.com/user-attachments/assets/62d1b7f6-a7ba-4235-9e57-d02957f197ee) | Travels in a straight line | 5 | 15 | 75 | 40 | 6 | 16 |
-| Cedric (Runetracer) | Changes direction every 2s | 5 | 12 | 100 | 30 | 10 | 12 |
-| Evelyn (Magic wand) | Targets the closest enemy | 5 | 15 | 50 | 30 | 5 | 16 |
+| ![Screenshot_20250208_222804_2](https://github.com/user-attachments/assets/16d6d682-02fd-426c-bea6-6488151bc310) | Travels in a straight line | 5 | 15 | 75 | 40 | 6 | 16 |
+| ![Screenshot_20250208_222814_2](https://github.com/user-attachments/assets/a0ad7365-82c4-443e-85f6-2a45a5ae6547) | Changes direction every 2s | 5 | 12 | 100 | 30 | 10 | 12 |
+| ![Screenshot_20250208_222820_2](https://github.com/user-attachments/assets/d6a335fb-70ee-44aa-a4ba-c78fe91abe9f) | Targets the closest enemy | 5 | 15 | 50 | 30 | 5 | 16 |
+| ![Screenshot_20250208_222845_2](https://github.com/user-attachments/assets/556a3896-6f53-4cb2-a0ff-93828b354219) | Targets the closest enemy | 5 | 15 | 50 | 30 | 5 | 16 |
+| ![Screenshot_20250208_222919_2](https://github.com/user-attachments/assets/c05295ee-9c4f-4535-a1ce-729e083415da) | Targets the closest enemy | 5 | 15 | 50 | 30 | 5 | 16 |
+| ![Screenshot_20250208_222931_2](https://github.com/user-attachments/assets/8078b2d0-50c2-458b-83e3-c9374eb695bd) | Targets the closest enemy | 5 | 15 | 50 | 30 | 5 | 16 |
+| ![Screenshot_20250208_222941_2](https://github.com/user-attachments/assets/34300f44-388c-48c4-98c0-f642a31eea78) | Targets the closest enemy | 5 | 15 | 50 | 30 | 5 | 16 |
+| ![Screenshot_20250208_222948_2](https://github.com/user-attachments/assets/b31c9d28-9e28-44cb-8fb4-e9dbaf834be6) | Targets the closest enemy | 5 | 15 | 50 | 30 | 5 | 16 |
+| ![Screenshot_20250208_222958_2](https://github.com/user-attachments/assets/339fd24d-b428-476f-8713-517db5af08dc) | Targets the closest enemy | 5 | 15 | 50 | 30 | 5 | 16 |
+| ![Screenshot_20250208_223008_2](https://github.com/user-attachments/assets/ee8c7a8d-4577-476b-a0d8-ab5f9ad22488) | Targets the closest enemy | 5 | 15 | 50 | 30 | 5 | 16 |
