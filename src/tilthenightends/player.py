@@ -130,7 +130,7 @@ class Player:
             "health": self.health,
             "weapon": self.weapon.as_dict(),
             "levels": self.levels.copy(),
-            "alive": self.alive,
+            "alive": bool(self.alive),
             "respawn_time": self.respawn_time,
         }
 
@@ -146,6 +146,19 @@ class Player:
             alive=self.alive,
             respawn_time=self.respawn_time,
         )
+
+    def from_dict(self, data):
+        self.hero = data["hero"]
+        self.x = data["x"]
+        self.y = data["y"]
+        self.speed = data["speed"]
+        self.vector = np.array(data["vector"])
+        self.health = data["health"]
+        # self.weapon = arsenal[data["weapon"]["name"].lower()](owner=self)
+        self.weapon.from_dict(data["weapon"])
+        self.levels = data["levels"]
+        self.respawn_time = data["respawn_time"]
+        self.move(0.0)
 
     def levelup(self, what):
         if not self.alive:

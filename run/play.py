@@ -15,6 +15,7 @@ tne.play(
     music=False,
     seed=None,
     # follow=True,
-    restart=None,
+    restart=-1,
     xp_cheat=1.0,
+    save_state_on_exit=True,
 )

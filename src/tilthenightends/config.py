@@ -8,7 +8,7 @@ import numpy as np
 
 @dataclass(frozen=True)
 class Config:
-    fps: int = 30
+    fps: int = 24
     resources: Path = ir.files("tilthenightends") / "resources"
     view_radius: float = 1000.0
     rng: np.random.Generator = np.random.default_rng()  # seed=21)

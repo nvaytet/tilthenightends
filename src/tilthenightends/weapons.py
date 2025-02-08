@@ -121,6 +121,7 @@ class Weapon:
         self.projectile = projectile
 
     def add_to_graphics(self):
+        print("CALLING ADD TO GRAPHICS")
         self.sprites = make_sprites(
             sprite_path=config.resources / "weapons" / f"{self.name.lower()}.png",
             positions=np.array([[0, 0]]),
@@ -155,6 +156,7 @@ class Weapon:
 
     def update(self, t, dt):
         self.projectiles = [p for p in self.projectiles if t < p.tend]
+        print("updating", self.projectiles)
         for p in self.projectiles:
             p.move(t, dt)
         self.draw_sprites()
@@ -197,8 +199,11 @@ class Weapon:
             "health": self.health,
             "size": self.radius,
             "longevity": self.longevity,
-            "projectiles": self.make_projectile_arrays(),
-            "owner": self.owner.name,
+            "projectiles": {
+                k: a.tolist() for k, a in self.make_projectile_arrays().items()
+            },
+            "owner": self.owner.hero,
+            "timer": self.timer,
         }
 
     def as_info(self):
@@ -211,6 +216,31 @@ class Weapon:
             size=self.radius,
             projectiles=self.make_projectile_arrays(),
         )
+
+    def from_dict(self, data):
+        self.cooldown = data["cooldown"]
+        self.damage = data["damage"]
+        self.speed = data["speed"]
+        self.health = data["health"]
+        self.radius = data["size"]
+        self.longevity = data["longevity"]
+        self.timer = data["timer"]
+        self.projectiles = [
+            self.projectile(
+                position=data["projectiles"]["positions"][i],
+                vector=data["projectiles"]["vectors"][i],
+                speed=data["projectiles"]["speeds"][i],
+                tstart=data["projectiles"]["tstarts"][i],
+                tend=data["projectiles"]["tends"][i],
+                attack=data["projectiles"]["attacks"][i],
+                health=data["projectiles"]["healths"][i],
+                radius=data["projectiles"]["radii"][i],
+                owner=self.owner,
+            )
+            for i in range(len(data["projectiles"]["speeds"]))
+        ]
+        print("sprites after from_dict", self.sprites)
+        self.update(0, 0)
 
     @property
     def size(self):
@@ -236,7 +266,7 @@ class Runetracer(Weapon):
         super().__init__(
             name="Runetracer",
             cooldown=5,
-            damage=12,
+            damage=10,
             speed=100.0,
             longevity=10,
             health=30,
@@ -251,9 +281,9 @@ class Fireball(Weapon):
         super().__init__(
             name="Fireball",
             cooldown=5,
-            damage=15,
+            damage=20,
             speed=75.0,
-            health=10,
+            health=1,
             longevity=6,
             radius=16,
             **kwargs,
@@ -328,7 +358,7 @@ class LightningBolt(Weapon):
             speed=0.0,
             health=1,
             radius=32,
-            longevity=0.2,
+            longevity=0.3,
             **kwargs,
         )
         self.nprojectiles = 1
@@ -446,7 +476,7 @@ class MagicWand(Weapon):
             cooldown=5,
             damage=15,
             speed=50.0,
-            health=10,
+            health=1,
             longevity=5,
             radius=16,
             **kwargs,

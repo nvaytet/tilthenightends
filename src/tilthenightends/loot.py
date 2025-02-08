@@ -61,9 +61,15 @@ class Loot:
     def as_dict(self) -> dict:
         return {
             "kind": self.kind,
-            "positions": self.positions,
-            "xp": self.xp,
+            "positions": self.positions.tolist(),
+            "xp": self.xp.tolist(),
         }
+
+    def from_dict(self, data: dict):
+        self.kind = data["kind"]
+        self.positions = np.array(data["positions"])
+        self.xp = np.array(data["xp"])
+        self.sprites.setData(pos=self.positions)
 
     # def as_info(self) -> LootInfo:
     #     return LootInfo(

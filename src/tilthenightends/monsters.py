@@ -117,14 +117,26 @@ class Monsters:
         return {
             "kind": self.kind,
             "size": self.size,
-            "positions": self.positions,
-            "healths": self.healths,
-            "attacks": self.attacks,
-            "radii": self.radii,
-            "freezes": self.freezes,
+            "positions": self.positions.tolist(),
+            "healths": self.healths.tolist(),
+            "attacks": self.attacks.tolist(),
+            "radii": self.radii.tolist(),
+            "freezes": self.freezes.tolist(),
             "speed": self.speed,
             "xp": self.xp,
         }
+
+    def from_dict(self, data):
+        self.kind = data["kind"]
+        self.size = data["size"]
+        self.positions = np.array(data["positions"])
+        self.healths = np.array(data["healths"])
+        self.attacks = np.array(data["attacks"])
+        self.radii = np.array(data["radii"])
+        self.freezes = np.array(data["freezes"])
+        self.speed = data["speed"]
+        self.xp = data["xp"]
+        self.move(0, 0, [])
 
 
 @dataclass(frozen=True)

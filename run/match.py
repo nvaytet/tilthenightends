@@ -29,6 +29,7 @@ if __name__ == "__main__":
             music=False,
             side="left",
             seed=seed,
+            safe=True,
         ),
     )
     p2 = Process(
@@ -39,6 +40,7 @@ if __name__ == "__main__":
             music=False,
             side="right",
             seed=seed,
+            safe=True,
         ),
     )
     p3 = Process(

@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
+from datetime import datetime
 from typing import Optional
 import glob
 import json
@@ -29,6 +30,7 @@ class Engine:
         side: str = None,
         restart: str | int | None = None,
         xp_cheat: float | None = 1.0,
+        save_state_on_exit: bool = False,
     ):
         # Set the seed
         BitGen = type(config.rng.bit_generator)
@@ -49,6 +51,7 @@ class Engine:
         self._music = music
         self.safe = safe
         self._follow = follow
+        self._save_state_on_exit = save_state_on_exit
         self.game_ended = False
         self.monster_info = {}
 
@@ -73,6 +76,7 @@ class Engine:
         for player in self.players.values():
             player.add_to_graphics()
             player.weapon.add_to_graphics()
+            print("weapon sprites", player.weapon.sprites)
 
         self.xp = 0.0
         self.dxp = 1.05
@@ -104,6 +108,7 @@ class Engine:
             self.graphics.add(player.dead_avatar)
             self.graphics.add(player.weapon.sprites)
 
+        self.elapsed_offset = 0.0
         self.dt = 1.0 / config.fps
         self.player_center = np.array([0.0, 0.0])
 
@@ -116,17 +121,22 @@ class Engine:
     def restart_from_state(self, restart):
         if restart == -1:
             # Find the most recent state file
-            restart = sorted(glob.glob("state-*.json"), reverse=True)[-1]
-        state = json.load(open(restart))
+            restart = sorted(glob.glob("state-*.json"))[-1]
+        print("Restarting from", restart)
+        state = json.load(open(restart, "r"))
         for hero, info in state["players"].items():
             self.players[hero].from_dict(info)
+            print("weapon sprites", self.players[hero].weapon.sprites)
         for i, info in enumerate(state["monsters"]):
             self.monsters[i].from_dict(info)
+        for kind, info in state["loot"].items():
+            self.loot[kind].from_dict(info)
         self.xp = state["xp"]
         self.next_xp = state["next_xp"]
         self.xp_step = state["xp_step"]
-        self.elapsed_timer = QtCore.QElapsedTimer()
-        self.elapsed_timer.start()
+        # self.elapsed_timer = QtCore.QElapsedTimer()
+        # self.elapsed_timer.start()
+        self.elapsed_offset = state["elapsed"]
         self.dt = state["dt"]
 
     def make_player_info(self):
@@ -390,7 +400,7 @@ class Engine:
                 self.xp += maybe_xp * self.xpmult
 
     def update(self):
-        t = self.elapsed_timer.elapsed() / 1000.0
+        t = self.elapsed_offset + self.elapsed_timer.elapsed() / 1000.0
         alive_players = [p for p in self.players.values() if p.alive]
         if (len(alive_players) == 0) or (t > config.time_limit):
             if not self.game_ended:
@@ -435,19 +445,17 @@ class Engine:
         self.elapsed_timer.start()
         pg.exec()
 
-        # # Dump state at the end of the run
-        # state = {
-        #     "players": {p.hero: p.as_dict() for p in self.players.values()},
-        #     "monsters": [m.as_dict() for m in self.monsters],
-        #     "loot": {
-        #         "chicken": self.chicken.as_dict(),
-        #         "treasures": self.treasures.as_dict(),
-        #     },
-        #     "xp": self.xp,
-        #     "next_xp": self.next_xp,
-        #     "xp_step": self.xp_step,
-        #     "elapsed": self.elapsed_timer.elapsed() / 1000.0,
-        #     "dt": self.dt,
-        # }
-        # now = str(datetime.datetime.now()).replace(" ", "-").replace(":", "-")
-        # json.dump(state, open(f"state-{now}.json", "w"))
+        if self._save_state_on_exit:
+            # Dump state at the end of the run
+            state = {
+                "players": {p.hero: p.as_dict() for p in self.players.values()},
+                "monsters": [m.as_dict() for m in self.monsters],
+                "loot": {key: loot.as_dict() for key, loot in self.loot.items()},
+                "xp": self.xp,
+                "next_xp": self.next_xp,
+                "xp_step": self.xp_step,
+                "elapsed": self.elapsed_timer.elapsed() / 1000.0,
+                "dt": self.dt,
+            }
+            now = str(datetime.now()).replace(" ", "-").replace(":", "-")
+            json.dump(state, open(f"state-{now}.json", "w"))
