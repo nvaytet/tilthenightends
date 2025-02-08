@@ -381,11 +381,11 @@ class Engine:
     def resolve_pickup(self):
         for player in self.players.values():
             pos = player.position
-            if self.chicken.maybe_pickup(pos):
+            if self.loot["chicken"].maybe_pickup(pos):
                 player.health = min(
                     player.health + 0.5 * player.max_health, player.max_health
                 )
-            maybe_xp = self.treasures.maybe_pickup(pos)
+            maybe_xp = self.loot["treasure"].maybe_pickup(pos)
             if maybe_xp:
                 self.xp += maybe_xp * self.xpmult
 

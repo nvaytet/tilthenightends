@@ -16,6 +16,7 @@ class WeaponInfo:
     speed: float
     health: float
     size: float
+    projectiles: dict[str, np.ndarray]
 
 
 # @dataclass(frozen=True)
@@ -167,9 +168,6 @@ class Weapon:
         healths = []
         attacks = []
         radii = []
-        owners = []
-        healings = []
-        freezes = []
         for p in self.projectiles:
             positions.append(p.position)
             vectors.append(p.vector)
@@ -179,9 +177,6 @@ class Weapon:
             healths.append(p.health)
             attacks.append(p.attack)
             radii.append(p.radius)
-            owners.append(p.owner)
-            healings.append(p.healing)
-            freezes.append(p.freeze)
         return {
             "positions": np.array(positions),
             "vectors": np.array(vectors),
@@ -191,9 +186,6 @@ class Weapon:
             "healths": np.array(healths),
             "attacks": np.array(attacks),
             "radii": np.array(radii),
-            "owners": np.array(owners),
-            "healings": np.array(healings),
-            "freezes": np.array(freezes),
         }
 
     def as_dict(self):
@@ -206,6 +198,7 @@ class Weapon:
             "size": self.radius,
             "longevity": self.longevity,
             "projectiles": self.make_projectile_arrays(),
+            "owner": self.owner.name,
         }
 
     def as_info(self):
@@ -216,6 +209,7 @@ class Weapon:
             speed=self.speed,
             health=self.health,
             size=self.radius,
+            projectiles=self.make_projectile_arrays(),
         )
 
     @property
