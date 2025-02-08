@@ -64,20 +64,33 @@ class Projectile:
     def move(self, t, dt):
         self.position = self.position + (self.vector * dt * self.speed)
 
-    # def as_dict(self):
-    #     return {
-    #         "position": self.position,
-    #         "vector": self.vector,
-    #         "speed": self.speed,
-    #         "tstart": self.tstart,
-    #         "tend": self.tend,
-    #         "health": self.health,
-    #         "attack": self.attack,
-    #         "radius": self.radius,
-    #         "owner": self.owner,
-    #         "healing": self.healing,
-    #         "freeze": self.freeze,
-    #     }
+    def as_dict(self):
+        return {
+            "position": self.position.tolist(),
+            "vector": self.vector.tolist(),
+            "speed": self.speed,
+            "tstart": self.tstart,
+            "tend": self.tend,
+            "health": self.health,
+            "attack": self.attack,
+            "radius": self.radius,
+            "owner": self.owner.hero,
+            "healing": self.healing,
+            "freeze": self.freeze,
+        }
+
+    # def from_dict(self, data):
+    #     self.position = data["position"]
+    #     self.vector = data["vector"]
+    #     self.speed = data["speed"]
+    #     self.tstart = data["tstart"]
+    #     self.tend = data["tend"]
+    #     self.health = data["health"]
+    #     self.attack = data["attack"]
+    #     self.radius = data["radius"]
+    #     self.owner = data["owner"]
+    #     self.healing = data["healing"]
+    #     self.freeze = data["freeze"]
 
     # def as_info(self):
     #     return ProjectileInfo(
@@ -121,7 +134,6 @@ class Weapon:
         self.projectile = projectile
 
     def add_to_graphics(self):
-        print("CALLING ADD TO GRAPHICS")
         self.sprites = make_sprites(
             sprite_path=config.resources / "weapons" / f"{self.name.lower()}.png",
             positions=np.array([[0, 0]]),
@@ -156,7 +168,6 @@ class Weapon:
 
     def update(self, t, dt):
         self.projectiles = [p for p in self.projectiles if t < p.tend]
-        print("updating", self.projectiles)
         for p in self.projectiles:
             p.move(t, dt)
         self.draw_sprites()
@@ -199,9 +210,7 @@ class Weapon:
             "health": self.health,
             "size": self.radius,
             "longevity": self.longevity,
-            "projectiles": {
-                k: a.tolist() for k, a in self.make_projectile_arrays().items()
-            },
+            "projectiles": [p.as_dict() for p in self.projectiles],
             "owner": self.owner.hero,
             "timer": self.timer,
         }
@@ -226,20 +235,9 @@ class Weapon:
         self.longevity = data["longevity"]
         self.timer = data["timer"]
         self.projectiles = [
-            self.projectile(
-                position=data["projectiles"]["positions"][i],
-                vector=data["projectiles"]["vectors"][i],
-                speed=data["projectiles"]["speeds"][i],
-                tstart=data["projectiles"]["tstarts"][i],
-                tend=data["projectiles"]["tends"][i],
-                attack=data["projectiles"]["attacks"][i],
-                health=data["projectiles"]["healths"][i],
-                radius=data["projectiles"]["radii"][i],
-                owner=self.owner,
-            )
-            for i in range(len(data["projectiles"]["speeds"]))
+            self.projectile(**{**p, **{"owner": self.owner}})
+            for p in data["projectiles"]
         ]
-        print("sprites after from_dict", self.sprites)
         self.update(0, 0)
 
     @property
@@ -387,12 +385,22 @@ class LightningBolt(Weapon):
 
 
 class DoveProjectile(Projectile):
+    def __init__(self, *args, phi, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.phi = phi
+
     def move(self, t, dt):
         self.phi = (self.phi + self.speed * dt) % (2 * np.pi)
         self.position = (
             self.owner.position
             + np.array([np.cos(self.phi), np.sin(self.phi)]) * self.radius * 2.5
         )
+
+    def as_dict(self):
+        return {
+            **super().as_dict(),
+            "phi": self.phi,
+        }
 
 
 class Dove(Weapon):
@@ -423,8 +431,9 @@ class Dove(Weapon):
             health=self.health,
             radius=self.radius,
             owner=self.owner,
+            phi=phi,
         )
-        proj.phi = phi
+        # proj.phi = phi
         self.projectiles.append(proj)
 
         self.draw_sprites()

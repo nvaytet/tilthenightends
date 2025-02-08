@@ -112,7 +112,7 @@ class Engine:
         self.dt = 1.0 / config.fps
         self.player_center = np.array([0.0, 0.0])
 
-        if restart is not None:
+        if restart not in (None, False):
             self.restart_from_state(restart)
 
         self.graphics.update_player_status(self.players, xp=self.xp, t=0)
