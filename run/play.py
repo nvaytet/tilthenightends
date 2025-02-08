@@ -15,7 +15,8 @@ tne.play(
     music=False,
     seed=None,
     # follow=True,
-    restart=False,  # Set to -1 to restart from last run, or filename otherwise
     xp_cheat=1.0,
+    restart=-1,  # Set to -1 to restart from last run, or filename otherwise
     save_state_on_exit=True,
+    show_scenery=True,  # Set to False to hide the scenery for better performance
 )

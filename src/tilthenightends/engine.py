@@ -31,6 +31,7 @@ class Engine:
         restart: str | int | None = None,
         xp_cheat: float | None = 1.0,
         save_state_on_exit: bool = False,
+        show_scenery: bool = True,
     ):
         # Set the seed
         BitGen = type(config.rng.bit_generator)
@@ -71,7 +72,9 @@ class Engine:
             for i, p in enumerate(team.players)
         }
 
-        self.graphics = Graphics(players=self.players, world=self.world, side=side)
+        self.graphics = Graphics(
+            players=self.players, world=self.world, side=side, show_scenery=show_scenery
+        )
 
         for player in self.players.values():
             player.add_to_graphics()
@@ -138,6 +141,9 @@ class Engine:
         # self.elapsed_timer.start()
         self.elapsed_offset = state["elapsed"]
         self.dt = state["dt"]
+        # for i in range(len(state["scenery"])):  # noqa
+        #     self.graphics.scenery_sprites[i].setData(pos=np.array(state["scenery"][i]))
+        # self.graphics.scenery_sprites.setData(pos=np.array(state["scenery"]))
 
     def make_player_info(self):
         return {name: player.as_info() for name, player in self.players.items()}
@@ -456,6 +462,10 @@ class Engine:
                 "xp_step": self.xp_step,
                 "elapsed": self.elapsed_timer.elapsed() / 1000.0,
                 "dt": self.dt,
+                # "scenery": [
+                #     np.array(sp.getData()).tolist()
+                #     for sp in self.graphics.scenery_sprites
+                # ],
             }
             now = str(datetime.now()).replace(" ", "-").replace(":", "-")
             json.dump(state, open(f"state-{now}.json", "w"))

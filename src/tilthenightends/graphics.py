@@ -18,7 +18,9 @@ from .worlds import World
 
 
 class Graphics:
-    def __init__(self, players: dict, world: World, side=None):
+    def __init__(
+        self, players: dict, world: World, side: str = None, show_scenery: bool = True
+    ):
         self._title = "Til the Night Ends"
 
         self.app = pg.mkQApp()
@@ -104,15 +106,17 @@ class Graphics:
         self.canvas.hideAxis("right")
         self.canvas.hideAxis("top")
 
-        self.add_scenery(world)
+        self.add_scenery(world, show_scenery=show_scenery)
 
         self.main_window.show()
 
-    def add_scenery(self, world: World):
+    def add_scenery(self, world: World, show_scenery: bool = True):
         self.window.setBackground(world.background)
-        sprites = []
+        if not show_scenery:
+            return
+        self.scenery_sprites = []
         for i in range(world.nsprites):
-            sprites.append(
+            self.scenery_sprites.append(
                 make_sprites(
                     sprite_path=config.resources
                     / "worlds"
@@ -124,7 +128,7 @@ class Graphics:
                 )
             )
 
-        for sprite in sprites:
+        for sprite in self.scenery_sprites:
             self.add(sprite)
 
     def update_player_status(self, players, xp, t):
