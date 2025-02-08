@@ -79,7 +79,6 @@ class Engine:
         for player in self.players.values():
             player.add_to_graphics()
             player.weapon.add_to_graphics()
-            print("weapon sprites", player.weapon.sprites)
 
         self.xp = 0.0
         self.dxp = 1.05
@@ -129,7 +128,6 @@ class Engine:
         state = json.load(open(restart, "r"))
         for hero, info in state["players"].items():
             self.players[hero].from_dict(info)
-            print("weapon sprites", self.players[hero].weapon.sprites)
         for i, info in enumerate(state["monsters"]):
             self.monsters[i].from_dict(info)
         for kind, info in state["loot"].items():
@@ -367,7 +365,6 @@ class Engine:
             return
         self.xp_step *= self.dxp
         self.next_xp += self.xp_step
-        print("Leveling up:", self.xp, self.next_xp, self.xp_step)
         lup = self.team.strategist.levelup(
             t=t,
             info={"xp": float(self.xp), "next_levelup": float(self.next_xp)},
@@ -376,7 +373,6 @@ class Engine:
         if lup is not None:
             print(f"Leveling up {lup.hero} with {lup.what}")
             self.players[lup.hero].levelup(lup.what)
-            # print(self.players[lup.hero].as_dict())
 
     def move_camera(self):
         positions = np.array([[p.x, p.y] for p in self.players.values()])

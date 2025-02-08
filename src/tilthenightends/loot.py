@@ -51,7 +51,6 @@ class Loot:
         y = (y + config.map_size) // self.dx
         ind = self.locations.get((x, y))
         if ind is not None:
-            # print("picking up", self.kind, x, y)
             self.positions[ind, :] = [self.trash, self.trash]
             self.sprites.setData(pos=self.positions)
             del self.locations[(x, y)]
@@ -70,11 +69,3 @@ class Loot:
         self.positions = np.array(data["positions"])
         self.xp = np.array(data["xp"])
         self.sprites.setData(pos=self.positions)
-
-    # def as_info(self) -> LootInfo:
-    #     return LootInfo(
-    #         kind=self.kind,
-    #         x=self.positions[:, 0],
-    #         y=self.positions[:, 1],
-    #         xp=self.xp,
-    #     )

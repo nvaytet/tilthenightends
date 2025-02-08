@@ -529,7 +529,6 @@ class FrozenShard(Weapon):
 
     def fire(self, position, t):
         phi = config.rng.uniform(0, 2 * np.pi)
-        print("frozen shard phi", phi, t)
         self.projectiles.append(
             self.projectile(
                 position=position,
