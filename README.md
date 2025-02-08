@@ -1,4 +1,4 @@
-![tne_banner](https://github.com/nvaytet/cholerama/assets/39047984/4c57c612-069b-4ebc-9a20-c23e568cd007)
+![tne_banner](https://github.com/user-attachments/assets/060db436-ca96-493e-a301-2fcb658cdf15)
 
 # tilthenightends
 
@@ -32,6 +32,6 @@ Survive as long as possible.
 
 | Hero | Ability | Cooldown | Damage | Speed | Health | Longevity | Radius |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Alaric (Fireball) | Travels in a straight line | 5 | 15 | 75 | 40 | 6 | 16 |
+| Alaric (Fireball) ![alaric](https://github.com/user-attachments/assets/05f2a016-4d0d-45b9-a75f-5c67f097056e) ![fireball](https://github.com/user-attachments/assets/62d1b7f6-a7ba-4235-9e57-d02957f197ee) | Travels in a straight line | 5 | 15 | 75 | 40 | 6 | 16 |
 | Cedric (Runetracer) | Changes direction every 2s | 5 | 12 | 100 | 30 | 10 | 12 |
 | Evelyn (Magic wand) | Targets the closest enemy | 5 | 15 | 50 | 30 | 5 | 16 |
