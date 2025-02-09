@@ -101,4 +101,42 @@ Survive as long as possible.
 | ![Sprite-Floor_Chicken](https://github.com/user-attachments/assets/f2c3acb9-451e-4394-ba20-ba5c450104e3) | Chicken | Restores 50% of `max_health`. |
 | ![Sprite-Treasure_Chest](https://github.com/user-attachments/assets/72d7ae70-2ecf-405e-a002-bda7483d6e1b) | Treasure chest | Gives XP. The further the chest is from the center of the map (player starting point), the more XP you get. |
 
+## The Bot
 
+### Warriors
+
+- Pick 5 heroes from the pool of 10 to make a team (all must be different).
+- You control the player movements, nothing else.
+- Most weapons fire in random directions.
+
+### Strategist
+
+- Holds the XP and decides who to level up when enough XP has been collected.
+
+### Information provided
+
+#### During play, Heroes are provided with
+
+- Info on all players (`x`, `y`, `speed`, `vector`, `health`, `weapon`, `levels`, `alive`, `respawn_time`)
+- Info on all monsters within a 1000 px radius (`x`, `y`, `healths`, `attacks`, `radii`, `speeds`)
+- Position and kind (chicken or treasure) of all pickup items within a 1000 px radius
+
+#### During play, Strategist is provided with
+
+- Info on all players + `xp`, `next_levelup` (level-up again when you reach this XP)
+
+## Tournament
+
+- Play all worlds once each.
+- We will watch 2 teams play simultaneously (starting with the same seed).
+
+## Tips
+
+### Restart from previous state (experimental)
+
+- When closing the game window, the code will dump the current state to a json file.
+- You can restart the game from there, by specifying `restart=<FILENAME>.json`, or `restart=-1` to restart from the last file in the current folder.
+
+### XP cheat
+
+- You can boost the XP gained by using e.g. `xp_cheat=5` (this will obviously be forced to 1 during the tournament).
