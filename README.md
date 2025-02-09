@@ -64,10 +64,31 @@ Survive as long as possible.
 
 | Levelup option | Effect |
 | --- | --- |
-| `player_health` | |
-| player_speed | |
-| weapon_health | |
-| weapon_speed | |
-| weapon_damage | |
-| weapon_cooldown | |
-| weapon_size | |
+| `player_health` | `max_health * 1.05` |
+| `player_speed` | `speed + 1` |
+| `weapon_health` | `weapon_health * 1.05` |
+| `weapon_speed` | `weapon_speed + 1` |
+| `weapon_damage` | `weapon_damage * 1.02` |
+| `weapon_cooldown` | `weapon_cooldown * 0.9` |
+| `weapon_size` | `radius * 1.15` |
+
+### Four worlds
+
+We will play 4 matches in 4 different worlds:
+
+<table>
+  <tr>
+    <th>Forest</th><th>Desert</th>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/0bcd74ea-1479-4aaa-9913-fa0f1a8aaf4a"></td>
+    <td><img src="https://github.com/user-attachments/assets/d70f07d0-e99a-4788-9808-d677e423496a"></td>
+  </tr>
+  <tr>
+    <th>Mountain</th><th>Mine</th>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/user-attachments/assets/9cd06d1f-3035-4131-826e-2b5fd26d2b30"></td>
+    <td><img src="https://github.com/user-attachments/assets/949346a6-0ee1-49a3-adf4-b6ca1655d79c"></td>
+  </tr>
+</table>
