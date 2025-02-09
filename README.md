@@ -74,7 +74,8 @@ Survive as long as possible.
 
 ### Four worlds
 
-We will play 4 matches in 4 different worlds:
+- We will play 4 matches in 4 different worlds.
+- The scenery items are just there to be pretty, there are no obstacles.
 
 <table>
   <tr>
@@ -92,3 +93,6 @@ We will play 4 matches in 4 different worlds:
     <td><img src="https://github.com/user-attachments/assets/949346a6-0ee1-49a3-adf4-b6ca1655d79c"></td>
   </tr>
 </table>
+
+### Pick-up objects
+
