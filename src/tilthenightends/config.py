@@ -14,4 +14,4 @@ class Config:
     rng: np.random.Generator = np.random.default_rng()  # seed=21)
     map_size: int = 30000
     respawn_time: float = 15.0
-    time_limit: float = 15 * 60.0
+    time_limit: float = 10 * 60.0
