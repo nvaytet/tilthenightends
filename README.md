@@ -96,3 +96,9 @@ Survive as long as possible.
 
 ### Pick-up objects
 
+| | Object | Effect |
+| --- | --- | --- |
+| ![Sprite-Floor_Chicken](https://github.com/user-attachments/assets/f2c3acb9-451e-4394-ba20-ba5c450104e3) | Chicken | Restores 50% of `max_health`. |
+| ![Sprite-Treasure_Chest](https://github.com/user-attachments/assets/72d7ae70-2ecf-405e-a002-bda7483d6e1b) | Treasure chest | Gives XP. The further the chest is from the center of the map (player starting point), the more XP you get. |
+
+
