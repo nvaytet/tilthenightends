@@ -127,8 +127,17 @@ Survive as long as possible.
 
 ## Tournament
 
-- Play all worlds once each.
-- We will watch 2 teams play simultaneously (starting with the same seed).
+We will watch 2 teams play simultaneously (starting with the same seed).
+Depending on the number of teams:
+
+- 2 teams: play all worlds once each.
+- 3 teams: 6 matches, play each team twice, worlds 1-4 + 2 random worlds.
+- 4 teams: semi-finals (2 x 2 rounds), match for 3rd place (2 rounds), final (2 rounds).
+
+### Scoring
+
+- 1 point for the team that survives the longest (1 point each if tied).
+- Match time limited to 10 minutes.
 
 ## Tips
 
