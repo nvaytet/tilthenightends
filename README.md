@@ -25,8 +25,8 @@ Survive as long as possible.
 
 ### How to
 
-- Work in teams to build a squad of <u>5 warriors</u>.
-- You will also have to program a <u>Strategist</u> that makes decisions for the team.
+- Work in teams to build a squad of <ins>5 warriors</ins>.
+- You will also have to program a <ins>Strategist</ins> that makes decisions for the team.
 
 ### The Heroes
 
