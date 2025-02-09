@@ -7,7 +7,7 @@ The night is long, and the horde is endless...
 ## TL;DR
 
 - [Create a new repository from the template](https://github.com/new?template_name=survivor_bot&template_owner=nvaytet).
-- `conda create -n <NAME> -c conda-forge python=3.10.*`
+- `conda create -n <NAME> -c conda-forge python=3.12.*`
 - `conda activate <NAME>`
 - `git clone https://github.com/nvaytet/tilthenightends`
 - `git clone https://github.com/<USERNAME>/<MYBOTNAME>_bot.git`
