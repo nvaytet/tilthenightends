@@ -149,3 +149,8 @@ Depending on the number of teams:
 ### XP cheat
 
 - You can boost the XP gained by using e.g. `xp_cheat=5` (this will obviously be forced to 1 during the tournament).
+
+## Acknowledgements
+
+- The concept was heavily inspired by the [Vampire Survivors](https://en.wikipedia.org/wiki/Vampire_Survivors) video game.
+- Much of the artwork was taken from [their wiki fan page](https://vampire-survivors.fandom.com/wiki/Vampire_Survivors_Wiki).
