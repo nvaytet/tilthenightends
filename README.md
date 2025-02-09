@@ -42,3 +42,32 @@ Survive as long as possible.
 | ![Screenshot_20250208_222948_2](https://github.com/user-attachments/assets/b31c9d28-9e28-44cb-8fb4-e9dbaf834be6) | Proximity Mine: Stays put, deals a lot of damage | 5 | 100 | 0 | 1 | 6 | 16 |
 | ![Screenshot_20250208_222958_2](https://github.com/user-attachments/assets/339fd24d-b428-476f-8713-517db5af08dc) | Plasma Gun: 5 projectiles travel outwards in a star-like pattern | 5 | 10 | 100 | 1 | 5 | 8 |
 | ![Screenshot_20250208_223008_2](https://github.com/user-attachments/assets/ee8c7a8d-4577-476b-a0d8-ab5f9ad22488) | Garlic: Creates a circular shield around the hero | 4 | 8 | 0 | 20 | 6 | 40 |
+
+### During a round
+
+- Start in the middle of a world.
+- You are surrounded by hordes of monsters.
+- There will be more and more monsters with time. Total number is infinite.
+
+### If a player dies
+
+- A countdown of 15s begins. If other players survive long enough, the dead player will come back to life, with ⅓ of max health.
+- If all players die, the game is lost.
+
+### Leveling up
+
+- Leveling up is the key to survival.
+- Killing a monster gives you XP equal to the monster’s health.
+- XP is shared among all: the `Strategist` must decide who to level up next.
+- The next level-up is more expensive than the previous (factor of 1.05).
+- Leveling-up a player (or their weapon) also restores their full health.
+
+| Levelup option | Effect |
+| --- | --- |
+| `player_health` | |
+| player_speed | |
+| weapon_health | |
+| weapon_speed | |
+| weapon_damage | |
+| weapon_cooldown | |
+| weapon_size | |
