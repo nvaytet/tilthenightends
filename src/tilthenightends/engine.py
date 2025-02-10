@@ -353,7 +353,7 @@ class Engine:
             if ndead > 0:
                 new_pos = horde.positions.copy()
                 new_pos[inds, :] = horde.make_positions(
-                    ndead, offset=horde.positions[inds]
+                    ndead, offset=self.player_center, t=t
                 )
                 horde.positions = new_pos
                 horde.healths[inds] = horde.xp

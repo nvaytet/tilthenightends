@@ -36,6 +36,10 @@ class Monsters:
     def __init__(self, size, kind, distance, scale=10.0, clumpy=False):
         self.size = size
         self.distance = distance
+        self._starting_distance = distance
+        self._distance_gradient = (1000.0 - self._starting_distance) / (
+            config.time_limit
+        )
         self.scale = scale
         self.positions = self.make_positions(self.size, clumpy=clumpy)
         self.vectors = np.zeros((self.size, 2), dtype="float32")
@@ -55,7 +59,10 @@ class Monsters:
             positions=self.positions,
         )
 
-    def make_positions(self, n, clumpy=False, offset=None):
+    def make_positions(
+        self, n, clumpy: bool = False, offset: np.ndarray | None = None, t: float = 0.0
+    ) -> np.ndarray:
+        self.distance = self._starting_distance + self._distance_gradient * t
         if clumpy:
             n1 = int(n * 0.04)
             n2 = n // n1
@@ -77,17 +84,14 @@ class Monsters:
             pos = positions1 + offsets
             pos = pos.reshape(-1, 2)
             positions = np.concatenate([pos, positions1[: (n - pos.shape[0])]])
-            if offset is not None:
-                positions += offset
-
         else:
             r = config.rng.normal(scale=self.scale, loc=self.distance, size=n)
             theta = config.rng.uniform(0, 2 * np.pi, n)
             positions = np.zeros((n, 2), dtype="float32")
             positions[:, 0] = r * np.cos(theta)
             positions[:, 1] = r * np.sin(theta)
-            if offset is not None:
-                positions += offset
+        if offset is not None:
+            positions += offset
         return positions
 
     @property
