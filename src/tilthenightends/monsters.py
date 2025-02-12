@@ -37,10 +37,14 @@ class Monsters:
         self.size = size
         self.distance = distance
         self._starting_distance = distance
-        self._distance_gradient = (1000.0 - self._starting_distance) / (
+        self._distance_gradient = (100.0 - self._starting_distance) / (
             config.time_limit
         )
         self.scale = scale
+        self._starting_scale = scale
+        self._scale_gradient = (
+            0.01 * self._starting_scale - self._starting_scale
+        ) / config.time_limit
         self.positions = self.make_positions(self.size, clumpy=clumpy)
         self.vectors = np.zeros((self.size, 2), dtype="float32")
         self.healths = np.full(self.size, bestiary[kind]["health"])
@@ -63,11 +67,12 @@ class Monsters:
         self, n, clumpy: bool = False, offset: np.ndarray | None = None, t: float = 0.0
     ) -> np.ndarray:
         self.distance = self._starting_distance + self._distance_gradient * t
+        self.scale = self._starting_scale + self._scale_gradient * t
         if clumpy:
             n1 = int(n * 0.04)
             n2 = n // n1
             # Make some seeding positions
-            r = config.rng.normal(scale=self.scale, loc=self.distance, size=n1)
+            r = np.abs(config.rng.normal(scale=self.scale, loc=self.distance, size=n1))
             theta = config.rng.uniform(0, 2 * np.pi, n1)
             positions1 = np.zeros((n1, 2), dtype="float32")
             positions1[:, 0] = r * np.cos(theta)
@@ -85,7 +90,7 @@ class Monsters:
             pos = pos.reshape(-1, 2)
             positions = np.concatenate([pos, positions1[: (n - pos.shape[0])]])
         else:
-            r = config.rng.normal(scale=self.scale, loc=self.distance, size=n)
+            r = np.abs(config.rng.normal(scale=self.scale, loc=self.distance, size=n))
             theta = config.rng.uniform(0, 2 * np.pi, n)
             positions = np.zeros((n, 2), dtype="float32")
             positions[:, 0] = r * np.cos(theta)
