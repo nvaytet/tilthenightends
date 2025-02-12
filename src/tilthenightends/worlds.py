@@ -47,12 +47,12 @@ class Forest(World):
                     distance=0.833 * config.map_size,
                     scale=s,
                 ),
-                Monsters(
-                    size=5000,
-                    kind="zombie",
-                    distance=config.map_size,
-                    scale=0.05 * s,
-                ),
+                # Monsters(
+                #     size=5000,
+                #     kind="zombie",
+                #     distance=config.map_size,
+                #     scale=0.05 * s,
+                # ),
             ],
         )
 
@@ -93,12 +93,12 @@ class Mountain(World):
                     distance=0.833 * config.map_size,
                     scale=s,
                 ),
-                Monsters(
-                    size=5000,
-                    kind="ghost",
-                    distance=config.map_size,
-                    scale=0.05 * s,
-                ),
+                # Monsters(
+                #     size=5000,
+                #     kind="ghost",
+                #     distance=config.map_size,
+                #     scale=0.05 * s,
+                # ),
             ],
         )
 
@@ -133,12 +133,12 @@ class Desert(World):
                     distance=0.833 * config.map_size,
                     scale=s,
                 ),
-                Monsters(
-                    size=5000,
-                    kind="bat",
-                    distance=config.map_size,
-                    scale=0.01 * s,
-                ),
+                # Monsters(
+                #     size=5000,
+                #     kind="bat",
+                #     distance=config.map_size,
+                #     scale=0.01 * s,
+                # ),
             ],
         )
 
@@ -183,11 +183,11 @@ class Mine(World):
                     distance=1.0 * config.map_size,
                     scale=s,
                 ),
-                Monsters(
-                    size=5000,
-                    kind="lizard",
-                    distance=config.map_size,
-                    scale=0.05 * s,
-                ),
+                # Monsters(
+                #     size=5000,
+                #     kind="lizard",
+                #     distance=config.map_size,
+                #     scale=0.05 * s,
+                # ),
             ],
         )

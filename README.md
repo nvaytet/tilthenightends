@@ -70,7 +70,7 @@ Survive as long as possible.
 | `weapon_speed` | `weapon_speed + 1` |
 | `weapon_damage` | `weapon_damage * 1.02` |
 | `weapon_cooldown` | `weapon_cooldown * 0.9` |
-| `weapon_size` | `radius * 1.15` |
+| `weapon_size` | `radius * 1.10` |
 
 ### Four worlds
 

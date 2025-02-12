@@ -186,7 +186,7 @@ class Player:
             if self.weapon.name == "LightningBolt":
                 self.weapon.nprojectiles += 1
             else:
-                self.weapon.radius *= 1.15
+                self.weapon.radius *= 1.10
             self.levels["weapon_size"] += 1
 
         # Healing bonus for leveling up

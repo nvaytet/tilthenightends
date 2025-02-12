@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 
 import numpy as np
+from pyqtgraph.Qt import QtCore
 
 from . import config
 from .graphics import make_sprites
@@ -129,7 +130,7 @@ class Weapon:
         self.health = health
         self.projectiles = []
         self.timer = 0
-        self.radius = radius
+        self._radius = radius
         self.owner = owner
         self.projectile = projectile
 
@@ -165,6 +166,18 @@ class Weapon:
             self.sprites.setData(pos=np.array(pos))
         else:
             self.sprites.setOpacity(0.0)
+
+    @property
+    def radius(self):
+        return self._radius
+
+    @radius.setter
+    def radius(self, value):
+        self._radius = value
+        self.sprites.sprite_size = QtCore.QSize(value * 2, value * 2)
+        self.sprites.sprite = self.sprites.original_sprite.scaled(
+            self.sprites.sprite_size, QtCore.Qt.AspectRatioMode.IgnoreAspectRatio
+        )
 
     def update(self, t, dt):
         self.projectiles = [p for p in self.projectiles if t < p.tend]
