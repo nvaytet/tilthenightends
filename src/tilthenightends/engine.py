@@ -32,6 +32,7 @@ class Engine:
         xp_cheat: float | None = 1.0,
         save_state_on_exit: bool = False,
         show_scenery: bool = True,
+        speedup: float = 1.0,
     ):
         # Set the seed
         BitGen = type(config.rng.bit_generator)
@@ -55,6 +56,7 @@ class Engine:
         self._save_state_on_exit = save_state_on_exit
         self.game_ended = False
         self.monster_info = {}
+        self.speedup = speedup
 
         self.bots = {p.hero: p for p in team.players}
 
@@ -111,7 +113,7 @@ class Engine:
             self.graphics.add(player.weapon.sprites)
 
         self.elapsed_offset = 0.0
-        self.dt = 1.0 / config.fps
+        self.dt = 1.0 / config.fps * self.speedup
         self.player_center = np.array([0.0, 0.0])
 
         if restart not in (None, False):
@@ -403,6 +405,7 @@ class Engine:
 
     def update(self):
         t = self.elapsed_offset + self.elapsed_timer.elapsed() / 1000.0
+        t *= self.speedup
         alive_players = [p for p in self.players.values() if p.alive]
         if (len(alive_players) == 0) or (t > config.time_limit):
             if not self.game_ended:
@@ -442,7 +445,7 @@ class Engine:
         timer = QtCore.QTimer()
         self.elapsed_timer = QtCore.QElapsedTimer()
         timer.timeout.connect(self.update)
-        timer.start(int(1000.0 * self.dt))
+        timer.start(int(1000.0 * (1.0 / config.fps)))
         # timer.start(330)
         self.elapsed_timer.start()
         pg.exec()
