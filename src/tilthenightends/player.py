@@ -56,6 +56,7 @@ class Player:
             "weapon_damage": 0,
             "weapon_cooldown": 0,
             "weapon_size": 0,
+            "weapon_longevity": 0,
         }
 
     def add_to_graphics(self):
@@ -188,6 +189,9 @@ class Player:
             else:
                 self.weapon.radius *= 1.10
             self.levels["weapon_size"] += 1
+        elif what == LevelupOptions.weapon_longevity:
+            self.weapon.longevity *= 1.05
+            self.levels["weapon_longevity"] += 1
 
         # Healing bonus for leveling up
         self.health = self.max_health
