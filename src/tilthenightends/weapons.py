@@ -18,6 +18,7 @@ class WeaponInfo:
     health: float
     size: float
     projectiles: dict[str, np.ndarray]
+    longevity: float
 
 
 # @dataclass(frozen=True)
@@ -237,6 +238,7 @@ class Weapon:
             health=self.health,
             size=self.radius,
             projectiles=self.make_projectile_arrays(),
+            longevity=self.longevity,
         )
 
     def from_dict(self, data):
