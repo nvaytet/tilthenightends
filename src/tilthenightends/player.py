@@ -17,6 +17,7 @@ class PlayerInfo:
     y: float
     speed: float
     vector: np.ndarray
+    max_health: float
     health: float
     weapon: WeaponInfo
     levels: dict
@@ -133,6 +134,7 @@ class Player:
             "levels": self.levels.copy(),
             "alive": bool(self.alive),
             "respawn_time": self.respawn_time,
+            "max_health": self.max_health,
         }
 
     def as_info(self):
@@ -146,6 +148,7 @@ class Player:
             levels=self.levels,
             alive=self.alive,
             respawn_time=self.respawn_time,
+            max_health=self.max_health,
         )
 
     def from_dict(self, data):
@@ -159,6 +162,7 @@ class Player:
         self.weapon.from_dict(data["weapon"])
         self.levels = data["levels"]
         self.respawn_time = data["respawn_time"]
+        self.max_health = data["max_health"]
         self.move(0.0)
 
     def levelup(self, what):
