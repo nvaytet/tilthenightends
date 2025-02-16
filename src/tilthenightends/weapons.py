@@ -174,7 +174,7 @@ class Weapon:
     @radius.setter
     def radius(self, value):
         self._radius = value
-        self.sprites.sprite_size = QtCore.QSize(value * 2, value * 2)
+        self.sprites.sprite_size = QtCore.QSize(int(value * 2), int(value * 2))
         self.sprites.sprite = self.sprites.original_sprite.scaled(
             self.sprites.sprite_size, QtCore.Qt.AspectRatioMode.IgnoreAspectRatio
         )
