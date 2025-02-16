@@ -343,7 +343,8 @@ class HolyWater(Weapon):
         self.projectiles.append(
             self.projectile(
                 position=position
-                + np.array([np.cos(phi), np.sin(phi)]) * self.radius * 2,
+                + np.array([np.cos(phi), np.sin(phi)])
+                * config.rng.uniform(0, 2 * self.radius * 2),
                 vector=np.array([1.0, 0]),
                 speed=self.speed,
                 tstart=t,
