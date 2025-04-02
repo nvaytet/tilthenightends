@@ -25,9 +25,7 @@ class Engine:
         follow: bool = False,
         music: bool = False,
         side: str = None,
-        # restart: str | int | None = None,
         xp_cheat: float | None = 1.0,
-        # save_state_on_exit: bool = False,
         show_scenery: bool = True,
         speedup: float = 1.0,
     ):
@@ -50,7 +48,6 @@ class Engine:
         self._music = music
         self.safe = safe
         self._follow = follow
-        # self._save_state_on_exit = save_state_on_exit
         self.game_ended = False
         self.monster_info = {}
         self.speedup = speedup
@@ -97,8 +94,6 @@ class Engine:
         # Add all sprites to the graphics
         for loot in self.loot.values():
             self.graphics.add(loot.sprites)
-        # self.graphics.add(self.chicken.sprites)
-        # self.graphics.add(self.treasures.sprites)
 
         for horde in self.monsters:
             horde.make_sprites()
@@ -113,43 +108,11 @@ class Engine:
         self.dt = 1.0 / config.fps * self.speedup
         self.player_center = np.array([0.0, 0.0])
 
-        # if restart not in (None, False):
-        #     self.restart_from_state(restart)
-
         self.graphics.update_player_status(self.players, xp=self.xp, t=0)
         self.move_camera()
 
-    # def restart_from_state(self, restart):
-    #     if restart == -1:
-    #         # Find the most recent state file
-    #         restart = sorted(glob.glob("state-*.json"))[-1]
-    #     print("Restarting from", restart)
-    #     state = json.load(open(restart, "r"))
-    #     for hero, info in state["players"].items():
-    #         self.players[hero].from_dict(info)
-    #     for i, info in enumerate(state["monsters"]):
-    #         self.monsters[i].from_dict(info)
-    #     for kind, info in state["loot"].items():
-    #         self.loot[kind].from_dict(info)
-    #     self.xp = state["xp"]
-    #     self.next_xp = state["next_xp"]
-    #     self.xp_step = state["xp_step"]
-    #     # self.elapsed_timer = QtCore.QElapsedTimer()
-    #     # self.elapsed_timer.start()
-    #     self.elapsed_offset = state["elapsed"]
-    #     self.dt = state["dt"]
-    #     # for i in range(len(state["scenery"])):  # noqa
-    #     #     self.graphics.scenery_sprites[i].setData(pos=np.array(state["scenery"][i]))
-    #     # self.graphics.scenery_sprites.setData(pos=np.array(state["scenery"]))
-
     def make_player_info(self):
         return {name: player.as_info() for name, player in self.players.items()}
-        # player_info = {}
-        # for name, player in self.players.items():
-        #     info = player.as_dict()
-        #     del info["hero"]
-        #     player_info[name] = PlayerInfo(**info)
-        # return player_info
 
     def make_loot_info(self):
         loot_info = {}
@@ -161,17 +124,6 @@ class Engine:
                 loot_info[kind] = LootInfo(
                     kind=kind, x=pos[:, 0], y=pos[:, 1], xp=loot.xp[visible]
                 )
-        # distances = np.linalg.norm(
-        #     self.treasures.positions - self.player_center, axis=1
-        # )
-        # visible = distances <= config.view_radius
-        # if visible.sum() > 0:
-        #     loot_info["treasures"] = LootInfo(
-        #         kind="treasure",
-        #         x=self.treasures.positions[visible, 0],
-        #         y=self.treasures.positions[visible, 1],
-        #         xp=self.treasures.xp[visible],
-        #     )
         return loot_info
 
     def call_player_bots(self, t: float, dt: float):
@@ -443,25 +395,5 @@ class Engine:
         self.elapsed_timer = QtCore.QElapsedTimer()
         timer.timeout.connect(self.update)
         timer.start(int(1000.0 * (1.0 / config.fps)))
-        # timer.start(330)
         self.elapsed_timer.start()
         pg.exec()
-
-        # if self._save_state_on_exit:
-        #     # Dump state at the end of the run
-        #     state = {
-        #         "players": {p.hero: p.as_dict() for p in self.players.values()},
-        #         "monsters": [m.as_dict() for m in self.monsters],
-        #         "loot": {key: loot.as_dict() for key, loot in self.loot.items()},
-        #         "xp": self.xp,
-        #         "next_xp": self.next_xp,
-        #         "xp_step": self.xp_step,
-        #         "elapsed": self.elapsed_timer.elapsed() / 1000.0,
-        #         "dt": self.dt,
-        #         # "scenery": [
-        #         #     np.array(sp.getData()).tolist()
-        #         #     for sp in self.graphics.scenery_sprites
-        #         # ],
-        #     }
-        #     now = str(datetime.now()).replace(" ", "-").replace(":", "-")
-        #     json.dump(state, open(f"state-{now}.json", "w"))

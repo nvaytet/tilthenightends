@@ -158,7 +158,6 @@ class Player:
         self.speed = data["speed"]
         self.vector = np.array(data["vector"])
         self.health = data["health"]
-        # self.weapon = arsenal[data["weapon"]["name"].lower()](owner=self)
         self.weapon.from_dict(data["weapon"])
         self.levels = data["levels"]
         self.respawn_time = data["respawn_time"]

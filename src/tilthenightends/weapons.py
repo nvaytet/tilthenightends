@@ -21,21 +21,6 @@ class WeaponInfo:
     longevity: float
 
 
-# @dataclass(frozen=True)
-# class ProjectileInfo:
-#     position: np.ndarray
-#     vector: np.ndarray
-#     speed: float
-#     tstart: float
-#     tend: float
-#     health: float
-#     attack: float
-#     radius: float
-#     owner: str
-#     healing: float = 0.0
-#     freeze: float = 0.0
-
-
 class Projectile:
     def __init__(
         self,
@@ -80,34 +65,6 @@ class Projectile:
             "healing": self.healing,
             "freeze": self.freeze,
         }
-
-    # def from_dict(self, data):
-    #     self.position = data["position"]
-    #     self.vector = data["vector"]
-    #     self.speed = data["speed"]
-    #     self.tstart = data["tstart"]
-    #     self.tend = data["tend"]
-    #     self.health = data["health"]
-    #     self.attack = data["attack"]
-    #     self.radius = data["radius"]
-    #     self.owner = data["owner"]
-    #     self.healing = data["healing"]
-    #     self.freeze = data["freeze"]
-
-    # def as_info(self):
-    #     return ProjectileInfo(
-    #         position=self.position,
-    #         vector=self.vector,
-    #         speed=self.speed,
-    #         tstart=self.tstart,
-    #         tend=self.tend,
-    #         health=self.health,
-    #         attack=self.attack,
-    #         radius=self.radius,
-    #         owner=self.owner.name,
-    #         healing=self.healing,
-    #         freeze=self.freeze,
-    #     )
 
 
 class Weapon:
@@ -449,7 +406,6 @@ class Dove(Weapon):
             owner=self.owner,
             phi=phi,
         )
-        # proj.phi = phi
         self.projectiles.append(proj)
 
         self.draw_sprites()

@@ -51,8 +51,6 @@ class Monsters:
         self.attacks = np.full(self.size, bestiary[kind]["attack"])
         self.radii = np.full(self.size, bestiary[kind]["radius"])
         self.freezes = np.zeros(self.size)
-
-        # self.speed = bestiary[kind]["speed"]
         self.speed = max(20.0, distance / config.time_limit)
         self.xp = bestiary[kind]["health"]
 
@@ -79,12 +77,7 @@ class Monsters:
             positions1[:, 0] = r * np.cos(theta)
             positions1[:, 1] = r * np.sin(theta)
             offsets = config.rng.normal(
-                # scale=config.rng.uniform(
-                #     self.scale * 0.05, self.scale * 0.2, n2
-                # ).reshape(-1, 1, 1),
-                scale=0.05 * self.scale,
-                loc=0,
-                size=(n2, n1, 2),
+                scale=0.05 * self.scale, loc=0, size=(n2, n1, 2)
             )
 
             pos = positions1 + offsets

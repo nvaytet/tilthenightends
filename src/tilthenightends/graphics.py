@@ -176,17 +176,3 @@ class Graphics:
 
     def set_hero(self, hero):
         self.hero = hero
-
-    # def update(self):
-    #     dx, dy = 0.0, 0.0
-    #     if QtCore.Qt.Key_Left in self.window.pressed_keys:
-    #         dx -= 1.0
-    #     if QtCore.Qt.Key_Right in self.window.pressed_keys:
-    #         dx += 1.0
-    #     if QtCore.Qt.Key_Up in self.window.pressed_keys:
-    #         dy += 1.0
-    #     if QtCore.Qt.Key_Down in self.window.pressed_keys:
-    #         dy -= 1.0
-
-    #     if self.hero is not None:
-    #         self.hero.vector = np.array([dx, dy])
