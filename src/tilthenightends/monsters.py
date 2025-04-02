@@ -8,27 +8,27 @@ from .graphics import make_sprites
 
 
 bestiary = {
-    "bat": {"health": 10.0, "attack": 5.0, "speed": 20.0, "radius": 15.0},
-    "rottingghoul": {"health": 20.0, "attack": 10.0, "speed": 18.0, "radius": 15.0},
-    "warewolf": {"health": 20.0, "attack": 20.0, "speed": 20.0, "radius": 15.0},
-    "giantbat": {"health": 60.0, "attack": 40.0, "speed": 20.0, "radius": 30.0},
-    "thereaper": {"health": 150.0, "attack": 50.0, "speed": 15.0, "radius": 50.0},
-    "zombie": {"health": 10.0, "attack": 5.0, "speed": 20.0, "radius": 15.0},
-    "lizard": {"health": 20.0, "attack": 10.0, "speed": 18.0, "radius": 15.0},
-    "sigrarossi": {"health": 20.0, "attack": 20.0, "speed": 20.0, "radius": 15.0},
-    "orochimario": {"health": 60.0, "attack": 40.0, "speed": 20.0, "radius": 30.0},
-    "mantis": {"health": 150.0, "attack": 50.0, "speed": 15.0, "radius": 50.0},
-    "skeleton": {"health": 10.0, "attack": 5.0, "speed": 20.0, "radius": 15.0},
-    "mamba": {"health": 20.0, "attack": 10.0, "speed": 18.0, "radius": 15.0},
-    "volcano": {"health": 20.0, "attack": 20.0, "speed": 50.0, "radius": 15.0},
-    "snake": {"health": 60.0, "attack": 40.0, "speed": 20.0, "radius": 30.0},
-    "minotaur": {"health": 150.0, "attack": 50.0, "speed": 15.0, "radius": 50.0},
-    "ghost": {"health": 10.0, "attack": 5.0, "speed": 20.0, "radius": 15.0},
-    "molisano": {"health": 20.0, "attack": 10.0, "speed": 18.0, "radius": 15.0},
-    "swordgardian": {"health": 20.0, "attack": 20.0, "speed": 30.0, "radius": 15.0},
-    "thehag": {"health": 60.0, "attack": 40.0, "speed": 20.0, "radius": 30.0},
-    "medusa": {"health": 150.0, "attack": 50.0, "speed": 15.0, "radius": 50.0},
-    "thedrowner": {"health": 300.0, "attack": 100.0, "speed": 15.0, "radius": 100.0},
+    "bat": {"health": 10.0, "attack": 5.0, "radius": 15.0},
+    "rottingghoul": {"health": 20.0, "attack": 10.0, "radius": 15.0},
+    "warewolf": {"health": 20.0, "attack": 20.0, "radius": 15.0},
+    "giantbat": {"health": 60.0, "attack": 40.0, "radius": 30.0},
+    "thereaper": {"health": 150.0, "attack": 50.0, "radius": 50.0},
+    "zombie": {"health": 10.0, "attack": 5.0, "radius": 15.0},
+    "lizard": {"health": 20.0, "attack": 10.0, "radius": 15.0},
+    "sigrarossi": {"health": 20.0, "attack": 20.0, "radius": 15.0},
+    "orochimario": {"health": 60.0, "attack": 40.0, "radius": 30.0},
+    "mantis": {"health": 150.0, "attack": 50.0, "radius": 50.0},
+    "skeleton": {"health": 10.0, "attack": 5.0, "radius": 15.0},
+    "mamba": {"health": 20.0, "attack": 10.0, "radius": 15.0},
+    "volcano": {"health": 20.0, "attack": 20.0, "radius": 15.0},
+    "snake": {"health": 60.0, "attack": 40.0, "radius": 30.0},
+    "minotaur": {"health": 150.0, "attack": 50.0, "radius": 50.0},
+    "ghost": {"health": 10.0, "attack": 5.0, "radius": 15.0},
+    "molisano": {"health": 20.0, "attack": 10.0, "radius": 15.0},
+    "swordgardian": {"health": 20.0, "attack": 20.0, "radius": 15.0},
+    "thehag": {"health": 60.0, "attack": 40.0, "radius": 30.0},
+    "medusa": {"health": 150.0, "attack": 50.0, "radius": 50.0},
+    "thedrowner": {"health": 300.0, "attack": 100.0, "radius": 100.0},
 }
 
 
@@ -52,7 +52,8 @@ class Monsters:
         self.radii = np.full(self.size, bestiary[kind]["radius"])
         self.freezes = np.zeros(self.size)
 
-        self.speed = bestiary[kind]["speed"]
+        # self.speed = bestiary[kind]["speed"]
+        self.speed = max(20.0, distance / config.time_limit)
         self.xp = bestiary[kind]["health"]
 
         self.kind = kind
