@@ -173,25 +173,25 @@ class Player:
             self.max_health *= 1.05
             self.levels["health"] += 1
         elif what == LevelupOptions.player_speed:
-            self.speed += 1.0
+            self.speed += 1.5
             self.levels["speed"] += 1
         elif what == LevelupOptions.weapon_health:
             self.weapon.health *= 1.05
             self.levels["weapon_health"] += 1
         elif what == LevelupOptions.weapon_speed:
-            self.weapon.speed += 1.0
+            self.weapon.speed *= 1.02
             self.levels["weapon_speed"] += 1
         elif what == LevelupOptions.weapon_damage:
             self.weapon.damage *= 1.02
             self.levels["weapon_damage"] += 1
         elif what == LevelupOptions.weapon_cooldown:
-            self.weapon.cooldown *= 0.9
+            self.weapon.cooldown *= 0.95
             self.levels["weapon_cooldown"] += 1
         elif what == LevelupOptions.weapon_size:
             if self.weapon.name == "LightningBolt":
                 self.weapon.nprojectiles += 1
             else:
-                self.weapon.radius *= 1.10
+                self.weapon.radius *= 1.05
             self.levels["weapon_size"] += 1
         elif what == LevelupOptions.weapon_longevity:
             self.weapon.longevity *= 1.05

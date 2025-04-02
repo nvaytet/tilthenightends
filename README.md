@@ -65,12 +65,12 @@ Survive as long as possible.
 | Levelup option | Effect |
 | --- | --- |
 | `player_health` | `max_health * 1.05` |
-| `player_speed` | `speed + 1` |
+| `player_speed` | `speed + 1.5` |
 | `weapon_health` | `weapon_health * 1.05` |
-| `weapon_speed` | `weapon_speed + 1` |
+| `weapon_speed` | `weapon_speed * 1.02` |
 | `weapon_damage` | `weapon_damage * 1.02` |
-| `weapon_cooldown` | `weapon_cooldown * 0.9` |
-| `weapon_size` | `radius * 1.10` |
+| `weapon_cooldown` | `weapon_cooldown * 0.95` |
+| `weapon_size` | `radius * 1.05` |
 | `weapon_longevity` | `weapon_longevity * 1.05` |
 
 ### Four worlds
