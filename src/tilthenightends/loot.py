@@ -25,7 +25,7 @@ class Loot:
 
         if kind == "treasure":
             r = np.linalg.norm(self.positions, axis=1)
-            self.xp = r * 0.05
+            self.xp = r * 0.5
         else:
             self.xp = np.zeros(size)
 
