@@ -142,14 +142,17 @@ Depending on the number of teams:
 
 ## Tips
 
-### Restart from previous state (experimental)
+### Speedup (at your own risk!)
 
-- When closing the game window, the code will dump the current state to a json file.
-- You can restart the game from there, by specifying `restart=<FILENAME>.json`, or `restart=-1` to restart from the last file in the current folder.
+- Use `speedup=2` to increase the game execution speed (there are no guarantees for reproducibility)
 
 ### XP cheat
 
 - You can boost the XP gained by using e.g. `xp_cheat=5` (this will obviously be forced to 1 during the tournament).
+
+### Hide scenery
+
+- Use `show_scenery=False` to hide the scenery for better performance
 
 ## Acknowledgements
 
