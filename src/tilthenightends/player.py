@@ -195,6 +195,8 @@ class Player:
         elif what == LevelupOptions.weapon_longevity:
             self.weapon.longevity *= 1.05
             self.levels["weapon_longevity"] += 1
+        elif what is not None:
+            raise ValueError(f"Unknown levelup option: {what}")
 
         # Healing bonus for leveling up
         self.health = self.max_health
