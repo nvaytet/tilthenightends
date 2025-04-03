@@ -495,7 +495,7 @@ class FrozenShard(Weapon):
             speed=400.0,
             health=np.inf,
             longevity=5,
-            radius=16,
+            radius=40,
             **kwargs,
         )
 

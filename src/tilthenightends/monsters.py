@@ -51,7 +51,7 @@ class Monsters:
         self.attacks = np.full(self.size, bestiary[kind]["attack"])
         self.radii = np.full(self.size, bestiary[kind]["radius"])
         self.freezes = np.zeros(self.size)
-        self.speed = max(20.0, distance / config.time_limit)
+        self.speed = max(20.0, distance / config.time_limit * 0.75)
         self.xp = bestiary[kind]["health"]
 
         self.kind = kind

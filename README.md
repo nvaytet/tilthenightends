@@ -38,7 +38,7 @@ Survive as long as possible.
 | ![Screenshot_20250208_222845_2](https://github.com/user-attachments/assets/556a3896-6f53-4cb2-a0ff-93828b354219) | Dove: Circles around the hero | 4 | 12 | 2 (angular) | 10 | 5 | 15 |
 | ![Screenshot_20250208_222919_2](https://github.com/user-attachments/assets/c05295ee-9c4f-4535-a1ce-729e083415da) | Holy Water: Splashes at a random location close to the hero, heals friends | 4 | 5 | 0 | 50 | 8 | 40 |
 | ![Screenshot_20250208_222931_2](https://github.com/user-attachments/assets/8078b2d0-50c2-458b-83e3-c9374eb695bd) | Lightning Bolt: Flashes at random location close to the hero, grows rapidly in size | 4 | 15 | 0 | 1 | 0.3 | 32 |
-| ![Screenshot_20250208_222941_2](https://github.com/user-attachments/assets/34300f44-388c-48c4-98c0-f642a31eea78) | Frozen Shard: Travels fast, freezes enemies for a time = longevity | 4 | 0 | 400 | inf | 5 | 16 |
+| ![Screenshot_20250208_222941_2](https://github.com/user-attachments/assets/34300f44-388c-48c4-98c0-f642a31eea78) | Frozen Shard: Travels fast, freezes enemies for a time = longevity | 4 | 0 | 400 | inf | 5 | 40 |
 | ![Screenshot_20250208_222948_2](https://github.com/user-attachments/assets/b31c9d28-9e28-44cb-8fb4-e9dbaf834be6) | Proximity Mine: Stays put, deals a lot of damage | 5 | 100 | 0 | 1 | 20 | 16 |
 | ![Screenshot_20250208_222958_2](https://github.com/user-attachments/assets/339fd24d-b428-476f-8713-517db5af08dc) | Plasma Gun: 5 projectiles travel outwards in a star-like pattern | 5 | 10 | 100 | 1 | 5 | 8 |
 | ![Screenshot_20250208_223008_2](https://github.com/user-attachments/assets/ee8c7a8d-4577-476b-a0d8-ab5f9ad22488) | Garlic: Creates a circular shield around the hero | 4 | 8 | 0 | 20 | 6 | 40 |
